@@ -1,6 +1,8 @@
 # PrepGenius
 
 PrepGenius is an AI-powered educational platform that provides personalized learning experiences through quizzes and lessons. The application is designed to adapt to the user's learning pace and offers multilingual support.
+# work Flow :
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/board/NjQIIfOInI7Cn0VGMOmMFm/PrepGenius-WorkFlow?node-id=0-1&embed-host=share" allowfullscreen></iframe>
 
 ## Features
 
