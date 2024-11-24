@@ -37,7 +37,7 @@ PrepGenius is an AI-powered educational platform that provides personalized lear
   - YouTube Data API
 
 - **Storage**: 
-  - AWS S3 / Google Cloud Storage
+  - Google Cloud Storage
 
 - **Deployment**: 
   -Vercel
@@ -54,7 +54,7 @@ PrepGenius is an AI-powered educational platform that provides personalized lear
 
 1. **Clone the repository**:
     ```bash
-   git clone https://github.com/saadmbt/PrepGenius.git
+   git clone https://github.com/saadmbt/PrepGenius-.git
    cd PrepGenius
 2-**Set up the backend**:
      Navigate to the server directory:
