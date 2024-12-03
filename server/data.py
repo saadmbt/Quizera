@@ -7,6 +7,7 @@ userDa = {
 }
 
 lesson = {
+    "id": 1,
     "content": "Introduction to JavaScript",
     "lesson-url": "https://example.com/lessons/javascript-intro",
     "language": "English",
@@ -14,6 +15,7 @@ lesson = {
 }
 
 quizz = {
+    "id":1,
     "questinId": "quiz123",
     "questions": ["What is JavaScript?", "Explain closures in JavaScript."],
     "type": "multiple-choice",
@@ -22,6 +24,7 @@ quizz = {
 }
 
 quizzResult = {
+    "id": 1,
     "userId": "user123",
     "quizId": "quiz123",
     "score": 85,

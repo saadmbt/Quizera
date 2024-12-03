@@ -4,7 +4,7 @@ import base64
 from docx import Document
 from image_Handling import get_file_type,extract_text_from_image64base
 
-fileT='./files/test2.pdf'
+fileT='./files/test.pdf'
 def extract_text_from_pdf(file):
     # Open the pdf file using fitz
     doc = fitz.open(file)
@@ -75,7 +75,6 @@ def file_handler(file):
         return print('file type not supported')
 
 
-file_handler(fileT)
 
 
 

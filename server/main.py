@@ -16,6 +16,10 @@ def index():
 def uplaod_file():
     # Get the uploaded file
     file = request.files['file']
+    # save the file to the local folder
+    file.save(os.path.join(os.getcwd(), 'uploads', file))
+    # file  handller 
+    
     # Save the file to the googel cloud 
     return 'hello'
 if __name__ =="__main__":

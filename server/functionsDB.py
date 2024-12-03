@@ -2,8 +2,7 @@ from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
-from data import userDa
-from flask import jsonify
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -16,93 +15,117 @@ db = client[mongodb_name]
 def insert_users(user_data):
     try:
         collection = db["users"]
-        user = user_data
-        result = collection.insert_one(user)
-        #  return User inserted  ID:
-        return jsonify({"message": "User created successfully", "id": result.inserted_id}),
+        # Check if the user already exists
+        existing_user = collection.find_one({'username': user_data["username"]})
+        if existing_user:
+            return "error : User already exists"
+
+        # If user does not exist, insert the new user
+        result=collection.insert_one(user_data)
+        return result.inserted_id
+        
     except PyMongoError as e:
-        return jsonify({"error": "Error inserting user" ,"details":str(e)}), 500
+            return f"Error : fetching user :{str(e)}"
 
 def Fetch_user(user_id):
     try:
         collection = db["users"]
         user = collection.find_one({"_id": user_id})
         if user is None:
-            return jsonify({"error": "User not found"}), 404
+            return "error : User not found"
         else :
-            return jsonify({"user": user}), 200
+            return user
     except PyMongoError as e:
-        return jsonify({"error": "Error fetching user" ,"details":str(e)}), 500
+        return f"Error : fetching user {str(e)}"
 
 def insert_Lessons(lesson_obj):
     try:
         collection=db["lessons"]
         lesson=lesson_obj
+        existing_Lesson = collection.find_one({'id': lesson["id"]})
         # {"content":,"lesson-url":,"language":,"createdAt":}
+        if existing_Lesson:
+            return "error : lesson already exist"
+        
         result=collection.insert_one(lesson)
-        return jsonify({"message": "Lesson created successfully", "id": result.inserted_id}),
+        return result.inserted_id
+
     except PyMongoError as e :
-        return jsonify({"error": "Error inserting lesson" ,"details":str(e)}), 500
+        return f"Error : inserting lesson {str(e)}"
+    
 def Fetch_Lesson(lesson_id):
     try :
         collection=db["lessons"]
         lesson=collection.find_one({"_id": lesson_id})
         if lesson is None:
-            return jsonify({"error": "Lesson not found"}), 404
+            return "error :Lesson not found"
         else :
-            return jsonify({"lesson": lesson}), 200
+            return lesson
     except PyMongoError as e :
-        return jsonify({"error": "Error fetching lesson" ,"details":str(e)}), 500
+        return  f"Error fetching lessondetails{str(e)}"
 
 def Fetch_All_Lessons():
     try :
         # return all the lessons in the db
         collection=db["lessons"]
         lessons=list(collection.find())
-        return jsonify({"lessons": lessons}), 200
+        return lessons
     except PyMongoError as e :
-        return jsonify({"error": "Error fetching lessons" ,"details":str(e)}), 500
+        return f"Error fetching lessons{str(e)}"
 
 def insert_Quizzes(Quiz_data):
     try:
         collection=db["quizzes"]
         quiz=Quiz_data
+        existing_quiz = collection.find_one({'username': quiz["id"]})
+        if existing_quiz:
+            return "error : quiz already exist"
         # Quiz_data formt :{"questinId":,"questions":,"type":,"createdAt":,"updatedAt":}
         result=collection.insert_one(quiz)
-        return jsonify({"message": "Quiz created successfully", "id": result.inserted_id}),
+        return result.inserted_id
     except PyMongoError as e :
-        return jsonify({"error": "Error inserting quiz" ,"details":str(e)}), 500
+        return f"Error inserting quiz {str(e)}"
     
 def Fetch_Quizzes(Quiz_id):
     try :
         collection=db["quizzes"]
         quiz=collection.find_one({"_id": Quiz_id})
         if quiz is None:
-            return jsonify({"error": "Quiz not found"}), 404
+            return "error : Quiz not found"
         else :
-            return jsonify({"quiz": quiz}), 200
+            return quiz
     except PyMongoError as e :
-        return jsonify({"error": "Error fetching quiz" ,"details":str(e)}), 500
+        return f"Error : fetching quiz {str(e)}"
 
 def insertquizzResults(Quiz_res):
     try:
         collection=db["quizzResult"]
         quizzResult=Quiz_res
+        existing_quiz = collection.find_one({'username': quizzResult["id"]})
+        if existing_quiz:
+            return "error : quizResult already exist"
         #Quiz_res formt should be like : {"userId":,"quizId":,"score":,"attemptDate":,"updatedAt":}
         result=collection.insert_one(quizzResult)
-        return jsonify({"message": "Quiz result created successfully", "id": result.inserted_id})
+        return result.inserted_id
     except PyMongoError as e:
-        return jsonify({"error": "Error inserting quiz result" ,"details":str(e)}),500
+        return f"Error: inserting quiz result {str(e)}"
 
 def FetchquizzeResults(Quiz_res_id):
     try :
         collection=db["quizzResult"]
         quiz_res=collection.find_one({"_id": Quiz_res_id})
         if quiz_res is None:
-            return jsonify({"error": "Quiz result not found"}), 404
+            return f"error : Quiz result not found "
         else :
-            return jsonify({"quiz_result": quiz_res}), 200
+            return quiz_res
     except PyMongoError as e :
-        return jsonify({"error": "Error fetching quiz result" ,"details":str(e)}),
+        return f"Error fetching quiz result :{str(e)}" 
     
-
+def lastID(collection_name):
+    try:
+        collection = db[collection_name]
+        last_document = collection.find_one(sort=[("id", -1)])
+        return last_document['id'] if last_document else None
+    except PyMongoError as e:
+        return f"Error fetching last id: {str(e)}"
+            
