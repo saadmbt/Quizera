@@ -59,9 +59,10 @@ def file_handler(file):
         final_text=ex_text
         ex_images=extract_images_from_pdf(file)
         print(len(ex_images))
-        for img in ex_images :
-            img_text=extract_text_from_image64base(img,type="png")
-            final_text+="\n"+img_text
+        if len(ex_images)>0:
+            for img in ex_images :
+                img_text=extract_text_from_image64base(img,type="png")
+                final_text+="\n"+img_text
 
         return print(final_text)
     elif file_type == 'docx':
