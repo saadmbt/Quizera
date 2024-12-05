@@ -22,11 +22,15 @@ def get_file_type(file_path):
     # Return the corresponding image type or None if not found
     return file.get(ext, None)
 
+# Function to encode the image
+def encode_image(image_path):
+  with open(image_path, "rb") as image_file:
+    return base64.b64encode(image_file.read()).decode('utf-8')
+
 # Load environment variables from .env file
 load_dotenv()
 api_key=os.environ.get("OCR_API")  
 
-# Getting the base64 string
 
 def extract_text_from_image64base(file,type):
     payload = {'isOverlayRequired': True,
@@ -42,3 +46,15 @@ def extract_text_from_image64base(file,type):
                             }
                             )
     return response.json().get('ParsedResults')[0].get('ParsedText', '')
+
+def image_handler(image):
+    # Getting the base64 string of the image
+    image_64b=encode_image(image)
+    # Getting the type of the image
+    image_type=get_file_type(image)
+    # Extracting the text from the image
+    text=extract_text_from_image64base(image_64b,image_type)
+    return text
+
+# image='./files/ex11.png'
+# print(image_handler(image))

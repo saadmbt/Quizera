@@ -16,7 +16,7 @@ def insert_users(user_data):
     try:
         collection = db["users"]
         # Check if the user already exists
-        existing_user = collection.find_one({'username': user_data["username"]})
+        existing_user = collection.find_one({'id': user_data["id"]})
         if existing_user:
             return "error : User already exists"
 
@@ -77,7 +77,7 @@ def insert_Quizzes(Quiz_data):
     try:
         collection=db["quizzes"]
         quiz=Quiz_data
-        existing_quiz = collection.find_one({'username': quiz["id"]})
+        existing_quiz = collection.find_one({'id': quiz["id"]})
         if existing_quiz:
             return "error : quiz already exist"
         # Quiz_data formt :{"questinId":,"questions":,"type":,"createdAt":,"updatedAt":}
@@ -101,7 +101,7 @@ def insertquizzResults(Quiz_res):
     try:
         collection=db["quizzResult"]
         quizzResult=Quiz_res
-        existing_quiz = collection.find_one({'username': quizzResult["id"]})
+        existing_quiz = collection.find_one({'id': quizzResult["id"]})
         if existing_quiz:
             return "error : quizResult already exist"
         #Quiz_res formt should be like : {"userId":,"quizId":,"score":,"attemptDate":,"updatedAt":}

@@ -49,33 +49,60 @@ def extract_images_from_pdf(pdf_path):
      return images
 
 def file_handler(file):
-    # Get the file path from the api
-    # Get the type from file 
-    file_type=get_file_type(file)
-    print(file_type,'lien :55')
+    import mimetypes
+import fitz
+import base64
+from docx import Document
+from image_Handling import get_file_type, extract_text_from_image64base
+
+def extract_text_from_pdf(file):
+    """Extract text from a PDF file."""
+    doc = fitz.open(file)
+    text_content = [page.get_text("text") for page in doc]
+    return "\n".join(text_content)
+
+def extract_text_from_txtfile(file):
+    """Extract text from a text file."""
+    with open(file, 'r', encoding='utf-8') as filetxt:
+        return filetxt.read()
+
+def extract_text_from_docx(file):
+    """Extract text from a docx file."""
+    doc = Document(file)
+    return "\n".join([paragraph.text for paragraph in doc.paragraphs])
+
+def extract_images_from_pdf(pdf_path):
+    """Extract images from a PDF file."""
+    document = fitz.open(pdf_path)
+    images = []
+    for page_num in range(len(document)):
+        page = document.load_page(page_num)
+        images_list = page.get_images(full=True)
+        for img_index, img in enumerate(images_list, start=1):
+            xref = img[0]
+            base_image = document.extract_image(xref)
+            image_bytes = base_image["image"]
+            base64_image = base64.b64encode(image_bytes).decode('utf-8')
+            images.append(base64_image)
+    return images
+
+def file_handler(file_path):
+    """Handle different file types and extract text."""
+    file_type = get_file_type(file_path)
+    print(file_type)
     if file_type == 'pdf':
-        #Handle pdf file
-        ex_text=extract_text_from_pdf(file)
-        final_text=ex_text
-        ex_images=extract_images_from_pdf(file)
-        print(len(ex_images))
-        if len(ex_images)>0:
-            for img in ex_images :
-                img_text=extract_text_from_image64base(img,type="png")
-                final_text+="\n"+img_text
-
-        return print(final_text)
+        ex_text = extract_text_from_pdf(file_path)
+        final_text = ex_text
+        ex_images = extract_images_from_pdf(file_path)
+        if ex_images:
+            for img in ex_images:
+                img_text = extract_text_from_image64base(img, type="png")
+                final_text += "\n" + + img_text
+        return final_text
     elif file_type == 'docx':
-        # Handle docx file
-        ex_text=extract_text_from_docx(file)
-        return ex_text
-    elif file_type=='txt':
-        ex_text=extract_text_from_txtfile(file)
-        return ex_text
+        return extract_text_from_docx(file_path)
+    elif file_type == 'txt':
+        return extract_text_from_txtfile(file_path)
     else:
-        return print('file type not supported')
-
-
-
-
+        return 'file type not supported'
 
