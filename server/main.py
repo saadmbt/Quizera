@@ -4,56 +4,75 @@ from flask_jwt_extended import (
 )
 from bson.json_util import dumps
 from bson.objectid import ObjectId
-from datetime import datetime, timedelta
-
-# Import MongoDB utilities
+from datetime import datetime, timedelta,timezone
 from dotenv import load_dotenv
-from pymongo.errors import PyMongoError
-
+import os
+import bcrypt
 from functionsDB import (
-    insert_users, Fetch_user, insert_Lessons, Fetch_Lesson, 
+    insert_user, Fetch_user, insert_Lessons, Fetch_Lesson, 
     Fetch_All_Lessons, insert_Quizzes, Fetch_Quizzes,
     insertquizzResults, FetchquizzeResults, lastID
 )
 
 app = Flask(__name__)
 
+# Load credentials from environment variables
+load_dotenv()
 # JWT Configuration
-app.config["JWT_SECRET_KEY"] = "your-secret-key"
+app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_TOKEN_SECRET')
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 jwt = JWTManager(app)
+
+# function  to create JWT token 
+def create_token(user_identity):
+    access_token = create_access_token(identity=user_identity)
+    return access_token
 
 # User Management Endpoints
 
 @app.route('/api/signup', methods=['POST'])
 def signup():
     data = request.json
-    if not data or not all(k in data for k in ("username", "password")):
+    last_id=lastID("users")
+    if not data or not all(k in data for k in ("username","password","email")):
         return jsonify({"error": "Invalid input"}), 400
-
-    result = insert_users(data)
+     # Hash the password
+    hashed_password = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt())
+    # Insert the user into the database
+    user_data= {
+    "username": data["username"],
+    "id":last_id,
+    "email": data["email"],
+    "password": hashed_password,
+    "createdAt": datetime.now(timezone.utc).isoformat(),
+    }
+    result = insert_user(user_data)
     if "error" in str(result).lower():
-        return jsonify({"error": result}), 400
-
-    return jsonify({"message": "User created successfully", "user_id": str(result)}), 201
+        return jsonify({"error": result}), 401
+    access_token=create_token(str(result))
+    return jsonify({"message": "User created successfully", "access_token": access_token}), 201
 
 
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json()
-    user = Fetch_user(data.get("username"))
-    if "error" in str(user).lower() or user.get("password") != data.get("password"):
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    token = create_access_token(identity=user["username"])
-    return jsonify({"message": "Login successful", "token": token}), 200
+    user = Fetch_user(data["email"])
+    if "error" in str(user).lower() :
+        return jsonify({"error": str(user)}), 401
+    # check if the provided password matches the hashed password
+    is_valide= bcrypt.checkpw(data["password"].encode('utf-8'),user[["password"]])
+    if not is_valide:
+        return jsonify({"error": "Invalid password"}), 401
+    
+    access_token = create_token(str(user["_id"]))
+    return jsonify({"message": "Login successful", "access_token": access_token}), 200
 
 
 @app.route('/api/profile', methods=['GET'])
 @jwt_required()
 def profile():
-    username = get_jwt_identity()
-    user = Fetch_user(username)
+    user_ObjectId = get_jwt_identity()
+    user = Fetch_user(user_ObjectId)
     if "error" in str(user).lower():
         return jsonify({"error": user}), 404
 

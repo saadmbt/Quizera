@@ -11,14 +11,26 @@ mongodb_name=os.environ.get("MONGO_DB")
 # Connect to MongoDB
 client = MongoClient(mongodb_url)
 db = client[mongodb_name]
+# get the last id in any collection 
+def lastID(collection_name):
+    try:
+        collection = db[collection_name]
+        last_document = collection.find_one(sort=[("id", -1)])
+        id=last_document.get("id") if last_document else None
 
-def insert_users(user_data):
+        return id+1
+    except PyMongoError as e:
+        return f"Error fetching last id: {str(e)}"
+def insert_user(user_data):
     try:
         collection = db["users"]
         # Check if the user already exists
-        existing_user = collection.find_one({'id': user_data["id"]})
-        if existing_user:
-            return "error : User already exists"
+        existing_email = collection.find_one({'email': user_data["email"]})
+        if existing_email:
+            return "error : email already exists"
+        existing_username = collection.find_one({'username': user_data["username"]})
+        if existing_username:
+            return "error : Username already exists"
 
         # If user does not exist, insert the new user
         result=collection.insert_one(user_data)
@@ -27,10 +39,10 @@ def insert_users(user_data):
     except PyMongoError as e:
             return f"Error : fetching user :{str(e)}"
 
-def Fetch_user(user_id):
+def Fetch_user(user_email):
     try:
         collection = db["users"]
-        user = collection.find_one({"_id": user_id})
+        user = collection.find_one({"email": user_email})
         if user is None:
             return "error : User not found"
         else :
@@ -120,12 +132,3 @@ def FetchquizzeResults(Quiz_res_id):
             return quiz_res
     except PyMongoError as e :
         return f"Error fetching quiz result :{str(e)}" 
-    
-def lastID(collection_name):
-    try:
-        collection = db[collection_name]
-        last_document = collection.find_one(sort=[("id", -1)])
-        return last_document['id'] if last_document else None
-    except PyMongoError as e:
-        return f"Error fetching last id: {str(e)}"
-            
