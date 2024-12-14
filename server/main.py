@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import (
-    JWTManager, create_access_token, jwt_required, get_jwt_identity
+    JWTManager, create_access_token, jwt_required, get_jwt_identity,get_jwt
 )
 from bson.json_util import dumps
 from bson.objectid import ObjectId
@@ -35,7 +35,8 @@ def signup():
     data = request.json
     last_id=lastID("users")
     if not data or not all(k in data for k in ("username","password","email")):
-        return jsonify({"error": "Invalid input"}), 400
+        response=jsonify({"error": "Invalid input"})
+        return response, 400
      # Hash the password
     hashed_password = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt())
     # Insert the user into the database
@@ -48,35 +49,71 @@ def signup():
     }
     result = insert_user(user_data)
     if "error" in str(result).lower():
-        return jsonify({"error": result}), 401
+        response=jsonify({"error": result})
+        return response, 401
     access_token=create_token(str(result))
-    return jsonify({"message": "User created successfully", "access_token": access_token}), 201
+    response=jsonify({"message": "User created successfully", "access_token": access_token})
+    # Set the access token in a cookie
+    response.set_cookie(
+        'access_token', 
+        access_token, 
+        httponly=True,  # Prevent JavaScript access to the cookie
+        secure=True,    # Use secure cookies (only sent over HTTPS)
+        samesite='Lax'  # Helps prevent CSRF attacks
+    )
+    return response, 201
 
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    data = request.json()
-    user = Fetch_user(data["email"])
+    data = request.json
+    user = Fetch_user(data["email"],"email")
     if "error" in str(user).lower() :
-        return jsonify({"error": str(user)}), 401
+        response=jsonify({"error": str(user)})
+        return response, 401
     # check if the provided password matches the hashed password
-    is_valide= bcrypt.checkpw(data["password"].encode('utf-8'),user[["password"]])
+    is_valide= bcrypt.checkpw(data["password"].encode('utf-8'),user["password"])
     if not is_valide:
-        return jsonify({"error": "Invalid password"}), 401
+        response = jsonify({"error": "Invalid password"})
+        return response, 401
     
     access_token = create_token(str(user["_id"]))
-    return jsonify({"message": "Login successful", "access_token": access_token}), 200
+    response = jsonify({"message": "Login successful", "access_token": access_token})
+    # Set the access token in a cookie
+    response.set_cookie(
+        'access_token', 
+        access_token, 
+        httponly=True,  # Prevent JavaScript access to the cookie
+        secure=True,    # Use secure cookies (only sent over HTTPS)
+        samesite='Lax'  # Helps prevent CSRF attacks
+    )
+    return response, 200
 
 
 @app.route('/api/profile', methods=['GET'])
 @jwt_required()
 def profile():
     user_ObjectId = get_jwt_identity()
-    user = Fetch_user(user_ObjectId)
-    if "error" in str(user).lower():
-        return jsonify({"error": user}), 404
-
-    return jsonify(user), 200
+    user = Fetch_user(ObjectId(user_ObjectId),"objectid")
+    # Check if there was an error fetching the user
+    if isinstance(user, dict) and "error" in user:
+        response=jsonify({"error": user["error"]})
+        return response, 404
+    # Convert ObjectId fields to string for JSON
+    user["_id"] = str(user["_id"])
+    user["password"] = "None"
+    response = jsonify({"user": user})
+    return response, 200
+    
+# User Management Endpoints is done and tested 100% 
+# Next step is to implement the user management endpoints for the admin
+# This will include endpoints for creating, reading, updating, and deleting users
+# This will also include endpoints for managing user roles and permissions
+# and user notifications and alerts and user settings and preferences
+# and user analytics and insights and  user security and authentication
+# and user identity and access control and user data encryption and decryption
+# and user data backup and restore
+# add update mehode for access token 
 
 # Lesson Management Endpoints
 
@@ -135,9 +172,33 @@ def fetch_quiz(quiz_id):
     if "error" in str(quiz).lower():
         return jsonify({"error": quiz}), 404
 
-    return dumps(quiz), 200
+    return jsonify(quiz), 200
 
-# Additional Endpoints can be added in a similar fashion
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=20))
+        
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            data = response.json
+            if isinstance(data, dict):  # Check if the response data is a dictionary
+                data["access_token"] = access_token 
+                response.data = jsonify(data)  # Update the response data
+                response.content_type = "application/json"  # Ensure the content type is set to JSON
+                # Set the access token in a cookie
+                response.set_cookie(
+                    'access_token', 
+                    access_token, 
+                    httponly=True,  # Prevent JavaScript access to the cookie
+                    secure=True,    # Use secure cookies (only sent over HTTPS)
+                    samesite='Lax'  # Helps prevent CSRF attacks
+                )
+        return response
+    except (RuntimeError, KeyError):
+        return response
 
 if __name__ == "__main__":
     app.run(debug=True)

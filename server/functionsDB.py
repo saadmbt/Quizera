@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
+from bson.objectid import ObjectId
+
 
 
 # Load environment variables from .env file
@@ -39,10 +41,13 @@ def insert_user(user_data):
     except PyMongoError as e:
             return f"Error : fetching user :{str(e)}"
 
-def Fetch_user(user_email):
+def Fetch_user(user_Info,typeInfo):
     try:
         collection = db["users"]
-        user = collection.find_one({"email": user_email})
+        if typeInfo =="email":
+            user = collection.find_one({"email": user_Info})
+        if typeInfo =="objectid":
+            user = collection.find_one({"_id": user_Info})
         if user is None:
             return "error : User not found"
         else :
