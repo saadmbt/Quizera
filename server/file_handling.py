@@ -1,8 +1,8 @@
-import mimetypes
 import fitz
 import base64
+import os
 from docx import Document
-from image_Handling import get_file_type,extract_text_from_image64base
+from image_Handling import extract_text_from_image64base
 
 fileT='./files/test.pdf'
 def extract_text_from_pdf(file):
@@ -48,43 +48,22 @@ def extract_images_from_pdf(pdf_path):
             
      return images
 
-def file_handler(file):
-    import mimetypes
-import fitz
-import base64
-from docx import Document
-from image_Handling import get_file_type, extract_text_from_image64base
+# Function to get the file type
+def get_file_type(file_path):
+    #Get the file extension
+    _, ext = os.path.splitext(file_path)
+    
+    # Map extensions to file types
+    ALLOWEDd_EXTENSIONS = {
+        '.pdf': 'pdf',
+        '.docx': 'docx',
+        '.txt': 'txt',
+    }
+    
+    # Return the corresponding file type or None if not found
+    return ALLOWEDd_EXTENSIONS.get(ext, None)
 
-def extract_text_from_pdf(file):
-    """Extract text from a PDF file."""
-    doc = fitz.open(file)
-    text_content = [page.get_text("text") for page in doc]
-    return "\n".join(text_content)
-
-def extract_text_from_txtfile(file):
-    """Extract text from a text file."""
-    with open(file, 'r', encoding='utf-8') as filetxt:
-        return filetxt.read()
-
-def extract_text_from_docx(file):
-    """Extract text from a docx file."""
-    doc = Document(file)
-    return "\n".join([paragraph.text for paragraph in doc.paragraphs])
-
-def extract_images_from_pdf(pdf_path):
-    """Extract images from a PDF file."""
-    document = fitz.open(pdf_path)
-    images = []
-    for page_num in range(len(document)):
-        page = document.load_page(page_num)
-        images_list = page.get_images(full=True)
-        for img_index, img in enumerate(images_list, start=1):
-            xref = img[0]
-            base_image = document.extract_image(xref)
-            image_bytes = base_image["image"]
-            base64_image = base64.b64encode(image_bytes).decode('utf-8')
-            images.append(base64_image)
-    return images
+# the main function of handling files whiche should i import in the main file :
 
 def file_handler(file_path):
     """Handle different file types and extract text."""

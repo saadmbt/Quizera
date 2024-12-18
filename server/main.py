@@ -13,21 +13,24 @@ from functionsDB import (
     Fetch_All_Lessons, insert_Quizzes, Fetch_Quizzes,
     insertquizzResults, FetchquizzeResults, lastID
 )
+from main_functions import (create_token,check_request_body)
 
+from werkzeug.utils import secure_filename
+import firebase_admin
+from firebase_admin import credentials, auth
 app = Flask(__name__)
 
 # Load credentials from environment variables
 load_dotenv()
+# Initialize Firebase Admin
+cred = credentials.Certificate('path/to/your/serviceAccountKey.json')  # Update with your service account key path
+firebase_admin.initialize_app(cred)
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_TOKEN_SECRET')
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 jwt = JWTManager(app)
 
-# function  to create JWT token 
-def create_token(user_identity):
-    access_token = create_access_token(identity=user_identity)
-    return access_token
-
+      
 # User Management Endpoints
 
 @app.route('/api/signup', methods=['POST'])
@@ -116,19 +119,77 @@ def profile():
 # add update mehode for access token 
 
 # Lesson Management Endpoints
-
+ 
 @app.route('/api/upload', methods=['POST'])
 @jwt_required()
-def upload_lesson():
-    data = request.json
-    data['createdAt'] = datetime.utcnow()
-    data['id'] = lastID('lessons') + 1 if lastID('lessons') else 1
+def handle_theuploaded():
+    # check if the request body  is text or file or image
+    request_type=check_request_body()
+    New_id=lastID("lessons")
+    if request_type=="text":
+        # Get the data from the request body
+        lesson_obj={
+            "title":request.form["title"],
+            "id":New_id,
+            "author":get_jwt_identity(),
+            "content" :request.form['text'],
+            "uploadedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        # Save the text to the database
+        lesson = insert_Lessons(lesson_obj)
+        return jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson)}), 201
+    if request_type=="file":
+        # Processing  the file 
+        file=request.form['file']
+        # Secure the filename
+        filename = secure_filename(file.filename)
 
-    result = insert_Lessons(data)
-    if "error" in str(result).lower():
-        return jsonify({"error": result}), 400
+        # Get the data from the request body
+        lesson_obj={
+            "title":request.form["title"],
+            "id":New_id,
+            "author":get_jwt_identity(),
+            "content" :request.form['text'],
+            "uploadedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        # Save the text to the database
+        lesson = insert_Lessons(lesson_obj)
+        return jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson)}), 201 
+     
+    #case if the file is image
+    if request_type=="img":
+        # Get the data from the request body
+        lesson_obj={
+            "text" :request.form['text'],
+            "lang":request.form['language'],
+            "uploadedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        # Save the text to the database
+        lesson = insert_Lessons(lesson_obj)
+        return jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson)}), 201
 
-    return jsonify({"message": "Lesson uploaded successfully", "lesson_id": str(result)}), 201
+    # Get the uploaded file
+    file = request.files.get('file')
+    # Check if the file was uploaded
+    if not file:
+        return jsonify({"error": "No file was uploaded"}), 400
+    
+
+    #  #Process the uploaded file.
+    # data = request.json
+    # # Check if the file is a valid lesson file
+    # if not data["file"]:
+    #     response = jsonify({"error": "No file provided"})
+    #     return response, 400
+    
+    # data['createdAt'] = datetime.utcnow()
+    # data['id'] = lastID('lessons') + 1 if lastID('lessons') else 1
+
+    # result = insert_Lessons(data)
+    # if "error" in str(result).lower():
+    #     return jsonify({"error": result}), 400
+
+    # return jsonify({"message": "Lesson uploaded successfully", "lesson_id": str(result)}), 201
 
 
 @app.route('/api/lessons', methods=['GET'])
