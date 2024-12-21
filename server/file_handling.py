@@ -68,7 +68,6 @@ def get_file_type(file_path):
 def file_handler(file_path):
     """Handle different file types and extract text."""
     file_type = get_file_type(file_path)
-    print(file_type)
     if file_type == 'pdf':
         ex_text = extract_text_from_pdf(file_path)
         final_text = ex_text
@@ -77,11 +76,13 @@ def file_handler(file_path):
             for img in ex_images:
                 img_text = extract_text_from_image64base(img, type="png")
                 final_text += "\n" + + img_text
-        return final_text
+        return str(final_text)
     elif file_type == 'docx':
-        return extract_text_from_docx(file_path)
+        ex_text = extract_text_from_docx(file_path)
+        return str(ex_text)
     elif file_type == 'txt':
-        return extract_text_from_txtfile(file_path)
+        ex_text=extract_text_from_txtfile(file_path)
+        return str(ex_text)
     else:
         return 'file type not supported'
 

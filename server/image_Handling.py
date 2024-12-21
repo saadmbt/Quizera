@@ -41,7 +41,7 @@ def extract_text_from_image64base(file,type):
                             }
                             )
     return response.json().get('ParsedResults')[0].get('ParsedText', '')
-
+#the main function 
 def image_handler(image):
     # Getting the base64 string of the image
     image_64b=encode_image(image)

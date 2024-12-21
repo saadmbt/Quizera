@@ -81,7 +81,7 @@ def Fetch_Lesson(lesson_id):
     except PyMongoError as e :
         return  f"Error fetching lessondetails{str(e)}"
 
-def Fetch_All_Lessons():
+def Fetch_All_Lessons_byuser():
     try :
         # return all the lessons in the db
         collection=db["lessons"]
