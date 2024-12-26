@@ -179,8 +179,9 @@ def handle_theuploaded():
         # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
             url = save_to_dropbox(DropBox_Access_Token,image,imagename)
-            # Proccess the file 
-            image_extracted_text=image_handler(image)
+            # Proccess the file
+            image_content=image.read()
+            image_extracted_text=image_handler(image_content)
             # Get the data from the request body
             lesson_obj={
                 "title":request.form["title"],
@@ -308,21 +309,23 @@ def test ():
         # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
             url = save_to_dropbox(DropBox_Access_Token,file,filename)
+            print("l 311",url)
             # Proccess the file 
-            file_extracted_text=file_handler(file)
+            file_content = file.read()
+            file_extracted_text=file_handler(file_content)
             # Get the data from the request body
             lesson_obj={
                 "title":request.form["title"],
                 "id":New_id,
                 "author":"saad",
                 "content" :file_extracted_text,
-                "lesson_save_link":str(url),
+                "lesson_save_link":url,
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
             }
             # Save the dictionary Lesson to the database
             lesson_objid = insert_Lessons(lesson_obj)
             response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
-            return response, 201 
+            return response, 200
         except Exception as e:
             response=jsonify({"error file": str(e)})
             return response, 400
@@ -336,8 +339,10 @@ def test ():
         # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
             url = save_to_dropbox(DropBox_Access_Token,image,imagename)
-            # Proccess the file 
-            image_extracted_text=image_handler(image)
+            # Proccess the file
+            image_content = image.read()
+            image.seek(0)
+            image_extracted_text=image_handler(image_content)
             # Get the data from the request body
             lesson_obj={
                 "title":request.form["title"],
@@ -355,7 +360,6 @@ def test ():
             return jsonify({"error image": str(e)}), 400
     else:
         return jsonify({"error": "Invalid request type"}), 400
-#     eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTczNDc4NTU0NywianRpIjoiYTYyNmJiNjYtMjc3Yy00MGJiLTgxYjktZDQxMTdmYjQ1YjUyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYxY3ZCUmVDcDdoTUxFNjVRYjNjeE0zYThmMzIiLCJuYmYiOjE3MzQ3ODU1NDcsImNzcmYiOiJkZTMzYjI5MC1iNmIyLTQ3YWMtODRlZC0xNTQ3NGMyNzgwM2IiLCJleHAiOjE3MzQ3ODkxNDd9.y_uiIJgyC9UmVkhFCnwEtyt8_0qHyyL98at6gJUvW6E
 #     "filetype": "ImmutableMultiDict([('upload', <FileStorage: 'APIPresentation.pdf' ('application/pdf')>)])",
 #     "message": "File uploaded successfully"
 # }
