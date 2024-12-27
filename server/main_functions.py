@@ -1,8 +1,11 @@
 from flask import request
 from flask_jwt_extended import create_access_token, get_jwt_identity
 import os
+from dotenv import load_dotenv
 import dropbox
-
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+# Load credentials from environment variables
+load_dotenv()
 # function to save the file or image to the Dropbox storage and returns the shared link
 def save_to_dropbox(access_token, file, filename):
     dropbox_path = '/' + filename 
@@ -89,3 +92,27 @@ def refresh_token():
     current_user = get_jwt_identity()
     new_access_token = create_access_token(identity=current_user)
     return str(new_access_token)
+
+# function to save the file or image to the Azure Blob storage and returns the shared link
+def save_to_azure_storage(file, filename):
+    # Load Azure Storage connection string from environment variables
+    connection_string = os.environ.get('AZURE_STORAGE_CONNECTION_STRING')
+    
+    # Create a BlobServiceClient
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    container_name = "mycontainer" 
+    container_client = blob_service_client.get_container_client(container_name)
+    # Create a BlobClient
+    blob_client = container_client.get_blob_client(filename)
+
+    # Upload the file to Azure Blob Storage
+    try:
+        blob_client.upload_blob(file, overwrite=True)
+        print(f"File {filename} uploaded to Azure Blob Storage.")
+        
+        # Generate the URL for the uploaded file
+        blob_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/{filename}"
+        return blob_url
+    except Exception as e:
+        print(f"Error uploading file: {e}")
+        return {"error": str(e)}

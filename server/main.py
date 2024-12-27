@@ -13,7 +13,7 @@ from functionsDB import (
     Fetch_All_Lessons_byuser, insert_Quizzes, Fetch_Quizzes,
     insertquizzResults, FetchquizzeResults, lastID
 )
-from main_functions import (save_to_dropbox,create_token,check_request_body,get_file_type)
+from main_functions import (save_to_azure_storage,create_token,check_request_body,get_file_type)
 from file_handling import file_handler
 from image_Handling import image_handler
 from werkzeug.utils import secure_filename
@@ -82,7 +82,7 @@ def login():
             # secure=True,    # Use secure cookies (only sent over HTTPS)
             # samesite='Lax'  # Helps prevent CSRF attacks
         )
-        return response, 200
+        return response, 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -150,7 +150,7 @@ def handle_theuploaded():
         filename = secure_filename(file.filename)
         # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
-            url = save_to_dropbox(DropBox_Access_Token,file,filename)
+            url = save_to_azure_storage(file,filename)
             # Proccess the file 
             file_extracted_text=file_handler(file)
             # Get the data from the request body
@@ -178,7 +178,7 @@ def handle_theuploaded():
         imagename = secure_filename(image.filename)
         # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
-            url = save_to_dropbox(DropBox_Access_Token,image,imagename)
+            url = save_to_azure_storage(image,imagename)
             # Proccess the file
             image_content=image.read()
             image_extracted_text=image_handler(image_content)
@@ -251,33 +251,33 @@ def refresh():
     new_access_token = create_access_token(identity=current_user)
     return jsonify({"access_token":new_access_token}), 200
 
-# @app.after_request
-# def refresh_expiring_jwts(response):
-#     try:
-#         exp_timestamp = get_jwt()["exp"]
-#         now = datetime.now(timezone.utc)
-#         target_timestamp = datetime.timestamp(now + timedelta(minutes=20))
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=20))
         
-#         if target_timestamp > exp_timestamp:
-#             access_token = create_access_token(identity=get_jwt_identity())
-#             data = response.json
-#             if isinstance(data, dict):  # Check if the response data is a dictionary
-#                 data["access_token"] = access_token 
-#                 response.data = jsonify(data)  # Update the response data
-#                 response.content_type = "application/json"  # Ensure the content type is set to JSON
-#                 # Set the access token in a cookie
-#                 response.set_cookie(
-#                     'access_token', 
-#                     access_token, 
-#                     httponly=True,  # Prevent JavaScript access to the cookie
-#                     secure=True,    # Use secure cookies (only sent over HTTPS)
-#                     samesite='Lax'  # Helps prevent CSRF attacks
-#                 )
-#         return response
-#     except (RuntimeError, KeyError):
-#         return response
-@app.route("/test",methods=["POST"])
-def test ():
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            data = response.json
+            if isinstance(data, dict):  # Check if the response data is a dictionary
+                data["access_token"] = access_token 
+                response.data = jsonify(data)  # Update the response data
+                response.content_type = "application/json"  # Ensure the content type is set to JSON
+                # Set the access token in a cookie
+                response.set_cookie(
+                    'access_token', 
+                    access_token, 
+                    httponly=True,  # Prevent JavaScript access to the cookie
+                    secure=True,    # Use secure cookies (only sent over HTTPS)
+                    samesite='Lax'  # Helps prevent CSRF attacks
+                )
+        return response
+    except (RuntimeError, KeyError):
+        return response
+@app.route("/api/test_upload",methods=["POST"])
+def test_upload():
    # check if the request body  is text or file or image
     request_type=check_request_body()
     try:
@@ -308,7 +308,7 @@ def test ():
         filename = secure_filename(file.filename)
         # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
-            url = save_to_dropbox(DropBox_Access_Token,file,filename)
+            url = save_to_azure_storage(file,filename)
             print("l 311",url)
             # Proccess the file 
             file_content = file.read()
@@ -319,7 +319,7 @@ def test ():
                 "id":New_id,
                 "author":"saad",
                 "content" :file_extracted_text,
-                "lesson_save_link":url,
+                "lesson_save_link":str(url),
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
             }
             # Save the dictionary Lesson to the database
@@ -338,11 +338,11 @@ def test ():
         imagename = secure_filename(image.filename)
         # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
-            url = save_to_dropbox(DropBox_Access_Token,image,imagename)
-            # Proccess the file
+            url = save_to_azure_storage(image,imagename)
+            # Proccess the image
             image_content = image.read()
-            image.seek(0)
-            image_extracted_text=image_handler(image_content)
+            # Extracting the text from the image
+            image_extracted_text=image_handler(image_content,imagename)
             # Get the data from the request body
             lesson_obj={
                 "title":request.form["title"],
@@ -360,9 +360,6 @@ def test ():
             return jsonify({"error image": str(e)}), 400
     else:
         return jsonify({"error": "Invalid request type"}), 400
-#     "filetype": "ImmutableMultiDict([('upload', <FileStorage: 'APIPresentation.pdf' ('application/pdf')>)])",
-#     "message": "File uploaded successfully"
-# }
 
 if __name__ == "__main__":
     app.run(debug=True)
