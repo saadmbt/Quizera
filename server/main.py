@@ -20,6 +20,7 @@ from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import credentials, auth
 app = Flask(__name__)
+import tempfile
 
 # Load credentials from environment variables
 load_dotenv()
@@ -312,12 +313,13 @@ def test_upload():
             print("l 311",url)
             # Proccess the file 
             file_content = file.read()
-            file_extracted_text=file_handler(file_content)
+            file_extracted_text=file_handler(file_content,filename)
+            print("l317 :",len(file_extracted_text))
             # Get the data from the request body
             lesson_obj={
                 "title":request.form["title"],
                 "id":New_id,
-                "author":"saad",
+                "author":"saad00",
                 "content" :file_extracted_text,
                 "lesson_save_link":str(url),
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
@@ -338,11 +340,14 @@ def test_upload():
         imagename = secure_filename(image.filename)
         # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                image.save(temp_file.name)
             url = save_to_azure_storage(image,imagename)
             # Proccess the image
-            image_content = image.read()
             # Extracting the text from the image
-            image_extracted_text=image_handler(image_content,imagename)
+            with open(temp_file.name, 'rb') as f:
+                image_data = f.read()
+            image_extracted_text=image_handler(image_data,imagename)
             # Get the data from the request body
             lesson_obj={
                 "title":request.form["title"],

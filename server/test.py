@@ -9,10 +9,10 @@ from dotenv import load_dotenv
 from flask import request, jsonify
 from main_functions import (save_to_dropbox,create_token,get_file_type)
 from file_handling import file_handler
-from image_Handling import image_handler
+from image_Handling import image_handler,extract_text_from_image64base
 from werkzeug.utils import secure_filename
 import dropbox
-
+import base64
 
 load_dotenv()
 # Load credentials from environment variables
@@ -46,5 +46,26 @@ def test_Quiz():
     
     insert_Quizzes(data)
 
+def test_image(image,type_imge):
+    with open(image, "rb") as img:
+        encoded = base64.b64encode(img.read()).decode('utf-8')
+        print("l52",len(encoded))
+        text=extract_text_from_image64base(encoded,type_imge)
+        print(text)
+
+#test_image(image,"png")
+def read_image(filename):
+    try:
+        with open(filename, 'rb') as f:
+            image_data = f.read()
+            print(f"Image data read successfully. Length: {len(image_data)}")
+            return image_data
+    except Exception as e:
+        print(f"Error reading image: {e}")
+        return None
+
+if __name__ == "__main__":
+    image_path = "./files/ex11.png" 
+    image_data = read_image(image_path) 
 
 # print(save_to_dropbox(DropBox_Access_Token,fileT,"saad"))

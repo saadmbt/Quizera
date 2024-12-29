@@ -5,15 +5,16 @@ from docx import Document
 from image_Handling import extract_text_from_image64base
 
 fileT='./files/test.pdf'
-def extract_text_from_pdf(file):
-    # Open the pdf file using fitz
-    doc = fitz.open(file)
+def extract_text_from_pdf(file_bytes):
+    # Create a PDF document from the bytes
+    pdf_document = fitz.open(stream=file_bytes, filetype="pdf")
     text_content=[]
     # Loop through each page
-    for i in range(len(doc)):
-        page = doc.load_page(i) 
+    for i in range(len(pdf_document)):
+        page = pdf_document.load_page(i) 
         text_content.append(page.get_text("text"))
     # Join all page texts into a single string 
+    pdf_document.close()
     text = "\n".join(text_content) 
     return text
 
@@ -30,17 +31,17 @@ def extract_text_from_docx(file):
         text.append(paragraph.text) 
     return "\n".join(text)
 
-def extract_images_from_pdf(pdf_path): 
-     # Open the PDF file
-     document = fitz.open(pdf_path) 
+def extract_images_from_pdf(file_bytes): 
+      # Create a PDF document from the bytes
+     pdf_document = fitz.open(stream=file_bytes, filetype="pdf") 
      images = [] 
      # Loop through each page
-     for page_num in range(len(document)): 
-        page = document.load_page(page_num) 
+     for page_num in range(len(pdf_document)): 
+        page = pdf_document.load_page(page_num) 
         images_list = page.get_images(full=True) 
         for img_index, img in enumerate(images_list, start=1): 
             xref = img[0] 
-            base_image = document.extract_image(xref) 
+            base_image = pdf_document.extract_image(xref) 
             image_bytes = base_image["image"] 
             # Convert the image bytes to base64
             base64_image = base64.b64encode(image_bytes).decode('utf-8')
@@ -49,9 +50,9 @@ def extract_images_from_pdf(pdf_path):
      return images
 
 # Function to get the file type
-def get_file_type(file_path):
+def get_file_type(file_bytes):
     #Get the file extension
-    _, ext = os.path.splitext(file_path)
+    _, ext = os.path.splitext(file_bytes)
     
     # Map extensions to file types
     ALLOWEDd_EXTENSIONS = {
@@ -65,23 +66,23 @@ def get_file_type(file_path):
 
 # the main function of handling files whiche should i import in the main file :
 
-def file_handler(file_path):
+def file_handler(file_bytes,file_name):
     """Handle different file types and extract text."""
-    file_type = get_file_type(file_path)
+    file_type = get_file_type(file_name)
     if file_type == 'pdf':
-        ex_text = extract_text_from_pdf(file_path)
+        ex_text = extract_text_from_pdf(file_bytes)
         final_text = ex_text
-        ex_images = extract_images_from_pdf(file_path)
+        ex_images = extract_images_from_pdf(file_bytes)
         if ex_images:
             for img in ex_images:
                 img_text = extract_text_from_image64base(img, type="png")
                 final_text += "\n" + + img_text
         return str(final_text)
     elif file_type == 'docx':
-        ex_text = extract_text_from_docx(file_path)
+        ex_text = extract_text_from_docx(file_bytes)
         return str(ex_text)
     elif file_type == 'txt':
-        ex_text=extract_text_from_txtfile(file_path)
+        ex_text=extract_text_from_txtfile(file_bytes)
         return str(ex_text)
     else:
         return 'file type not supported'
