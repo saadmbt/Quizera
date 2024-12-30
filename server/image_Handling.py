@@ -78,5 +78,5 @@ def image_handler(image, image_name):
         raise ValueError("Unsupported image type")
 
     text = extract_text_from_image64base(image_64b, image_type)
-    print("Extracted text: %s", text)
+    print("Extracted text: %s", len(text))
     return text

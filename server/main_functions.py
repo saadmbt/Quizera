@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 import dropbox
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from datetime import datetime, timezone, timedelta
 # Load credentials from environment variables
 load_dotenv()
 # function to save the file or image to the Dropbox storage and returns the shared link
@@ -104,10 +105,11 @@ def save_to_azure_storage(file, filename):
     container_client = blob_service_client.get_container_client(container_name)
     # Create a BlobClient
     blob_client = container_client.get_blob_client(filename)
-
+    # Generate the x-ms-date header for accurate timekeeping
+    x_ms_date = get_utc_time_string()
     # Upload the file to Azure Blob Storage
     try:
-        blob_client.upload_blob(file, overwrite=True)
+        blob_client.upload_blob(file, overwrite=True,headers={"x-ms-date": x_ms_date})
         print(f"File {filename} uploaded to Azure Blob Storage.")
         
         # Generate the URL for the uploaded file
@@ -116,3 +118,9 @@ def save_to_azure_storage(file, filename):
     except Exception as e:
         print(f"Error uploading file: {e}")
         return {"error": str(e)}
+
+def get_utc_time_string():
+    now = datetime.now(timezone.utc) 
+    # Adjust for your GMT+1 timezone
+    adjusted_time = now - timedelta(hours=1) 
+    return adjusted_time.strftime("%a, %d %b %Y %H:%M:%S GMT")

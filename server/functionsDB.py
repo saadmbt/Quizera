@@ -81,14 +81,14 @@ def Fetch_Lesson(lesson_id):
     except PyMongoError as e :
         return  f"Error fetching lessondetails{str(e)}"
 
-def Fetch_All_Lessons_byuser():
+def fetch_all_lessons_by_user(user_id):
     try :
-        # return all the lessons in the db
+        # return list of the lessons in the db created by the author 
         collection=db["lessons"]
-        lessons=list(collection.find())
+        lessons=list(collection.find({"author":user_id}))
         return lessons
     except PyMongoError as e :
-        return f"Error fetching lessons{str(e)}"
+        return f"Error fetching lessons: {str(e)}"
 
 def insert_Quizzes(Quiz_data):
     try:

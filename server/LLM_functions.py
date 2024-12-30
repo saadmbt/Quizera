@@ -7,8 +7,8 @@ from pymongo.errors import PyMongoError
 from datetime import datetime
 from bson import ObjectId
 from functionsDB import (
-    insert_users, Fetch_user, insert_Lessons, Fetch_Lesson, 
-    Fetch_All_Lessons, insert_Quizzes, Fetch_Quizzes,
+    insert_user, Fetch_user, insert_Lessons, Fetch_Lesson, 
+    fetch_all_lessons_by_user, insert_Quizzes, Fetch_Quizzes,
     insertquizzResults, FetchquizzeResults, lastID
 )
 
@@ -32,7 +32,7 @@ def generate_keywords(text):
                     model="llama3-8b-8192",
                     messages=[
                         {"role": "system", "content": "Given the following text, extract the most 3 relevant sentences or title that can be used to generate YouTube suggested videos. The response should only include the extracted sentence or title without any additional context or explanation or list formatting."},
-                        {"role": "user","content":text}
+                        {"role": "user","content":text} 
                     ],
                     temperature=1,
                 )
@@ -53,13 +53,13 @@ def suggest_yt_videos(keywords):
     youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=api_key)
 
 
-# Collection MongoDB
+# MongoDB collections for lessons and quizzes
 lessons_collection = db["lessons"]
 quizzes_collection = db["quizzes"]
 
-def generate_and_insert_questions(lesson_id):
-    """Lit une leçon depuis MongoDB, génère des questions à l'aide de l'API Groq,
-    et insère les questions générées dans la collection "quizzes"  """
+def generate_and_insert_questions(lesson_id, question_type, num_questions, difficulty):
+    """Reads a lesson from MongoDB, generates questions using the Groq API,
+    and inserts the generated questions into the "quizzes" collection."""
     try:
         # Convertir l'ID de la leçon en ObjectId si nécessaire
         if not isinstance(lesson_id, ObjectId):
@@ -76,49 +76,60 @@ def generate_and_insert_questions(lesson_id):
         if not content:
             raise ValueError("Le contenu de la leçon est vide")
         
-        # check the type of 
+        # Construire la requête pour l'API Groq en fonction des paramètres
+        prompt = (
+            f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
+            Toutes les questions doivent être basées uniquement sur le contenu fourni. 
+            Chaque question doit être suivie de quatre options de réponse. 
+            La réponse doit être structurée comme un dictionnaire Python au format suivant : 
+            [{{"question": "", "listanswer": ["option1", "option2", "option3", "option4"], "correctanswer": "(une des options)"}}]
+            """
 
-        # Appeler l'API Groq pour générer les questions
-        completion = groq_client.chat.completions.create(
-            model="llama3-8b-8192",
-            messages=[{"role": "system", "content": "Generate 20 questions with 4 options each (one correct and three distractors)."},
-                      {"role": "user", "content": content}],
-            temperature=0.7,
-            max_tokens=8191,
         )
 
-        # Afficher la réponse complète de l'API pour le débogage
+          # Appeler l'API Groq pour générer les questions
+        completion = groq_client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": "Tu es un professeur expert. Génère des questions de qualité pour un quiz."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1500,
+        )
+
+            # Afficher la réponse complète de l'API pour le débogage
         questions_text = completion.choices[0].message.content.strip()
-        print("Réponse de l'API Groq:", questions_text)
+        # Parse the response to extract the list of questions
+        try:
+            # Find the start and end of the JSON-like structure
+            start_index = questions_text.find('[')
+            end_index = questions_text.rfind(']') + 1
 
-        # Traiter les questions générées
-        questions = []
-        for question_block in questions_text.split('\n\n'):
-            lines = question_block.strip().split('\n')
-            if len(lines) >= 5:  # Une question et 4 options
-                question = lines[0]
-                options = lines[1:5]
-                questions.append({
-                    "text": question,
-                    "options": options
-                })
+            # Extract the JSON-like string
+            questions_json = questions_text[start_index:end_index]
 
-        # Vérifier si des questions ont été générées
-        if not questions:
-            raise ValueError("Aucune question valide n'a été générée.")
-            # Insérer les questions dans MongoDB
-        question_id=lastID('quizzes')
+            # Parse the JSON-like string into a Python list of dictionaries
+            questions = eval(questions_json)
+            print(questions)
+
+        except Exception as e:
+            print(f"Error parsing the response: {e}")
+            return None
+        # Insérer les questions dans MongoDB
+        question_id = lastID('quizzes')
         quiz = {
-            "id":question_id+1,
-            "type": "multiple-choice",
+            "id": question_id + 1,
+            "type": question_type,
             "questions": questions,
             "createdAt": datetime.now()
         }
-        result =insert_Quizzes(quiz)
-        print(f"Questions générées et insérées avec succès. ID du quiz : {result}")
+        inserted_quiz_id = insert_Quizzes(quiz)
+        if isinstance(inserted_quiz_id, ObjectId):
+            print(f"Questions générées et insérées avec succès. ID du quiz : {inserted_quiz_id}")
+            return inserted_quiz_id
+        else:
+            raise ValueError("Erreur lors de l'insertion du quiz.")
     except Exception as e:
         print(f"Erreur lors de la génération des questions : {e}")
-
-
-
-print(generate_and_insert_questions("675228e0d36c87bf6ee28500"))
+        return None

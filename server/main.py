@@ -10,7 +10,7 @@ import os
 import bcrypt
 from functionsDB import (
     insert_Lessons, Fetch_Lesson, 
-    Fetch_All_Lessons_byuser, insert_Quizzes, Fetch_Quizzes,
+    fetch_all_lessons_by_user, insert_Quizzes, Fetch_Quizzes,
     insertquizzResults, FetchquizzeResults, lastID
 )
 from main_functions import (save_to_azure_storage,create_token,check_request_body,get_file_type)
@@ -21,6 +21,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 app = Flask(__name__)
 import tempfile
+from LLM_functions import generate_and_insert_questions 
 
 # Load credentials from environment variables
 load_dotenv()
@@ -121,7 +122,7 @@ def profile():
 @app.route('/api/upload', methods=['POST'])
 @jwt_required()
 def handle_theuploaded():
-    # check if the request body  is text or file or image
+       # check if the request body  is text or file or image
     request_type=check_request_body()
     try:
         if request_type is None:
@@ -151,9 +152,12 @@ def handle_theuploaded():
         filename = secure_filename(file.filename)
         # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
-            url = save_to_azure_storage(file,filename)
             # Proccess the file 
-            file_extracted_text=file_handler(file)
+            file_content = file.read()
+            file_extracted_text=file_handler(file_content,filename)
+            print("l317 :",len(file_extracted_text))
+            url = save_to_azure_storage(file_content,filename)
+            print("l 311",url)
             # Get the data from the request body
             lesson_obj={
                 "title":request.form["title"],
@@ -166,7 +170,7 @@ def handle_theuploaded():
             # Save the dictionary Lesson to the database
             lesson_objid = insert_Lessons(lesson_obj)
             response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
-            return response, 201 
+            return response, 200
         except Exception as e:
             response=jsonify({"error file": str(e)})
             return response, 400
@@ -176,19 +180,27 @@ def handle_theuploaded():
         # get the image from the requset
         image=request.files['file']
         # Secure the filename
-        imagename = secure_filename(image.filename)
-        # Save the file to the DropBox storage // function args :(access_token,file,filename)
         try:
-            url = save_to_azure_storage(image,imagename)
-            # Proccess the file
-            image_content=image.read()
-            image_extracted_text=image_handler(image_content)
+            filename = secure_filename(image.filename)
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                image.save(temp_file.name)
+
+                # Upload to Azure Blob Storage (if needed)
+                url = save_to_azure_storage(temp_file.name, filename)  # Pass the temporary file path
+
+                # Read image data from the temporary file **after saving**
+                with open(temp_file.name, 'rb') as f:
+                    image_data = f.read()
+                    print(f"Image data read: {len(image_data)} bytes")  # For debugging
+
+                # Process the image
+                extracted_text = image_handler(image_data, filename)
             # Get the data from the request body
             lesson_obj={
                 "title":request.form["title"],
                 "id":New_id,
                 "author":get_jwt_identity(),
-                "content" :image_extracted_text,
+                "content" :extracted_text,
                 "lesson_save_link":str(url),
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
             }
@@ -197,7 +209,11 @@ def handle_theuploaded():
             response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
             return response, 201 
         except Exception as e:
-            return jsonify({"error": str(e)}), 500
+            return jsonify({"error image": str(e)}), 400
+        # finally:
+        # # Clean up the temporary file
+        # if os.path.exists(temp_file_name):
+        #     os.remove(temp)
     else:
         return jsonify({"error": "Invalid request type"}), 400
     
@@ -205,35 +221,69 @@ def handle_theuploaded():
 @app.route('/api/lessons', methods=['GET'])
 @jwt_required()
 def fetch_lessons():
-    lessons = Fetch_All_Lessons_byuser()
-    if "error" in str(lessons).lower():
+    """
+    Fetch all lessons for the authenticated user.
+    Returns:
+        Response: JSON response containing the lessons or an error message.
+    """
+    # Get the user's id from the JWT token 
+    user_id = get_jwt_identity()
+    # Fetch all lessons for the authenticated user.
+    lessons = fetch_all_lessons_by_user(user_id)
+    if lessons is None or len(lessons) == 0:
+        return jsonify({"error": "No lessons found"}), 404
+    if isinstance(lessons, str) and "error" in lessons.lower():
         return jsonify({"error": lessons}), 500
 
-    return dumps(lessons), 200
+    return jsonify(lessons), 200
 
 @app.route('/api/lessons/<lesson_id>', methods=['GET'])
 @jwt_required()
 def fetch_lesson(lesson_id):
-    lesson = Fetch_Lesson(ObjectId(lesson_id))
-    if "error" in str(lesson).lower():
-        return jsonify({"error": lesson}), 404
+    """
+    Fetch a specific lesson by its ID.
+    
+    Args:
+        lesson_id (str): The ID of the lesson to fetch.
+        
+    Returns:
+        Response: JSON response containing the lesson or an error message.
+    """
+    try:
+        lesson_obj_id = ObjectId(lesson_id)
+    except Exception as e:
+        return jsonify({"error": "Invalid lesson_id"}), 400
 
-    return dumps(lesson), 200
+    try:
+        lesson = Fetch_Lesson(lesson_obj_id)
+        return jsonify(lesson), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
 
 # Quiz Management Endpoints
 
-@app.route('/api/quizzes', methods=['POST'])
+@app.route('/api/create_quiz', methods=['POST'])
 @jwt_required()
 def create_quiz():
+    #par: lessonid, type of question, number of question, dif of question
     data = request.json
-    data['createdAt'] = datetime.utcnow()
-    data['id'] = lastID('quizzes') + 1 if lastID('quizzes') else 1
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
 
-    result = insert_Quizzes(data)
-    if "error" in str(result).lower():
-        return jsonify({"error": result}), 400
+    lesson_id = data["lesson_id"]
+    question_type = data['type']
+    num_questions = data['number']
+    difficulty = data['difficulty']
+    if not lesson_id or not question_type or not num_questions or not difficulty:
+        return jsonify({"error": "Missing required parameters"}), 400
+    # function to create the quiz and insert it to the database and return the quiz id
+    quizzesresult=generate_and_insert_questions(lesson_id,question_type,num_questions,difficulty)
 
-    return jsonify({"message": "Quiz created successfully", "quiz_id": str(result)}), 201
+    if "error" in str(quizzesresult).lower():
+        return jsonify({"error": quizzesresult}), 400
+
+    return jsonify({"message": "Quiz created successfully", "quiz_id": str(quizzesresult)}), 201
+    
 
 
 @app.route('/api/quizzes/<quiz_id>', methods=['GET'])
@@ -278,93 +328,26 @@ def refresh_expiring_jwts(response):
     except (RuntimeError, KeyError):
         return response
 @app.route("/api/test_upload",methods=["POST"])
-def test_upload():
-   # check if the request body  is text or file or image
-    request_type=check_request_body()
-    try:
-        if request_type is None:
-            response=jsonify({"st":'It is None',"value":request_type})
-            return response,400
-    except NameError:
-        return jsonify ({"st":"This variable is not defined"})
-    New_id=lastID("lessons")
-    if request_type=="text":
-        # Get the data from the request body
-        lesson_obj={
-            "title":request.form["title"],
-            "id":New_id,
-            "author":"saad",
-            "content" :request.form['text'],
-            "uploadedAt": datetime.now(timezone.utc).isoformat(),
-        }
-        # Save the text to the database
-        lesson_objid = insert_Lessons(lesson_obj)
-        response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
-        return response, 201
+def create_quiz_test():
+    #par: lessonid, type of question, number of question, dif of question
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    lesson_id = data["lesson_id"]
+    question_type = data["type"]
+    num_questions = data["number"]
+    difficulty = data["difficulty"]
+    if not lesson_id or not question_type or not num_questions or not difficulty:
+        return jsonify({"error": "Missing required parameters"}), 400
+    # function to create the quiz and insert it to the database and return the quiz id
+    quizzesresult=generate_and_insert_questions(lesson_id,question_type,num_questions,difficulty)
+
+    if "error" in str(quizzesresult).lower():
+        return jsonify({"error": quizzesresult}), 400
+
+    return jsonify({"message": "Quiz created successfully", "quiz_id": str(quizzesresult)}), 201
     
-    elif request_type=="file":
-        # get the file from the requset
-        file=request.files['file']
-        # Secure the filename
-        filename = secure_filename(file.filename)
-        # Save the file to the DropBox storage // function args :(access_token,file,filename)
-        try:
-            url = save_to_azure_storage(file,filename)
-            print("l 311",url)
-            # Proccess the file 
-            file_content = file.read()
-            file_extracted_text=file_handler(file_content,filename)
-            print("l317 :",len(file_extracted_text))
-            # Get the data from the request body
-            lesson_obj={
-                "title":request.form["title"],
-                "id":New_id,
-                "author":"saad00",
-                "content" :file_extracted_text,
-                "lesson_save_link":str(url),
-                "uploadedAt": datetime.now(timezone.utc).isoformat(),
-            }
-            # Save the dictionary Lesson to the database
-            lesson_objid = insert_Lessons(lesson_obj)
-            response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
-            return response, 200
-        except Exception as e:
-            response=jsonify({"error file": str(e)})
-            return response, 400
-        
-    # case if the file is image
-    elif request_type=="img":
-        # get the image from the requset
-        image=request.files['file']
-        # Secure the filename
-        imagename = secure_filename(image.filename)
-        # Save the file to the DropBox storage // function args :(access_token,file,filename)
-        try:
-            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-                image.save(temp_file.name)
-            url = save_to_azure_storage(image,imagename)
-            # Proccess the image
-            # Extracting the text from the image
-            with open(temp_file.name, 'rb') as f:
-                image_data = f.read()
-            image_extracted_text=image_handler(image_data,imagename)
-            # Get the data from the request body
-            lesson_obj={
-                "title":request.form["title"],
-                "id":New_id,
-                "author":"saad",
-                "content" :image_extracted_text,
-                "lesson_save_link":str(url),
-                "uploadedAt": datetime.now(timezone.utc).isoformat(),
-            }
-            # Save the dictionary Lesson to the database
-            lesson_objid = insert_Lessons(lesson_obj)
-            response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
-            return response, 201 
-        except Exception as e:
-            return jsonify({"error image": str(e)}), 400
-    else:
-        return jsonify({"error": "Invalid request type"}), 400
 
 if __name__ == "__main__":
     app.run(debug=True)
