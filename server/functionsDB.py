@@ -77,6 +77,7 @@ def Fetch_Lesson(lesson_id):
         if lesson is None:
             return "error :Lesson not found"
         else :
+            lesson["_id"]=str(lesson["_id"])
             return lesson
     except PyMongoError as e :
         return  f"Error fetching lessondetails{str(e)}"
@@ -86,7 +87,11 @@ def fetch_all_lessons_by_user(user_id):
         # return list of the lessons in the db created by the author 
         collection=db["lessons"]
         lessons=list(collection.find({"author":user_id}))
+        for lesson in lessons:
+            lesson["_id"]=str(lesson["_id"])
+            lesson["id"]=str(lesson["id"])
         return lessons
+    
     except PyMongoError as e :
         return f"Error fetching lessons: {str(e)}"
 
@@ -114,7 +119,7 @@ def Fetch_Quizzes(Quiz_id):
     except PyMongoError as e :
         return f"Error : fetching quiz {str(e)}"
 
-def insertquizzResults(Quiz_res):
+def Insert_Quiz_Results(Quiz_res):
     try:
         collection=db["quizzResult"]
         quizzResult=Quiz_res
@@ -127,7 +132,7 @@ def insertquizzResults(Quiz_res):
     except PyMongoError as e:
         return f"Error: inserting quiz result {str(e)}"
 
-def FetchquizzeResults(Quiz_res_id):
+def Fetch_Quiz_Results(Quiz_res_id):
     try :
         collection=db["quizzResult"]
         quiz_res=collection.find_one({"_id": Quiz_res_id})

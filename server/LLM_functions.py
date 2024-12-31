@@ -9,7 +9,7 @@ from bson import ObjectId
 from functionsDB import (
     insert_user, Fetch_user, insert_Lessons, Fetch_Lesson, 
     fetch_all_lessons_by_user, insert_Quizzes, Fetch_Quizzes,
-    insertquizzResults, FetchquizzeResults, lastID
+    Insert_Quiz_Results, Fetch_Quiz_Results, lastID
 )
 
 
@@ -46,12 +46,37 @@ def generate_keywords(text):
         return f"An error occurred while generating keywords: {e}"
     
 def suggest_yt_videos(keywords):
-    # Use the YouTube API to search for videos based on the generated keywords
-    # For this example, we'll use the YouTube API's search.list method
-    # You'll need to replace the API key with your own
-    api_key = "YOUR_YOUTUBE_API_KEY"
+    """
+    Suggest YouTube videos based on the provided keywords.
+    
+    Args:
+        keywords (list): A list of keywords to search for on YouTube.
+        
+    Returns:
+        list: A list of YouTube video suggestions.
+    """
+    api_key = os.environ.get('YOUTUBE_API_KEY')
     youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=api_key)
+    
+    video_suggestions = []
+    
+    for keyword in keywords:
+        request = youtube.search().list(
+            q=keyword,
+            part="snippet",
+            maxResults=5,
+            type="video"
+        )
+        response = request.execute()
+        
+        for item in response['items']:
+            video_suggestions.append({
+                "title": item['snippet']['title'],
+                "video_id": item['id']['videoId'],
+                "url": f"https://www.youtube.com/watch?v={item['id']['videoId']}"
+            })
 
+    return video_suggestions
 
 # MongoDB collections for lessons and quizzes
 lessons_collection = db["lessons"]

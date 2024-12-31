@@ -11,7 +11,7 @@ import bcrypt
 from functionsDB import (
     insert_Lessons, Fetch_Lesson, 
     fetch_all_lessons_by_user, insert_Quizzes, Fetch_Quizzes,
-    insertquizzResults, FetchquizzeResults, lastID
+    Insert_Quiz_Results, Fetch_Quiz_Results, lastID
 )
 from main_functions import (save_to_azure_storage,create_token,check_request_body,get_file_type)
 from file_handling import file_handler
@@ -217,7 +217,6 @@ def handle_theuploaded():
     else:
         return jsonify({"error": "Invalid request type"}), 400
     
-"""yet"""
 @app.route('/api/lessons', methods=['GET'])
 @jwt_required()
 def fetch_lessons():
@@ -230,6 +229,7 @@ def fetch_lessons():
     user_id = get_jwt_identity()
     # Fetch all lessons for the authenticated user.
     lessons = fetch_all_lessons_by_user(user_id)
+    print("lenght of the array",len(lessons))
     if lessons is None or len(lessons) == 0:
         return jsonify({"error": "No lessons found"}), 404
     if isinstance(lessons, str) and "error" in lessons.lower():
@@ -261,74 +261,10 @@ def fetch_lesson(lesson_id):
         return jsonify({"error": str(e)}), 404
 
 # Quiz Management Endpoints
-
+"""yet"""
 @app.route('/api/create_quiz', methods=['POST'])
 @jwt_required()
 def create_quiz():
-    #par: lessonid, type of question, number of question, dif of question
-    data = request.json
-    if not data:
-        return jsonify({"error": "No data provided"}), 400
-
-    lesson_id = data["lesson_id"]
-    question_type = data['type']
-    num_questions = data['number']
-    difficulty = data['difficulty']
-    if not lesson_id or not question_type or not num_questions or not difficulty:
-        return jsonify({"error": "Missing required parameters"}), 400
-    # function to create the quiz and insert it to the database and return the quiz id
-    quizzesresult=generate_and_insert_questions(lesson_id,question_type,num_questions,difficulty)
-
-    if "error" in str(quizzesresult).lower():
-        return jsonify({"error": quizzesresult}), 400
-
-    return jsonify({"message": "Quiz created successfully", "quiz_id": str(quizzesresult)}), 201
-    
-
-
-@app.route('/api/quizzes/<quiz_id>', methods=['GET'])
-@jwt_required()
-def fetch_quiz(quiz_id):
-    quiz = Fetch_Quizzes(ObjectId(quiz_id))
-    if "error" in str(quiz).lower():
-        return jsonify({"error": quiz}), 404
-
-    return jsonify(quiz), 200
-
-@app.route('/api/refresh_token', methods=['POST'])
-@jwt_required(refresh=True)
-def refresh():
-    current_user = get_jwt_identity()
-    new_access_token = create_access_token(identity=current_user)
-    return jsonify({"access_token":new_access_token}), 200
-
-@app.after_request
-def refresh_expiring_jwts(response):
-    try:
-        exp_timestamp = get_jwt()["exp"]
-        now = datetime.now(timezone.utc)
-        target_timestamp = datetime.timestamp(now + timedelta(minutes=20))
-        
-        if target_timestamp > exp_timestamp:
-            access_token = create_access_token(identity=get_jwt_identity())
-            data = response.json
-            if isinstance(data, dict):  # Check if the response data is a dictionary
-                data["access_token"] = access_token 
-                response.data = jsonify(data)  # Update the response data
-                response.content_type = "application/json"  # Ensure the content type is set to JSON
-                # Set the access token in a cookie
-                response.set_cookie(
-                    'access_token', 
-                    access_token, 
-                    httponly=True,  # Prevent JavaScript access to the cookie
-                    secure=True,    # Use secure cookies (only sent over HTTPS)
-                    samesite='Lax'  # Helps prevent CSRF attacks
-                )
-        return response
-    except (RuntimeError, KeyError):
-        return response
-@app.route("/api/test_upload",methods=["POST"])
-def create_quiz_test():
     #par: lessonid, type of question, number of question, dif of question
     data = request.json
     if not data:
@@ -349,5 +285,109 @@ def create_quiz_test():
     return jsonify({"message": "Quiz created successfully", "quiz_id": str(quizzesresult)}), 201
     
 
+
+
+@app.route('/api/quizzes/<quiz_id>', methods=['GET'])
+@jwt_required()
+def fetch_quiz(quiz_id):
+    quiz = Fetch_Quizzes(ObjectId(quiz_id))
+    if quiz is None:
+        return jsonify({"error": "Quiz not found"}), 404
+    if isinstance(quiz, str) and "error" in quiz.lower():
+        return jsonify({"error": str(quiz)}), 404
+
+    return jsonify(quiz), 200
+
+# Quiz Results Management Endpoints
+@app.route('/api/quiz_results/<quiz_id>', methods=['GET'])
+
+@jwt_required()
+def fetch_quiz_results(quiz_id):
+    """Fetches the quiz results for a given quiz ID.
+    This endpoint requires a valid JWT token to access.
+    Args:
+        quiz_id (str): The ID of the quiz for which results are to be fetched.
+    Returns:
+        Response: A JSON response containing the quiz results if found, 
+                or an error message if the quiz results are not found or an error occurs.
+                The response status code is 200 for success and 404 for errors.
+    """
+    quiz_results = Fetch_Quiz_Results(ObjectId(quiz_id))
+    if quiz_results is None:
+        return jsonify({"error": "Quiz results not found"}), 404
+    if isinstance(quiz_results, str) and "error" in quiz_results.lower():
+        return jsonify({"error": str(quiz_results)}), 404
+    
+    return jsonify(quiz_results), 200
+
+# Quiz Results Management Endpoints
+@app.route('/api/quiz_results/insert', methods=['POST'])
+@jwt_required()
+def create_quiz_results():
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    quiz_id = data["quiz_id"]
+    user_id = data["user_id"]
+    score = data["score"]
+    attempt_date = data["attempt_date"]
+    if not attempt_date:
+        attempt_date = datetime.now(timezone.utc).isoformat()
+    if not quiz_id or not user_id or not score:
+        return jsonify({"error": "Missing required parameters"}), 400
+    # function to create the quiz and insert it to the database and return the quiz id
+    quiz_result = {
+        "quiz_id": quiz_id,
+        "user_id": user_id,
+        "score": score,
+        "attempt_date": attempt_date,
+        "updatedAt": datetime.now(timezone.utc).isoformat()
+    }
+    # Insert the quiz result into the database
+    quiz_result_id = Insert_Quiz_Results(quiz_result)
+    if "error" in str(quiz_result_id).lower():
+        return jsonify({"error": str(quiz_result_id)}), 500
+    
+    return jsonify({"message": "Quiz result created successfully", "quiz_result_id": str(quiz_result_id)}), 201
+
+    
+    
+
+@app.route('/api/refresh_token', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    current_user = get_jwt_identity()
+    new_access_token = create_access_token(identity=current_user)
+    return jsonify({"access_token":new_access_token}), 200
+
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=20))
+        
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            data = response.get_json()
+            if isinstance(data, dict):  # Check if the response data is a dictionary
+                data["access_token"] = access_token 
+                import json
+                response.set_data(json.dumps(data))  # Update the response data
+                response.content_type = "application/json"  # Ensure the content type is set to JSON
+                # Set the access token in a cookie
+                response.set_cookie(
+                    'access_token', 
+                    access_token, 
+                    httponly=True,  # Prevent JavaScript access to the cookie
+                    secure=True,    # Use secure cookies (only sent over HTTPS)
+                    samesite='Lax'  # Helps prevent CSRF attacks
+                )
+        return response
+    except (RuntimeError, KeyError):
+        return response
+@app.route("/api/test_upload/<lesson_id>",methods=["GET"])
+def fetch_lesson_test(lesson_id):
+    return "test"
 if __name__ == "__main__":
     app.run(debug=True)
