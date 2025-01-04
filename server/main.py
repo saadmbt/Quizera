@@ -7,7 +7,6 @@ from bson.objectid import ObjectId
 from datetime import datetime, timedelta,timezone
 from dotenv import load_dotenv
 import os
-import bcrypt
 from functionsDB import (
     insert_Lessons, Fetch_Lesson, 
     fetch_all_lessons_by_user, insert_Quizzes, Fetch_Quizzes,
@@ -19,10 +18,12 @@ from image_Handling import image_handler
 from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import credentials, auth
-app = Flask(__name__)
 import tempfile
 from LLM_functions import generate_and_insert_questions 
+from flask_cors import CORS
 
+app = Flask(__name__)
+CORS(app)
 # Load credentials from environment variables
 load_dotenv()
 # Initialize Firebase Admin
