@@ -238,7 +238,7 @@ def fetch_lessons():
     return jsonify(lessons), 200
 
 @app.route('/api/lessons/<lesson_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def fetch_lesson(lesson_id):
     """
     Fetch a specific lesson by its ID.
@@ -295,7 +295,7 @@ def fetch_quiz(quiz_id):
 """yet"""
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/<quiz_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def fetch_quiz_results(quiz_id):
     """Fetches the quiz results for a given quiz ID.
     This endpoint requires a valid JWT token to access.
