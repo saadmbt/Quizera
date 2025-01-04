@@ -1,7 +1,6 @@
 annotated-types==0.7.0
 anyio==4.6.2.post1
-azure-core==1.32.0
-azure-storage-blob==12.24.0
+azure-storage-blob==12.10.0
 bcrypt==4.2.1
 blinker==1.8.2
 CacheControl==0.14.1
@@ -19,6 +18,9 @@ Flask==3.1.0
 Flask-Cors==5.0.0
 Flask_JWT_Extended==4.7.1
 google_api_python_client==2.154.0
+google-auth-httplib2==0.1.0
+google-auth-oauthlib==0.5.3
+google-auth==2.15.0
 grpcio_status==1.68.1
 importlib_metadata==8.5.0
 ipython==8.12.3
