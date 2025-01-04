@@ -72,6 +72,7 @@ def get_file_type(file_path):
         '.pdf': 'file',
         '.docx': 'file',
         '.txt': 'file',
+        '.pptx': 'file',
         '.jpg': 'img',
         '.jpeg': 'img',
         '.png': 'img',

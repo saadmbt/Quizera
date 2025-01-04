@@ -122,7 +122,7 @@ def profile():
 @app.route('/api/upload', methods=['POST'])
 @jwt_required()
 def handle_theuploaded():
-       # check if the request body  is text or file or image
+    # check if the request body  is text or file or image
     request_type=check_request_body()
     try:
         if request_type is None:
@@ -238,7 +238,7 @@ def fetch_lessons():
     return jsonify(lessons), 200
 
 @app.route('/api/lessons/<lesson_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def fetch_lesson(lesson_id):
     """
     Fetch a specific lesson by its ID.
@@ -261,7 +261,6 @@ def fetch_lesson(lesson_id):
         return jsonify({"error": str(e)}), 404
 
 # Quiz Management Endpoints
-"""yet"""
 @app.route('/api/create_quiz', methods=['POST'])
 @jwt_required()
 def create_quiz():
@@ -277,16 +276,12 @@ def create_quiz():
     if not lesson_id or not question_type or not num_questions or not difficulty:
         return jsonify({"error": "Missing required parameters"}), 400
     # function to create the quiz and insert it to the database and return the quiz id
-    quizzesresult=generate_and_insert_questions(lesson_id,question_type,num_questions,difficulty)
+    quiz_result=generate_and_insert_questions(lesson_id,question_type,num_questions,difficulty)
+    if "error" in str(quiz_result).lower():
+        return jsonify({"error": quiz_result}), 400
 
-    if "error" in str(quizzesresult).lower():
-        return jsonify({"error": quizzesresult}), 400
-
-    return jsonify({"message": "Quiz created successfully", "quiz_id": str(quizzesresult)}), 201
-    
-
-
-
+    return jsonify({"message": "Quiz created successfully", "quiz_id": str(quiz_result)}), 201
+#just for show the quiz if needed 
 @app.route('/api/quizzes/<quiz_id>', methods=['GET'])
 @jwt_required()
 def fetch_quiz(quiz_id):
@@ -297,11 +292,10 @@ def fetch_quiz(quiz_id):
         return jsonify({"error": str(quiz)}), 404
 
     return jsonify(quiz), 200
-
+"""yet"""
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/<quiz_id>', methods=['GET'])
-
-@jwt_required()
+# @jwt_required()
 def fetch_quiz_results(quiz_id):
     """Fetches the quiz results for a given quiz ID.
     This endpoint requires a valid JWT token to access.
@@ -365,7 +359,7 @@ def refresh_expiring_jwts(response):
     try:
         exp_timestamp = get_jwt()["exp"]
         now = datetime.now(timezone.utc)
-        target_timestamp = datetime.timestamp(now + timedelta(minutes=20))
+        target_timestamp = (now + timedelta(minutes=20)).timestamp()
         
         if target_timestamp > exp_timestamp:
             access_token = create_access_token(identity=get_jwt_identity())
@@ -386,8 +380,9 @@ def refresh_expiring_jwts(response):
         return response
     except (RuntimeError, KeyError):
         return response
-@app.route("/api/test_upload/<lesson_id>",methods=["GET"])
-def fetch_lesson_test(lesson_id):
-    return "test"
+@app.route("/")
+def hello_world():
+    return "Hello, World!"
+
 if __name__ == "__main__":
     app.run(debug=True)

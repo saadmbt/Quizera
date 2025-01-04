@@ -115,6 +115,7 @@ def Fetch_Quizzes(Quiz_id):
         if quiz is None:
             return "error : Quiz not found"
         else :
+            quiz["_id"]=str(quiz["_id"])
             return quiz
     except PyMongoError as e :
         return f"Error : fetching quiz {str(e)}"

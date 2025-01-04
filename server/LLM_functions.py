@@ -105,7 +105,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         prompt = (
             f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
             Toutes les questions doivent être basées uniquement sur le contenu fourni. 
-            Chaque question doit être suivie de quatre options de réponse. 
+            Chaque question doit être suivie de quatre options de réponse "without duplicate the questions". 
             La réponse doit être structurée comme un dictionnaire Python au format suivant : 
             [{{"question": "", "listanswer": ["option1", "option2", "option3", "option4"], "correctanswer": "(une des options)"}}]
             """
