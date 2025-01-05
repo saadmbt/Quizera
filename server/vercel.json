@@ -1,6 +1,6 @@
 {
     "version": 2,
-    "builds": [{"src": "main.py","use": "@vercel/python"}],
+    "builds": [{"src": "main.py","use": "@vercel/python","installCommand": "pip3.8 install --disable-pip-version-check --target . --upgrade -r requirements.txt"}],
     "routes": [{"src": "/api/(.*)","dest": "main.py"}]
   }
   
