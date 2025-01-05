@@ -1,25 +1,11 @@
-/** @type {import('tailwindcss').Config} */
-export default {
+// tailwind.config.js
+module.exports = {
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}", // Assurez-vous que vos fichiers sont inclus ici
+    "./public/index.html",
   ],
   theme: {
-    extend: {
-      fontFamily:{
-        sans:['Roboto','sans-serif']
-      },
-      colors: {
-        primary: '#3498db',
-        secondary: '#f1c40f',
-        dark: '#2c3e50',
-        light: '#ecf0f1',
-        error: '#e74c3c',
-        success: '#2ecc71',
-        warning: '#f1c40f',
-        info: '#3498db',
-        },
-    },
+    extend: {},
   },
   plugins: [],
-}
+};
