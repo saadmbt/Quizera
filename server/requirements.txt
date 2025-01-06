@@ -22,7 +22,6 @@ grpcio_status==1.68.1
 importlib_metadata==8.5.0
 ipython==8.12.3
 Jinja2==3.1.5
-pywin32==308
 PyJWT==2.10.1
 pymongo[tls]==4.10.1
 PyMuPDF==1.24.14
