@@ -1,14 +1,6 @@
-annotated-types==0.7.0
 anyio==4.6.2.post1
 azure-storage-blob==12.10.0
 bcrypt==4.2.1
-blinker==1.8.2
-CacheControl==0.14.1
-cachetools==5.5.0
-certifi==2024.8.30
-cffi==1.17.1
-charset-normalizer==3.4.0
-click==8.1.7
 dropbox==12.0.2
 firebase_admin==6.6.0
 Flask==3.1.0
@@ -18,10 +10,6 @@ google_api_python_client==2.154.0
 google-auth-httplib2==0.1.0
 google-auth-oauthlib==0.5.3
 google-auth==2.15.0
-grpcio_status==1.68.1
-importlib_metadata==8.5.0
-ipython==8.12.3
-Jinja2==3.1.5
 PyJWT==2.10.1
 pymongo[tls]==4.10.1
 PyMuPDF==1.24.14
