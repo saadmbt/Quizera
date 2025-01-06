@@ -381,7 +381,7 @@ def refresh_expiring_jwts(response):
         return response
     except (RuntimeError, KeyError):
         return response
-@app.route('/')
+@app.route('/api/')
 def hello_world():
     print("hi")
     return "Hello, World!"
