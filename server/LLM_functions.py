@@ -3,15 +3,9 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
-from pymongo.errors import PyMongoError
 from datetime import datetime
 from bson import ObjectId
-from functionsDB import (
-    insert_user, Fetch_user, insert_Lessons, Fetch_Lesson, 
-    fetch_all_lessons_by_user, insert_Quizzes, Fetch_Quizzes,
-    Insert_Quiz_Results, Fetch_Quiz_Results, lastID
-)
-
+from functionsDB import (Fetch_Lesson,insert_Quizzes,lastID)
 
 # Load environment variables from .env file
 load_dotenv()
