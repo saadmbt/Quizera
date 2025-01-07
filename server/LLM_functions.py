@@ -19,7 +19,7 @@ mongodb_url=os.environ.get("MONGO_URL")
 mongodb_name=os.environ.get("MONGO_DB")
 # Connect to MongoDB
 client = MongoClient(mongodb_url)
-db = client[mongodb_name]
+db = client[str(mongodb_name)]
 
 groq_client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),  

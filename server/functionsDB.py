@@ -12,7 +12,7 @@ mongodb_url=os.environ.get("MONGO_URL")
 mongodb_name=os.environ.get("MONGO_DB")
 # Connect to MongoDB
 client = MongoClient(mongodb_url)
-db = client[mongodb_name]
+db = client[str(mongodb_name)]
 # get the last id in any collection 
 def lastID(collection_name):
     try:
