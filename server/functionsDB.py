@@ -2,8 +2,6 @@ from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
-from bson.objectid import ObjectId
-
 
 
 # Load environment variables from .env file

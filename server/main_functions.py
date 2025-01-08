@@ -2,60 +2,59 @@ from flask import request
 from flask_jwt_extended import create_access_token, get_jwt_identity
 import os
 from dotenv import load_dotenv
-import dropbox
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from azure.storage.blob import BlobServiceClient
 from datetime import datetime, timezone, timedelta
 # Load credentials from environment variables
 load_dotenv()
 # function to save the file or image to the Dropbox storage and returns the shared link
-def save_to_dropbox(access_token, file, filename):
-    dropbox_path = '/' + filename 
-    print("L9", dropbox_path)
-    dbx = dropbox.Dropbox(access_token)
-    try:
-        # Check if the file already exists in Dropbox
-        try:
-            metadata = dbx.files_get_metadata(dropbox_path)
-            print(f"File {dropbox_path} already exists in Dropbox.")
+# def save_to_dropbox(access_token, file, filename):
+#     dropbox_path = '/' + filename 
+#     print("L9", dropbox_path)
+#     dbx = dropbox.Dropbox(access_token)
+#     try:
+#         # Check if the file already exists in Dropbox
+#         try:
+#             metadata = dbx.files_get_metadata(dropbox_path)
+#             print(f"File {dropbox_path} already exists in Dropbox.")
             
-            # Get the shared link for the existing file
-            links = dbx.sharing_list_shared_links(path=dropbox_path).links
-            if links:
-                shared_link_metadata = links[0]
-            else:
-                shared_link_metadata = dbx.sharing_create_shared_link_with_settings(dropbox_path)
-            print("L20", shared_link_metadata.url)
-            return shared_link_metadata.url
-        except dropbox.exceptions.ApiError as e:
-            if e.error.is_path() and e.error.get_path().is_not_found():
-                print(f"File {dropbox_path} does not exist in Dropbox. Proceeding with upload.")
-            else:
-                raise
-# Read the content of the FileStorage object
-        file.seek(0)  # Reset file pointer to the beginning
-        file_content = file.read()
-        if not file_content:
-            raise ValueError("File content is empty")
+#             # Get the shared link for the existing file
+#             links = dbx.sharing_list_shared_links(path=dropbox_path).links
+#             if links:
+#                 shared_link_metadata = links[0]
+#             else:
+#                 shared_link_metadata = dbx.sharing_create_shared_link_with_settings(dropbox_path)
+#             print("L20", shared_link_metadata.url)
+#             return shared_link_metadata.url
+#         except dropbox.exceptions.ApiError as e:
+#             if e.error.is_path() and e.error.get_path().is_not_found():
+#                 print(f"File {dropbox_path} does not exist in Dropbox. Proceeding with upload.")
+#             else:
+#                 raise
+# # Read the content of the FileStorage object
+#         file.seek(0)  # Reset file pointer to the beginning
+#         file_content = file.read()
+#         if not file_content:
+#             raise ValueError("File content is empty")
 
-        # Upload the file to Dropbox
-        dbx.files_upload(file_content, dropbox_path)
+#         # Upload the file to Dropbox
+#         dbx.files_upload(file_content, dropbox_path)
         
-        # Create a shared link for the uploaded file
-        links = dbx.sharing_list_shared_links(path=dropbox_path).links
-        if links:
-            shared_link_metadata = links[0]
-        else:
-            shared_link_metadata = dbx.sharing_create_shared_link_with_settings(dropbox_path)
-        print("L23", shared_link_metadata.url)
-        shared_link = shared_link_metadata.url
-        return shared_link
+#         # Create a shared link for the uploaded file
+#         links = dbx.sharing_list_shared_links(path=dropbox_path).links
+#         if links:
+#             shared_link_metadata = links[0]
+#         else:
+#             shared_link_metadata = dbx.sharing_create_shared_link_with_settings(dropbox_path)
+#         print("L23", shared_link_metadata.url)
+#         shared_link = shared_link_metadata.url
+#         return shared_link
 
-    except dropbox.exceptions.ApiError as e:
-        print(f"Error uploading file or creating shared link: {e}")
-        return {"error": str(e)}
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return {"error": str(e)}
+#     except dropbox.exceptions.ApiError as e:
+#         print(f"Error uploading file or creating shared link: {e}")
+#         return {"error": str(e)}
+#     except Exception as e:
+#         print(f"An unexpected error occurred: {e}")
+#         return {"error": str(e)}
 
 # function to create JWT token 
 def create_token(user_identity):

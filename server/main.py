@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import os
 from functionsDB import (
     insert_Lessons, Fetch_Lesson, 
-    fetch_all_lessons_by_user, insert_Quizzes, Fetch_Quizzes,
+    fetch_all_lessons_by_user,Fetch_Quizzes,
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID
 )
 from main_functions import (save_to_azure_storage,create_token,check_request_body,get_file_type)
