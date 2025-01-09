@@ -20,13 +20,15 @@ from firebase_admin import credentials, auth
 import tempfile
 from LLM_functions import generate_and_insert_questions 
 from flask_cors import CORS
-
+import json
 app = Flask(__name__)
 CORS(app)
 # Load credentials from environment variables
 load_dotenv()
+# Load the service account key from the environment variable
+service_account_key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
 # Initialize Firebase Admin
-cred = credentials.Certificate('./serviceAccountKey.json') 
+cred = credentials.Certificate(service_account_key) 
 firebase_admin.initialize_app(cred)
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_TOKEN_SECRET')
