@@ -226,3 +226,35 @@ export const footerlinks = [
 ]
 // End Landing page Constants
 
+export const sidebarmenu=[
+    {
+        title: 'Dashboard',
+        url: '/',
+        icon: 'house',
+        size: 32
+    },
+    {
+        title: 'Upload',
+        url: '/upload/file',
+        icon: 'upload',
+        size: 32
+    },
+    {
+        title: 'Flashcards',
+        url: '/Flashcards',
+        icon: 'library',
+        size: 32
+    },
+    {
+        title: 'Quizzes',
+        url: '/quizzes',
+        icon: 'barin-circuit',
+        size: 32
+    },
+    {
+        title: 'Settings',
+        url: '/settings',
+        icon: 'settings',
+        size: 32
+    }
+]
