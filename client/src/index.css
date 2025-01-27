@@ -11,4 +11,7 @@
     .btn-text {
         @apply border border-primary bg-transparent text-primary md:text-zinc-800
     }
+    .logo-tricker-image {
+        @apply h-8 w-auto
+    }
 }
