@@ -2,6 +2,7 @@ import React from 'react'
 import { herotext } from '../../constants'
 import { ArrowDown } from 'lucide-react'
 import heroimage from '../../assets/heroimage.png'
+import LogosTicker from './LogosTicker'
 const Hero = () => {
   return (
     <section className='pt-8 pl-4 pb-20 md:pt-5 md:pb-[59px] lg:pt-2 lg:pb-[68px] bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#183EC2,#fafcff_45%)] md:bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#183EC2,#fafcff_66%)] overflow-x-clip'>
@@ -25,7 +26,7 @@ const Hero = () => {
                         </div>
                     </div>
                     {/* image section */}
-                    <div className='mt-20 md:mt-0 md:w-2/3 lg:w-2/4 lg:ml-28 lg:right-0 xl:ml-40 xl:right-0'>
+                    <div className=' hidden md:block mt-20 md:mt-0 md:w-2/3 lg:w-2/4 lg:ml-28 lg:right-0 xl:ml-40 xl:right-0'>
                         <img src={heroimage} alt=" Prepgenius hero image"  />
                     </div>
                 </div>
@@ -33,6 +34,8 @@ const Hero = () => {
             </div>
             
         </div>
+        {/* Logos section */}
+        <LogosTicker/>
     </section>
   )
 }

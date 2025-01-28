@@ -1,12 +1,14 @@
 import React from 'react'
 import Navbar from './components/landingpage/navbar'
 import Hero from './components/landingpage/Hero'
-import LogosTicker from './components/landingpage/LogosTicker'
+import Subhero from './components/landingpage/Subhero'
+import Howitworks from './components/landingpage/Howitworks'
 const App = () => {
   return (<>
     <Navbar/>
     <Hero/>
-    <LogosTicker/>
+    <Subhero/>
+    <Howitworks/>
   </>
   )
 }

@@ -3,7 +3,7 @@
 @tailwind utilities;
 @layer components {
     .btn {
-        @apply  px-6 py-2 md:px-4 md:py-2 rounded-md font-medium inline-flex items-center justify-center 
+        @apply  px-4 py-2 md:px-4 md:py-2 rounded-md font-medium inline-flex items-center justify-center 
     }
     .btn-primary {
         @apply bg-primary text-white lg:bg-primary md:bg-black 
