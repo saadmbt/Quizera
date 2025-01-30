@@ -8,7 +8,7 @@ import hassan2 from '../../assets/unilogos/hassan-ii-university-of-casablanca-lo
 const LogosTicker = () => {
   return (
     <div className='py-4 mt-4 md:mt-8 md:w-full xl:w-full'>
-        <div className='container'>
+        <div className='container lg-centered'>
           <div className='flex items-center justify-center mb-6 text-sm text-black tracking-tight font-bold'>
             <h4 className='text-xl px-3 py-2 tracking-tight '>Used by student from </h4>
           </div>

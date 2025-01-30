@@ -63,7 +63,7 @@ export const Usedby = {
 }
 export const howitworks = {
         title: 'How it works',
-        Steps: ['Step 1: Upload your file', 'Step 2: Generate your quiz', 'Step 3: Test Your Knowledge', 'Step 4: Share your quiz'],
+        Steps: ['  Upload your file', '  Generate your quiz', '  Test Your Knowledge', '  Share your quiz'],
     }
 export const signupse = {
     title: 'Sign in and learn faster.',

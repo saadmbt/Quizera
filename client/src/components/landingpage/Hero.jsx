@@ -8,7 +8,7 @@ const Hero = () => {
     <section className='pt-8 pl-4 pb-20 md:pt-5 md:pb-[59px] lg:pt-2 lg:pb-[68px] bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#183EC2,#fafcff_45%)] md:bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#183EC2,#fafcff_66%)] overflow-x-clip'>
         {/* text section */}
         <div>
-            <div className='container'>
+            <div className='container lg-centered'>
                 <div className='md:flex items-center gap-6'>
                     <div className='md:w-[478px]'>
                         <div>

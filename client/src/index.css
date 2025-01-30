@@ -14,4 +14,10 @@
     .logo-tricker-image {
         @apply h-8 w-auto
     }
+    .sp {
+        @apply text-2xl text-primary
+    }
+    .lg-centered {
+        @apply lg:mx-auto xl:mx-auto 2xl:mx-auto
+    }
 }
