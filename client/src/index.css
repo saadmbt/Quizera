@@ -15,9 +15,15 @@
         @apply h-8 w-auto
     }
     .sp {
-        @apply text-2xl text-primary
+        @apply text-2xl text-primary font-bold lg:text-3xl md:text-2xl
     }
     .lg-centered {
         @apply lg:mx-auto xl:mx-auto 2xl:mx-auto
+    }
+    .section-title {
+        @apply text-center text-3xl md:text-[45px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#1884FF] text-transparent bg-clip-text
+    }
+    .section-Description {
+        @apply text-center text-[18px] leading-[30px] tracking-tight text-[#010D3E]
     }
 }

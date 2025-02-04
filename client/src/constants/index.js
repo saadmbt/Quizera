@@ -2,6 +2,7 @@
 // Date: 9th April 2021
 // Version: 1.0.0
 // Website Constants
+// "dialog" and "Radio Group" and "textarea"from shadin/cn
 export const websiteConstants = {
     // Website URL
     WEBSITE_URL: 'https://PrepGenius.com',
@@ -93,13 +94,13 @@ export const features = [
         Link: '/login'
     },
 ]
-export const pricing = [
+export const pricingTiers = [
     {
         title: 'Free',
         subtitle: 'Get started with 5 exam generations.',
         price: '$0',
         features: ['Create 5 Exam Generations','Share quizzes', 'Access to All Features','No Ads', 'No Limit on Questions'],
-        cta: 'Checkout',
+        cta: 'Checkout Now',
     },
     {
         title: 'Standard',
@@ -107,13 +108,16 @@ export const pricing = [
         old_price: '$9.99',
         price: '$4.99',
         features: ['Create 20 Exam Generations','Share quizzes', 'Access to All Features','No Ads', 'No Limit on Questions'],
+        cta: 'Checkout Now',
     },
     {
         title: 'Lifetime',
         subtitle: 'Unlimited exam generations for life.',
         old_price: '$25.99',
         price: '$19.99',
-        features: ['Create Unlimited Exam Generations','Share quizzes', 'Access to All Features','No Ads', 'No Limit on Questions', 'Free Updates Forever'],
+        features: ['Unlimited Exam Generations','Share quizzes', 'Access to All Features','No Ads', 'No Limit on Questions', 'Free Updates Forever'],
+        cta: 'Checkout Now',
+        pp:true
     }
 ]
 export const whyus = [
