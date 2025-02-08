@@ -3,7 +3,7 @@ import { navlinks } from '../../constants'
 import logo from '../../assets/logo3.png'
 const Navbar = () => {
   return (
-    <nav className='sticky top-0 py-2 px-2  shadow-md backdrop-blur-sm'>
+    <nav className='sticky top-0 z-10 py-2 px-2  shadow-md backdrop-blur-sm'>
       <div className='container lg-centered '>
           <div className='flex items-center justify-between '>
             <img src={logo} alt='logo' className='w-40 h-13'/>

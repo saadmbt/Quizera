@@ -75,21 +75,21 @@ export const features = [
     {
         title: 'Create quizzes from any document',
         subtitle: 'Upload any document, including PDFs, Word files, and more, and our tool will automatically extract text and generate questions based on the content.',
-        image: 'https://via.placeholder.com/150',
+        image: 'doc',
         cta: 'Try it now',
         Link: '/login'
     },
     {
         title: 'Instant quizzes',
         subtitle: 'Effortlessly create professional multiple-choice, true or false, and short-answer exams in any subject and language.',
-        image: 'https://via.placeholder.com/150',
+        image: 'flashcard',
         cta: 'Try it now',
         Link: '/login'
     },
     {
         title: 'Collaborate with others',
         subtitle: 'Invite your friends, classmates, or colleagues to collaborate on quizzes and share knowledge.',
-        image: 'https://via.placeholder.com/150',
+        image: 'shareq',
         cta: 'Try it now',
         Link: '/login'
     },
@@ -99,7 +99,7 @@ export const pricingTiers = [
         title: 'Free',
         subtitle: 'Get started with 5 exam generations.',
         price: '$0',
-        features: ['Create 5 Exam Generations','Share quizzes', 'Access to All Features','No Ads', 'No Limit on Questions'],
+        features: [{text:'Create 5 Exam Generations',icon:"Check"},{text:'Share quizzes',icon:"Check"}, {text:'Access to All Features',icon:"X"},{text:'No Ads',icon:"X"},{text:'No Limit on Questions',icon:"X"} ],
         cta: 'Checkout Now',
     },
     {
@@ -107,7 +107,7 @@ export const pricingTiers = [
         subtitle: 'Get started with 20 exam generations.',
         old_price: '$9.99',
         price: '$4.99',
-        features: ['Create 20 Exam Generations','Share quizzes', 'Access to All Features','No Ads', 'No Limit on Questions'],
+        features: [{text:'Create 20 Exam Generations',icon:"Check"},{text:'Share quizzes',icon:"Check"},{text:'20 Questions per Quiz',icon:"Check"}, {text:'Access to All Features',icon:"X"},{text:'No Ads',icon:"X"} ],
         cta: 'Checkout Now',
     },
     {
@@ -115,7 +115,7 @@ export const pricingTiers = [
         subtitle: 'Unlimited exam generations for life.',
         old_price: '$25.99',
         price: '$19.99',
-        features: ['Unlimited Exam Generations','Share quizzes', 'Access to All Features','No Ads', 'No Limit on Questions', 'Free Updates Forever'],
+        features: [{text:'Unlimited Exam Generations',icon:"Check"},{text:'Share quizzes',icon:"Check"},{text:'Access to All Features',icon:"Check"} ,{text:'No Ads',icon:"Check"},{text:'No Limit on Questions',icon:"Check"} ,{text:'Free Updates Forever',icon:"Check"} ],
         cta: 'Checkout Now',
         pp:true
     }
