@@ -5,6 +5,8 @@ import Subhero from './components/landingpage/Subhero'
 import Howitworks from './components/landingpage/howitworks'
 import Pricing from './components/landingpage/Pricing'
 import Features from './components/landingpage/Features'
+import FAQ from './components/landingpage/FAQ'
+import Whyus from './components/landingpage/Whyus'
 const App = () => {
   return (<>
     <Navbar/>
@@ -13,6 +15,8 @@ const App = () => {
     <Howitworks/>
     <Pricing/>
     <Features/>
+    <FAQ/>
+    <Whyus/>
   </>
   )
 }

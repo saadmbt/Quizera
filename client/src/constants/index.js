@@ -3,6 +3,12 @@
 // Version: 1.0.0
 // Website Constants
 // "dialog" and "Radio Group" and "textarea"from shadin/cn
+import Multidoc from '../assets/whyusicons/multidoc.svg';
+import Ieg from '../assets/whyusicons/Ieg.svg';
+import Target from '../assets/whyusicons/Target.svg';
+import ClockArrowUp from '../assets/whyusicons/clock-arrow-up.svg';
+import BrainCog from '../assets/whyusicons/brain-cog.svg';
+import Users from '../assets/whyusicons/users.svg';
 export const websiteConstants = {
     // Website URL
     WEBSITE_URL: 'https://PrepGenius.com',
@@ -122,26 +128,32 @@ export const pricingTiers = [
 ]
 export const whyus = [
     {
+        icon: Ieg,
         title: 'Instant Exam Generation',
         subtitle: "Whether you're a student gearing up for exams or a teacher designing assessments, our Multiple Choice Exam Maker is your go-to solution. Instantly create professional, multiple choice tests in any subject and language with ease",
     },
     {
-        title: 'Collaboration Made Easy',
-        subtitle: "Invite your friends, classmates, or colleagues to collaborate on quizzes and share knowledge. Our platform is designed to help you learn more efficiently and effectively.",
-    },
-    {
-        title: 'Accurate Questions',
-        subtitle: "Our  Exam Maker crafts relevant, challenging questions that truly test your understanding of the material.",
-    },
-    {
+        icon: Multidoc,
         title: 'Flexible Input Options',
         subtitle: "Create multiple-choice, true or false, and short-answer exams from text, PDFs, and images. Our Exam Maker effortlessly handles all formats.",
     },
     {
+        icon: Users,
+        title: 'Collaboration Made Easy',
+        subtitle: "Invite your friends, classmates, or colleagues to collaborate on quizzes and share knowledge. Our platform is designed to help you learn more efficiently and effectively.",
+    },
+    {
+        icon: Target ,
+        title: 'Accurate Questions',
+        subtitle: "Our  Exam Maker crafts relevant, challenging questions that truly test your understanding of the material.",
+    },
+    {
+        icon: ClockArrowUp,
         title: 'Save Time',
         subtitle: "Stop spending heures creating multiple choice tests manually. Our exam maker does the work for you in seconds.",
     },
     {
+        icon: BrainCog,
         title: 'Study Smarter',
         subtitle: "Practice with auto-generated multiple-choice, true or false, and short-answer questions to boost retention and test readiness.",
     }
