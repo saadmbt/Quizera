@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 import { X } from 'lucide-react';
 import { pricingTiers } from '../../constants'
 import { twMerge } from 'tailwind-merge'
+import Subhero from './Subhero';
 const Pricing = () => {
   return (
     <section className='bg-gradient-to-t from-[#FFFFFF] to-[#D2DCFF]' id='Pricing'>
@@ -38,6 +39,7 @@ const Pricing = () => {
                 {console.log(pricingTiers)}
             </div>
         </div>
+        <Subhero/>
     </section>
   )
 }
