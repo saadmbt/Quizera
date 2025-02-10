@@ -74,7 +74,7 @@ export const howitworks = {
     }
 export const signupse = {
     title: 'Sign in and learn faster.',
-    subtitle: ' Our platform is designed to help you learn more efficiently and effectively. Sign up today and start creating quizzes in minutes!',
+    subtitle: ' Our platform is designed to help you learn more efficiently and effectively. Sign up today and start creating quizzes in minutes !',
     cta: 'Go study',
 }
 export const features = [
@@ -208,35 +208,25 @@ export const contact = {
 // Footer Constants
 export const footerlinks = [
     {
-        title: 'About',
-        links: ['Our Mission', 'Our Team', 'Our Story', 'Our Values'],
-
+        title: 'How it works',
+        link: '',
     },
     {
-        title: 'Resources',
-        links: ['How it works', 'Features', 'Pricing', 'FAQs', 'Contact'],
+        title: 'Features',
+        link: '',
     },
     {
-        title: 'Social',
-        links: [
-            {
-                title: 'Facebook',
-                url: 'https://facebook.com'
-            },
-            {
-                title: 'Twitter',
-                url: 'https://twitter.com'
-            },
-            {
-                title: 'Instagram',
-                url: 'https://instagram.com'
-            },
-            {
-                title: 'LinkedIn',
-                url: 'https://linkedin.com'
-            },
-        ],
-    }
+        title: 'Pricing',
+        link: '',
+    },
+    {
+        title: 'FAQs',
+        link: '',
+    },
+    {
+        title: 'Contact',
+        link: '',
+    },
 ]
 // End Landing page Constants
 

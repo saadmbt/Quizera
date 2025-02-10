@@ -7,16 +7,19 @@ import Pricing from './components/landingpage/Pricing'
 import Features from './components/landingpage/Features'
 import FAQ from './components/landingpage/FAQ'
 import Whyus from './components/landingpage/Whyus'
+import Calltoaction from './components/landingpage/Calltoaction'
+import Footer from './components/landingpage/Footer'
 const App = () => {
   return (<>
     <Navbar/>
     <Hero/>
-    <Subhero/>
     <Howitworks/>
     <Pricing/>
     <Features/>
-    <FAQ/>
     <Whyus/>
+    <FAQ/>
+    <Calltoaction/>
+    <Footer/>
   </>
   )
 }

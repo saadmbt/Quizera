@@ -5,14 +5,14 @@ import heroimage from '../../assets/heroimage.png'
 import LogosTicker from './LogosTicker'
 const Hero = () => {
   return (
-    <section className='pt-8 pl-4 pb-20 md:pt-5 md:pb-[59px] lg:pt-2 lg:pb-[68px] bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#183EC2,#fafcff_45%)] md:bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#183EC2,#fafcff_66%)] overflow-x-clip'>
+    <section className='pt-8 pl-4 pb-20 md:pt-5 md:pb-[59px] lg:pt-2 lg:pb-[68px] bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#D2DCFF,#fafcff_45%)] md:bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#D2DCFF,#fafcff_66%)] overflow-x-clip'>
         {/* text section */}
         <div>
             <div className='container lg-centered'>
                 <div className='md:flex items-center gap-6'>
                     <div className='md:w-[478px]'>
                         <div>
-                            <div className='text-sm inline-flex border border-primary px-3 py-1 rounded-lg tracking-tight shadow-md'>{herotext.upsub}</div>
+                            <div className='text-sm inline-flex border border-primary px-3 py-1 mt-1 md:mt-4 rounded-lg tracking-tight shadow-md'>{herotext.upsub}</div>
                             <h1 className='text-5xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#1884FF] text-transparent bg-clip-text mt-6'>{herotext.title}</h1>
                             <p className='text-xl text-[#010D3E] tracking-tighter mt-6 md:text-lg'>{herotext.subtitle}</p>
                         </div>

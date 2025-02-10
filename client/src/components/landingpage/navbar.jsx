@@ -7,7 +7,7 @@ const Navbar = () => {
       <div className='container lg-centered '>
           <div className='flex items-center justify-between '>
             <img src={logo} alt='logo' className='w-40 h-13'/>
-            <button className='btn btn-primary h-10 w-5 md:hidden'>☰</button>
+            <button className='font-semibold h-10 w-5 md:hidden'>☰</button>
           
           <div className='hidden  md:flex gap-6 text-black/80 items-center '>
             {navlinks.map((link, index) => (

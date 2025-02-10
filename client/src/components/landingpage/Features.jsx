@@ -12,7 +12,7 @@ const Features = () => {
         </div>
         <div className='lg:flex lg:gap-4 xl:flex xl:gap-14 md:grid md:grid-cols-2 gap-4 md:justify-center lg:items-end'>
             {features.map((feature,i)=>{
-                return <div key={i} className='bg-white p-6 border  border-[#F1F1F1] rounded-3xl shadow-[0_7px_14px_#EAEAEA] mb-6 max-w-[300px]  mx-auto'>
+                return <div key={i} className='bg-white p-6 border  border-[#F1F1F1] rounded-3xl  transition-all hover:shadow-lg shadow-[0_7px_14px_#EAEAEA] mb-6 max-w-[300px]  mx-auto'>
                     <div className='aspect-video w-[150px] mx-auto'>
                         <img src={(feature.image==="flashcard")?flashcard:(feature.image==="shareq")?shareq:doc} alt="" />
                     </div>
