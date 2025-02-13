@@ -1,8 +1,16 @@
 import React ,{ useEffect, useRef }from 'react'
 import { howitworks } from '../../constants'
 import video from "../../assets/landingpageexam.mp4"
+import { motion,useScroll ,useTransform} from "framer-motion"
+
 const Howitworks = () => {
+  const containerRef = useRef(null)
   const videoRef = useRef(null)
+  const { scrollYProgress } =useScroll({
+    target: containerRef,
+    offset:['start end','end start']
+  })
+  const translateY = useTransform(scrollYProgress,[0,1],[100,-150])
   useEffect(()=>{
     const observ= new IntersectionObserver((entries)=>{
       if(entries[0].isIntersecting){
@@ -17,11 +25,11 @@ const Howitworks = () => {
     return ()=>observ.unobserve(videoRef.current);
   },[])
   return (
-    <section className='py-8 px-4 bg-gradient-to-b from-[#FFFFFF] to-[#D2DCFF]' id='howitworks'>
-        <div className='container lg-centered'>
+    <section className='py-14 px-4 bg-gradient-to-b from-[#FFFFFF] to-[#D2DCFF]' id='howitworks'>
+        <div className='container lg-centered mt-4' ref={containerRef}>
             <div className='flex justify-center flex-col items-center gap-4'>                            
                 <h2 className='section-title'>{howitworks.title}</h2>
-                <ul className='flex flex-col gap-2 px-4 md:gap-3  lg:flex-row lg:gap-8'>
+                <ul className='flex flex-col gap-2 px-4 md:grid md:grid-cols-2   md:gap-4 lg:flex lg:flex-row lg:gap-8'>
                   {howitworks.Steps.map((item, i) => (
                     <li key={i} className='text-center font-bold '><span className='sp'>{i+1}  </span>{item}</li>
                   ))}
@@ -38,6 +46,8 @@ const Howitworks = () => {
                       muted
                       loop
                       playsInline
+                      
+              
                     />
                 </div>
             </div>
