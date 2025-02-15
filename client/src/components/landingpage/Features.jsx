@@ -6,7 +6,7 @@ import doc from '../../assets/Featuresimg/doc.png'
 import { motion } from "framer-motion"
 import {fadeIn} from '../../constants/variants'
 const Features = () => {
-  return (<section className='bg-gradient-to-b from-[#FFFFFF] to-[#D2DCFF]' id='Pricing'>
+  return (<section className='bg-gradient-to-b from-[#FFFFFF] to-[#D2DCFF]' id='Features'>
     <div className="container lg-centered py-10 px-4">
         <motion.div 
         variants={fadeIn('up',0.3)}
@@ -33,7 +33,7 @@ const Features = () => {
                         <h3 className='text-lg  md:text-xl font-bold mt-2'>{feature.title}</h3>
                         <p className=' text-sm font-bold text-slate-500 mt-2 tracking-tight'>{feature.subtitle}</p>
                     </div>
-                    <button className='btn btn-text py-1 mt-4 bottom-0'>{feature.cta}</button>
+                    <a href='/Login' className='btn btn-text py-1 mt-4 bottom-0'>{feature.cta}</a>
                 </div>
             })}
         </motion.div>
