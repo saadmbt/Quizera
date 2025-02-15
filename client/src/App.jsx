@@ -1,8 +1,8 @@
 import React from 'react'
-import LandingpageLayout from './layouts/LandingpageLayout'
+import Home from './routes/Home'
 const App = () => {
   return (<>
-    <LandingpageLayout/>
+    <Home/>
   </>
   )
 }

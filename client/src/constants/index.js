@@ -26,19 +26,23 @@ export const websiteConstants = {
 export const navlinks = [
     {
         title: 'How it works',
-        url: '/how-it-works'
+        url: 'howitworks',
+        external: false
     },
     {
         title: 'Features',
-        url: '/features'
+        url: 'Features',
+        external: false
     },
     {
         title: 'Pricing',
-        url: '/pricing'
+        url: 'Pricing',
+        external: false
     },
     {
         title: 'About', 
-        url: '/about'
+        url: '/about',
+        external: true
     },
 ]
 // Hero Text
@@ -61,12 +65,6 @@ export const herotext2 = {
 }
 export const Usedby = {
     title: 'Educators, Students, and Professionals around the world',
-    images: [
-        'https://via.placeholder.com/150',
-        'https://via.placeholder.com/150',
-        'https://via.placeholder.com/150',
-        'https://via.placeholder.com/150',
-    ]
 }
 export const howitworks = {
         title: 'How it works',
@@ -209,23 +207,28 @@ export const contact = {
 export const footerlinks = [
     {
         title: 'How it works',
-        link: '',
+        url: 'howitworks',
+        external: false
     },
     {
         title: 'Features',
-        link: '',
+        url: 'Features',
+        external: false
     },
     {
         title: 'Pricing',
-        link: '',
+        url: 'Pricing',
+        external: false
     },
     {
         title: 'FAQs',
-        link: '',
+        link: 'FAQ',
+        external: false
     },
     {
         title: 'Contact',
-        link: '',
+        link: '/Contact',
+        external: true
     },
 ]
 // End Landing page Constants
