@@ -4,7 +4,7 @@ import {ArrowUpRight}  from 'lucide-react'
 const Calltoaction = () => {
   return (<section className='pt-14 bg-gradient-to-t from-[#FFFFFF] to-[#D2DCFF]'>
     <div className="container lg-centered py-10 px-4 max-w-[900px]">
-        <div className='bg-gradient-to-r from-sky-500 to-cyan-400 text-gray-950 py-8 md:py-10 px-10 rounded-3xl text-center md:text-left transform transition duration-500 hover:scale-x-105 '> 
+        <div className='bg-gradient-to-r from-blue-500 via-sky-200 to-[#D2DCFF] text-gray-950 py-8 md:py-10 px-10 rounded-3xl text-center md:text-left  '> 
             <div className='flex flex-col md:flex-row lg:gap-24 '>
                 <div>
                     <h2 className='font-poppins font-bold text-2xl '>{signupse.title}</h2>
