@@ -6,9 +6,15 @@ import Cambridge from '../../assets/unilogos/Cambridge.png'
 import akhawayn from '../../assets/unilogos/al-akhawayn-university-logo.png'
 import hassan2 from '../../assets/unilogos/hassan-ii-university-of-casablanca-logo.png'
 import { motion } from "framer-motion"
+import {fadeIn} from '../../constants/variants'
 const LogosTicker = () => {
   return (
-    <div className='py-4 mt-4 md:mt-8 md:w-full xl:w-full'>
+    <motion.div 
+        variants={fadeIn('up',0.2)}
+        initial='hidden'
+        whileInView={'show'}
+        viewport={{once:false,amount:0.7}}
+    className='py-4 mt-4 md:mt-8 md:w-full xl:w-full'>
         <div className='container lg-centered'>
           <div className='flex items-center justify-center mb-6 text-sm text-black tracking-tight font-bold'>
             <h4 className='text-xl px-3 py-2 tracking-tight '>Used by student from </h4>
@@ -42,7 +48,7 @@ const LogosTicker = () => {
           </div>
             
         </div>
-    </div>
+    </motion.div>
   )
 }
 

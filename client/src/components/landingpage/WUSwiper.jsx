@@ -6,10 +6,15 @@ import 'swiper/css/pagination'
 import 'swiper/css/free-mode'
 import 'swiper/css/autoplay'
 import { Pagination, FreeMode, Autoplay } from 'swiper/modules'
-
+import { motion } from "framer-motion"
+import {fadeIn} from '../../constants/variants'
 const WUSwiper = () => {
     return (
-        <div className='flex items-center mt-8 flex-col lg:hidden'>
+        <motion.div 
+        variants={fadeIn('up',0.2)}
+        initial='hidden'
+        whileInView={'show'}
+        className='flex items-center mt-8 flex-col lg:hidden'>
             <Swiper
                 breakpoints={{
                     340: {
@@ -39,7 +44,7 @@ const WUSwiper = () => {
                     </SwiperSlide>
                 ))}
             </Swiper>
-        </div>
+        </motion.div>
     )
 }
 

@@ -53,8 +53,8 @@ export const herotext = {
     heroimage: 'https://via.placeholder.com/500'
 }
 export const herotext2 = {
-    title: 'The Ultimate Quiz Generator From Any ',
-    variable: ['Document', 'PDF', 'Word File', 'Text File', 'Image', 'Presentation'],
+    title: 'The Ultimate Quiz Generator From',
+    variable: ['Document', 'PDF', 'Word', 'Text', 'Image', 'Presentation'],
     subtitle: "Create quizzes from any document, including PDFs, Word files, and more. Our tool automatically extracts text from your files and generates questions based on the content. Say goodbye to manual question creation and hello to instant quizzes!",
     cta: 'Create Your First Exam ',
     url: '/login',

@@ -18,7 +18,7 @@
         @apply text-2xl text-primary font-bold lg:text-3xl md:text-2xl
     }
     .lg-centered {
-        @apply lg:mx-auto xl:mx-auto 2xl:mx-auto
+        @apply lg:mx-auto xl:mx-auto 2xl:mx-auto overflow-x-hidden
     }
     .section-title {
         @apply text-center text-3xl md:text-[45px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#1884FF] text-transparent bg-clip-text
