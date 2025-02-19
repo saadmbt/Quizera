@@ -3,15 +3,15 @@ import { navlinks } from '../../constants';
 import logo from '../../assets/logo3.png';
 import { X } from 'lucide-react';
 import { AlignJustify } from 'lucide-react';
-import { twMerge } from 'tailwind-merge';
 import { motion } from 'framer-motion';
 import {Link} from 'react-scroll'
+import { twMerge } from 'tailwind-merge';
 
-const Navbar = () => {
+const Navbar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className='sticky top-0 z-10 py-3 px-2 shadow-md backdrop-blur-sm'>
+    <nav className={twMerge('sticky top-0 z-10 py-3 px-2 shadow-md backdrop-blur-sm', props.ishowing === false && "hidden md:hidden")}>
       <div className='container lg-centered'>
         <div className='flex items-center justify-between'>
           <a href='/' className='cursor-pointer'>
