@@ -39,10 +39,10 @@ const Navbar = (props) => {
 
           {/* Button section */}
           <div className='hidden md:flex gap-5 lg:flex lg:gap-6'>
-            <a href='/Signup' className='btn border border-primary text-primary px-6 py-2 rounded-lg font-medium inline-flex align-items justify-center hover:scale-95'>
+            <a href='/auth/Signup' className='btn border border-primary text-primary px-6 py-2 rounded-lg font-medium inline-flex align-items justify-center hover:scale-95'>
               sign up
             </a>
-            <a href='/Login' className='bg-primary text-white px-8 py-2 rounded-md font-medium inline-flex align-items justify-center hover:scale-95'>
+            <a href='/auth/Login' className='bg-primary text-white px-8 py-2 rounded-md font-medium inline-flex align-items justify-center hover:scale-95'>
               login
             </a>
           </div>
@@ -67,10 +67,10 @@ const Navbar = (props) => {
             ))}
             </div>
             <div className='flex  items-center justify-center gap-5 mt-4'>
-              <a href='/Signup' className='btn border border-primary text-primary px-6 py-2 rounded-lg font-medium inline-flex align-items justify-center hover:scale-95'>
+              <a href='/auth/Signup' className='btn border border-primary text-primary px-6 py-2 rounded-lg font-medium inline-flex align-items justify-center hover:scale-95'>
                 sign up
               </a>
-              <a href='/Login' className='bg-primary text-white px-8 py-2 rounded-md font-medium inline-flex align-items justify-center hover:scale-95'>
+              <a href='/auth/Login' className='bg-primary text-white px-8 py-2 rounded-md font-medium inline-flex align-items justify-center hover:scale-95'>
                 login
               </a>
             </div>

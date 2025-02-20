@@ -51,7 +51,7 @@ export const herotext = {
     subtitle: "Unlock your potential with our innovative exam maker. Whether you're a student gearing up for exams or a teacher designing assessments, our tool is your go-to solution. Effortlessly create professional multiple-choice, true or false, and short-answer exams in any subject and language.",
     upsub: 'Available in all the  Languages',
     cta: 'Create Your First Exam ',
-    url: '/login',
+    url: '/auth/login',
     lmbtn: 'Learn More',
     url2: '/learn-more',
     heroimage: 'https://via.placeholder.com/500'
@@ -61,7 +61,7 @@ export const herotext2 = {
     variable: ['Document', 'PDF', 'Word', 'Text', 'Image', 'Presentation'],
     subtitle: "Create quizzes from any document, including PDFs, Word files, and more. Our tool automatically extracts text from your files and generates questions based on the content. Say goodbye to manual question creation and hello to instant quizzes!",
     cta: 'Create Your First Exam ',
-    url: '/login',
+    url: '/auth/login',
 }
 export const Usedby = {
     title: 'Educators, Students, and Professionals around the world',
@@ -81,21 +81,21 @@ export const features = [
         subtitle: 'Upload any document, including PDFs, Word files, and more, and our tool will automatically extract text and generate questions based on the content.',
         image: 'doc',
         cta: 'Try it now',
-        Link: '/login'
+        Link: '/auth/login'
     },
     {
         title: 'Instant quizzes',
         subtitle: 'Effortlessly create professional multiple-choice, true or false, and short-answer exams in any subject and language.',
         image: 'flashcard',
         cta: 'Try it now',
-        Link: '/login'
+        Link: '/auth/login'
     },
     {
         title: 'Collaborate with others',
         subtitle: 'Invite your friends, classmates, or colleagues to collaborate on quizzes and share knowledge.',
         image: 'shareq',
         cta: 'Try it now',
-        Link: '/login'
+        Link: '/auth/login'
     },
 ]
 export const pricingTiers = [

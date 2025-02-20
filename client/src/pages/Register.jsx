@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { auth } from "../../firebase-config";
+import { auth } from "../firebase-config";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   deleteUser,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { GoogleAuth } from "../components/Auth/GoogleAuth";
+import logo from '../assets/logo3.png';
 
 export default function Register() {
   const [registerEmail, setRegisterEmail] = useState("");
@@ -88,7 +90,10 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-blue-100">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-blue-100">
+      <a href='/' className='cursor-pointer flex items-center justify-center'>
+          <img src={logo} alt='logo' className='w-64 h-13' />
+        </a>
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center text-gray-800">
           Register
@@ -172,10 +177,11 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50"
+            className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
             {loading ? "Registering..." : "Register"}
           </button>
+          <GoogleAuth />
         </form>
       </div>
     </div>
