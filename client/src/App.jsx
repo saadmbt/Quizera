@@ -1,8 +1,11 @@
 import React from 'react'
 import Home from './routes/Home'
+import { AuthProvider } from './components/Auth/AuthContext'
 const App = () => {
   return (<>
-    <Home/>
+    <AuthProvider>
+      <Home/>
+    </AuthProvider>
   </>
   )
 }
