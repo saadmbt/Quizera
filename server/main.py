@@ -41,43 +41,14 @@ DropBox_Access_Token = os.environ.get('DropBox_access_token')
       
 # User Management Endpoints
 
-@app.route('/api/signup', methods=['POST'])
-def signup():
-    data = request.json
-    if not data or not all(k in data for k in ("username","password","email")):
-        response=jsonify({"error": "Invalid input"})
-        return response, 400
-    # Create user in Firebase
-    try:
-        user = auth.create_user(
-            email=data["email"],
-            password=data["password"],
-            display_name=data["username"]
-        )
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-    access_token=create_token(user.uid)
-    response=jsonify({"message": "User created successfully",'firebase_uid':user.uid, "access_token": access_token})
-    # Set the access token in a cookie
-    response.set_cookie(
-        'access_token', 
-        access_token, 
-        # httponly=True,  # Prevent JavaScript access to the cookie
-        # secure=True,    # Use secure cookies (only sent over HTTPS)
-        # samesite='Lax'  # Helps prevent CSRF attacks
-    )
-    return response, 201
-
-
-@app.route('/api/login', methods=['GET'])
+@app.route('/api/auth', methods=['GET'])
 def login():
     user_token=request.headers['Authorization']
     try:
         decoded_token = auth.verify_id_token(user_token)
         uid = decoded_token['uid']
         access_token = create_token(uid)
-        response = jsonify({"message": "Login successful", "access_token": access_token})
+        response = jsonify({"message": "auth successful", "access_token": access_token})
         # Set the access token in a cookie
         response.set_cookie(
             'access_token', 
@@ -87,8 +58,8 @@ def login():
             # samesite='Lax'  # Helps prevent CSRF attacks
         )
         return response, 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+    except auth.UserNotFoundError:
+        return jsonify({'error': 'User  not found'}), 404
 
 @app.route('/api/profile', methods=['GET'])
 @jwt_required()
@@ -106,8 +77,8 @@ def profile():
         }
         response = jsonify({"user": user_info})
         return response, 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+    except auth.UserNotFoundError:
+        return jsonify({'error': 'User  not found'}), 404
     
 # User Management Endpoints is done and tested 100% 
 # Next step is to implement the user management endpoints for the admin
