@@ -41,14 +41,20 @@ DropBox_Access_Token = os.environ.get('DropBox_access_token')
       
 # User Management Endpoints
 
-@app.route('/api/auth', methods=['GET'])
+@app.route('/api/auth', methods=['POST'])
 def login():
-    user_token=request.headers['Authorization']
+    """
+    Authenticate a user using the Firebase Auth service.
+    """
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    user_token = data["uid"]
     try:
         decoded_token = auth.verify_id_token(user_token)
         uid = decoded_token['uid']
         access_token = create_token(uid)
-        response = jsonify({"message": "auth successful", "access_token": access_token})
+        response = jsonify({"access_token": access_token})
         # Set the access token in a cookie
         response.set_cookie(
             'access_token', 
