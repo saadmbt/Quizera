@@ -8,6 +8,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { GoogleAuth } from "../components/Auth/GoogleAuth";
 import logo from '../assets/logo3.png';
+import getJWT from "../services/authService";
 
 export default function Register() {
   const [registerEmail, setRegisterEmail] = useState("");
@@ -52,6 +53,7 @@ export default function Register() {
           clearInterval(interval); // Arrêter l'intervalle
           setVerificationStatus("success"); // Mettre à jour le statut à "success"
           setErrorMessage("Email verified. Registration successful.");
+          getJWT(user.uid);
           navigate("/login"); // Rediriger l'utilisateur
         }
 

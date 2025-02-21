@@ -8,6 +8,7 @@ export const AuthContext = createContext();
 // Crée un fournisseur de contexte
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // L'état de l'utilisateur connecté
+  const [role, setrole] = useState(''); // role of the user 
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

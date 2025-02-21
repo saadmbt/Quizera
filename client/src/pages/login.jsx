@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleAuth } from "../components/Auth/GoogleAuth";
 import logo from '../assets/logo3.png';
 import { ArrowLeft } from "lucide-react";
+import getJWT from "../services/authService";
 
 export default function LoginWithFirebase() {
   const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ export default function LoginWithFirebase() {
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const navigate = useNavigate();
-
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -26,7 +27,10 @@ export default function LoginWithFirebase() {
         password
       );
       const user = userCredential.user;
-if (user) navigate("/dashboard");
+      if (user){
+        getJWT(user.uid);
+        navigate("/dashboard")
+      } ;
      
     } catch (error) {
       console.error("Login failed:", error.code, error.message);
