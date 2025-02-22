@@ -1,11 +1,11 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Navbar from '../components/landingpage/Navbar';
+import Navbar from '../components/Auth/navbarAuth';
 
 const AuthLayout = () => {
     return (
         <>
-            <Navbar ishowing={false} />
+            <Navbar />
             <Outlet />
         </>
     );

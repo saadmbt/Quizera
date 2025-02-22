@@ -8,7 +8,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { GoogleAuth } from "../components/Auth/GoogleAuth";
 import logo from '../assets/logo3.png';
-import getJWT from "../services/authService";
 
 export default function Register() {
   const [registerEmail, setRegisterEmail] = useState("");
@@ -53,7 +52,6 @@ export default function Register() {
           clearInterval(interval); // Arrêter l'intervalle
           setVerificationStatus("success"); // Mettre à jour le statut à "success"
           setErrorMessage("Email verified. Registration successful.");
-          getJWT(user.uid);
           navigate("/login"); // Rediriger l'utilisateur
         }
 
@@ -93,9 +91,6 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-blue-100">
-      <a href='/' className='cursor-pointer flex items-center justify-center'>
-          <img src={logo} alt='logo' className='w-64 h-13' />
-        </a>
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center text-gray-800">
           Register
@@ -185,6 +180,15 @@ export default function Register() {
           </button>
           <GoogleAuth />
         </form>
+        <p className="text-sm text-center text-gray-600">
+          Allready have an account?{" "}
+          <span
+            onClick={() => navigate("/auth/Login")}
+            className="text-blue-500 hover:underline cursor-pointer"
+          >
+            Login now
+          </span>
+        </p>
       </div>
     </div>
   );

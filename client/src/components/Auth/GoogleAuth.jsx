@@ -1,7 +1,7 @@
-import { FaGoogle } from "react-icons/fa";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../firebase-config";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../../firebase-config';
 import Google from '../../assets/google-logo.svg';
 
 export const GoogleAuth = () => {
@@ -11,11 +11,17 @@ export const GoogleAuth = () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      //console.log("Google User:", result.user);
-      navigate("/dashboard"); // Redirect to dashboard after Google login
+      const isNewUser = result.additionalUserInfo.isNewUser;
+      console.log(isNewUser);
+      console.log(result.additionalUserInfo);
+      if (isNewUser) {
+        navigate("/choistype"); // Redirect to choistype if the user is new
+      } else {
+        navigate("/dashboard"); // Redirect to dashboard if the user already has an account
+      }
     } catch (error) {
       console.error("Google Login Error:", error.message);
-      alert(`Error: ${error.message}`);
+      console.error(`Error: ${error.message}`);
     }
   };
 

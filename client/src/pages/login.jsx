@@ -3,8 +3,7 @@ import { auth } from "../firebase-config";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuth } from "../components/Auth/GoogleAuth";
-import logo from '../assets/logo3.png';
-import { ArrowLeft } from "lucide-react";
+
 import getJWT from "../services/authService";
 
 export default function LoginWithFirebase() {
@@ -60,13 +59,6 @@ export default function LoginWithFirebase() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-blue-100">
-      <div className=" hidden  lg:absolute top-14 left-8 lg:flex  items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-      <ArrowLeft size={24} />
-      <p className="text-lg font-bold">Back Home</p>
-      </div>
-      <a href='/' className='cursor-pointer flex items-center justify-center'>
-          <img src={logo} alt='logo' className='w-64 h-13' />
-        </a>
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         
         <h2 className="text-3xl font-bold text-center text-gray-800">Login</h2>
