@@ -53,8 +53,6 @@ export const herotext = {
     cta: 'Create Your First Exam ',
     url: '/auth/login',
     lmbtn: 'Learn More',
-    url2: '/learn-more',
-    heroimage: 'https://via.placeholder.com/500'
 }
 export const herotext2 = {
     title: 'The Ultimate Quiz Generator From',
