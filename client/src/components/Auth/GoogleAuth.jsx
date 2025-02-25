@@ -1,8 +1,8 @@
-import React ,{useEffect}from 'react';
+import React ,{ useEffect } from 'react';
+import Google from '../../assets/google-logo.svg';
 import { useNavigate } from 'react-router-dom';
 import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth } from '../../firebase-config';
-import Google from '../../assets/google-logo.svg';
 
 export const GoogleAuth = () => {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export const GoogleAuth = () => {
     try {
       await signInWithRedirect(auth, provider);
     } catch (error) {
-      console.error("Google Login Error:", error.message);
+      console.error("Google Login Error:", error);
     }
   };
 
@@ -42,9 +42,12 @@ export const GoogleAuth = () => {
     <button
       type="button"
       onClick={handleGoogleLogin}
-      className="w-full h-10 flex items-center justify-center border border-gray-200 bg-transparent  text-black font-semibold rounded-lg  hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      className="
+        w-full h-10 flex items-center justify-center border border-gray-200 bg-transparent rounded-md
+        ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-400
+      "
     >
-      <img src={Google} className='w-5 h-5 mr-2' />
+      <img src={Google} alt="Google logo" className='w-5 h-5 mr-2' />
       Sign in with Google
     </button>
   </div>
