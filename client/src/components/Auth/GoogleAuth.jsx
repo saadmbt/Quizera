@@ -24,13 +24,13 @@ export const GoogleAuth = () => {
           const isNewUser = result.additionalUserInfo.isNewUser;
           console.log("isNewUser:", isNewUser);
           if (isNewUser) {
-            navigate("/choistype"); // Redirect to choistype if the user is new
+            navigate("/choosetype"); // Redirect to choosetype if the user is new
           } else {
             navigate("/dashboard"); // Redirect to  dashboard if the user already has an account
           }
         }
       } catch (error) {
-        console.error("Google Login Error:", error.message);
+        console.error("Google Login Error:", error);
       }
     };
 
@@ -47,7 +47,7 @@ export const GoogleAuth = () => {
         ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-400
       "
     >
-      <img src={Google} alt="Google logo" className='w-5 h-5 mr-2' />
+      <img src={Google} alt="Google logo" className='w-5 h-5 mr-2' loading="lazy" />
       Sign in with Google
     </button>
   </div>
