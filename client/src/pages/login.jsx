@@ -3,9 +3,7 @@ import { auth } from "../firebase-config";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuth } from "../components/Auth/GoogleAuth";
-
-import getJWT from "../services/authService";
-
+import { GoogleLogin } from "@react-oauth/google";
 export default function LoginWithFirebase() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -119,6 +117,7 @@ export default function LoginWithFirebase() {
             {loading ? "Logging in..." : "Log in"}
           </button>
           <GoogleAuth />
+          <GoogleLogin onSuccess={(Credential)=>{ console.log(Credential)}} />
         </form>
         <p className="text-sm text-center text-gray-600">
           Forgot your password?{" "}
