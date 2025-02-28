@@ -116,8 +116,7 @@ export default function LoginWithFirebase() {
           >
             {loading ? "Logging in..." : "Log in"}
           </button>
-          <GoogleAuth />
-          <GoogleLogin onSuccess={(Credential)=>{ console.log(Credential)}} />
+          <GoogleLogin onSuccess={(Credential)=>{ console.log(Credential)}} className="w-full h-10 flex items-center justify-center border border-gray-200 bg-transparent  text-black font-semibold rounded-lg  hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-400" />
         </form>
         <p className="text-sm text-center text-gray-600">
           Forgot your password?{" "}
