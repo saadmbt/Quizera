@@ -29,21 +29,21 @@ const LogosTicker = () => {
                 ease: "linear"
                }}
             >
-                <img src={Stanford} alt="Stanford logo" className='logo-tricker-image'/>
-                <img src={Oxford} alt="Oxford logo" className='logo-tricker-image'/>
-                <img src={Cambridge} alt="Cambridge logo" className='logo-tricker-image'/>
-                <img src={akhawayn} alt="akhawayn logo" className='logo-tricker-image'/>
-                <img src={hassan2} alt="hassan2 logo" className='logo-tricker-image'/>
-                <img src={Harvard} alt="Harvard logo" className='logo-tricker-image'/>
+                <img src={Stanford} alt="Stanford logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={Oxford} alt="Oxford logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={Cambridge} alt="Cambridge logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={akhawayn} alt="akhawayn logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={hassan2} alt="hassan2 logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={Harvard} alt="Harvard logo" className='logo-tricker-image' loading="lazy"/>
 
                 {/* Second set of logos of animation */}
                 
-                <img src={Stanford} alt="Stanford logo" className='logo-tricker-image'/>
-                <img src={Oxford} alt="Oxford logo" className='logo-tricker-image'/>
-                <img src={Cambridge} alt="Cambridge logo" className='logo-tricker-image'/>
-                <img src={akhawayn} alt="akhawayn logo" className='logo-tricker-image'/>
-                <img src={hassan2} alt="hassan2 logo" className='logo-tricker-image'/>
-                <img src={Harvard} alt="Harvard logo" className='logo-tricker-image'/>
+                <img src={Stanford} alt="Stanford logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={Oxford} alt="Oxford logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={Cambridge} alt="Cambridge logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={akhawayn} alt="akhawayn logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={hassan2} alt="hassan2 logo" className='logo-tricker-image' loading="lazy"/>
+                <img src={Harvard} alt="Harvard logo" className='logo-tricker-image' loading="lazy"/>
               </motion.div>
           </div>
             

@@ -36,7 +36,7 @@ const WUSwiper = () => {
                     <SwiperSlide key={index}>
                         <div className='bg-white p-6 border border-[#F1F1F1] rounded-3xl shadow-[0_7px_14px_#EAEAEA] mb-14 max-w-[350px] min-h-[200px] mx-auto'>
                             <div className='flex items-center gap-4'>
-                                <img src={item.icon} className='w-10 h-10' />
+                                <img src={item.icon} className='w-10 h-10' loading="lazy"/>
                                 <span className='text-lg md:text-lg font-bold'> {item.title}</span>
                             </div>
                             <p className='text-sm font-bold text-slate-500 mt-2 tracking-tight my-auto mx-auto'>{item.subtitle}</p>

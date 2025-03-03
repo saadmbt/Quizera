@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { auth } from "../firebase-config";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { GoogleAuth } from "../components/Auth/GoogleAuth";
 import { GoogleLogin } from "@react-oauth/google";
+import {jwtDecode} from "jwt-decode";
+
 export default function LoginWithFirebase() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,7 +57,7 @@ export default function LoginWithFirebase() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-blue-100">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-blue-100" loading="lazy">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         
         <h2 className="text-3xl font-bold text-center text-gray-800">Login</h2>
