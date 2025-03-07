@@ -11,6 +11,12 @@ const Home = () => {
         <Route path="/" element={<MainLayout/>}>
             <Route index element={<Landingpage/>}/>
             <Route path='/Contact' element={<Contactpage/>}/>
+            <Route path="/profDash" element={<ProtectedRoute allowedRoles={["professeur"]}>
+                <Profdashbord/>
+                </ProtectedRoute>}/>
+            <Route path="/studentDash" element={<ProtectedRoute allowedRoles={["student"]}>
+                <Studdashbord/>
+                </ProtectedRoute>}/>
             <Route path='*' element={<NotFoundpage/>}/> 
         </Route>
         {authRoutes}

@@ -3,9 +3,9 @@ import { auth } from "../firebase-config";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
-  deleteUser,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { db } from "../firebase-config";
 import { GoogleAuth } from "../components/Auth/GoogleAuth";
 import logo from '../assets/logo3.png';
 
@@ -30,25 +30,32 @@ export default function Register() {
     }
 
     try {
-      // Créer un utilisateur temporaire
-      const tempUserCredential = await createUserWithEmailAndPassword(
+      const userCredential = await createUserWithEmailAndPassword(
         auth,
         registerEmail,
         registerPassword
       );
-      const tempUser = tempUserCredential.user;
+      const user = userCredential.user;
 
-      // Envoyer un email de vérification
-      await sendEmailVerification(tempUser);
+      // Add user data to Firestore
+      await db.collection("users").doc(user.uid).set({
+        email: user.email,
+        role: "user",
+        username: user.email.split("@")[0],
+        created_at: new Date().toISOString(),
+      });
+
+      // Send email verification
+      await sendEmailVerification(user);
       setVerificationStatus("waiting"); // Mettre le statut à "waiting" après l'envoi de l'email
 
       // Débuter un intervalle pour vérifier l'état de vérification
       const startTime = Date.now();
       const interval = setInterval(async () => {
-        await tempUser.reload();
+        await user.reload();
 
         // Si l'email est vérifié
-        if (tempUser.emailVerified) {
+        if (user.emailVerified) {
           clearInterval(interval); // Arrêter l'intervalle
           setVerificationStatus("success"); // Mettre à jour le statut à "success"
           setErrorMessage("Email verified. Registration successful.");
@@ -58,7 +65,6 @@ export default function Register() {
         // Si plus de 60 secondes se sont écoulées
         if (Date.now() - startTime > 60000) {
           clearInterval(interval); // Arrêter l'intervalle
-          await deleteUser(tempUser); // Supprimer l'utilisateur
           setVerificationStatus("timeout"); // Mettre à jour le statut à "timeout"
           setErrorMessage("Verification timed out. Please try again.");
         }
@@ -95,8 +101,8 @@ export default function Register() {
         <h2 className="text-2xl font-bold text-center text-gray-800">
           Register
         </h2>
-
-        {/* Affichage des erreurs ou du statut */}
+        {/* uncomment in the end */}
+         {/* Affichage des erreurs ou du statut */}
         {errorMessage && (
           <div className="p-3 bg-red-100 text-red-600 rounded">
             {errorMessage}

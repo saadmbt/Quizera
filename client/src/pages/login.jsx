@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import {jwtDecode} from "jwt-decode";
 
+// add firestor to signup  and store the JWT  to the context hook
+// add a protected route  for student and professor each one has a different dashboard
+
 export default function LoginWithFirebase() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
