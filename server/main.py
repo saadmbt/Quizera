@@ -22,7 +22,7 @@ from LLM_functions import generate_and_insert_questions
 from flask_cors import CORS
 import json
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DELETE'], headers=['Content-Type', 'Authorization'])
 # Load credentials from environment variables
 load_dotenv()
 # Load the service account key from the environment variable
