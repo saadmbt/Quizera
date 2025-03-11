@@ -49,12 +49,15 @@ def login():
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
-    user_token = data["uid"]
+    uid = data["uid"]
     try:
-        decoded_token = auth.verify_id_token(user_token)
-        uid = decoded_token['uid']
+        # Generate a custom token from the UID
+        custom_token = auth.create_custom_token(uid)
+        # Verify the custom token to get a Firebase ID token
+        id_token = auth.verify_id_token(custom_token)
         access_token = create_token(uid)
         response = jsonify({"access_token": access_token})
+
         # Set the access token in a cookie
         response.set_cookie(
             'access_token', 
