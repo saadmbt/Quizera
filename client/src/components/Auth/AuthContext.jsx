@@ -7,15 +7,16 @@ export const AuthContext = createContext();
 
 // Crée un fournisseur de contexte
 export const AuthProvider = ({ children }) => {
+  const [userdetails, setUserdetails] = useState(null); // L'état de l'utilisateur connecté  
   const [user, setUser] = useState(null); // L'état de l'utilisateur connecté  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser(user); // Mettre à jour l'état lorsque l'utilisateur se connecte
+        setUserdetails(user); // Mettre à jour l'état lorsque l'utilisateur se connecte
 
       } else {
-        setUser(null); // Mettre à jour l'état lorsque l'utilisateur se déconnecte
+        setUserdetails(null); // Mettre à jour l'état lorsque l'utilisateur se déconnecte
       }
     });
 
@@ -23,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user }}>
+    <AuthContext.Provider value={{ user ,setUser }}>
       {children} 
     </AuthContext.Provider>
   );

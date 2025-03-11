@@ -1,31 +1,48 @@
-import { useState, useEffect } from "react";
-import { auth } from "../firebase-config";
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
+import { useState , useContext} from "react";
+import { auth, db } from "../firebase-config";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { db } from "../firebase-config";
-import { GoogleAuth } from "../components/Auth/GoogleAuth";
-import logo from '../assets/logo3.png';
+import { GoogleAuthButton } from "../components/Auth/GoogleAuth";
+import { doc, setDoc } from "firebase/firestore";
+import { AuthContext } from "../components/Auth/AuthContext";
+import getJWT from "../services/authService";
 
 export default function Register() {
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [verificationStatus, setVerificationStatus] = useState(""); // État pour le statut de vérification
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isloading, setisLoading] = useState(false);
   const navigate = useNavigate();
+
+  const { setUser } = useContext(AuthContext);
+    // Gérer les erreurs
+    const handleError = (error) => {
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          setErrorMessage(
+            "This email is already registered. Please verify or log in."
+          );
+          break;
+        case "auth/weak-password":
+          setErrorMessage("Password is too weak.");
+          break;
+        case "auth/invalid-email":
+          setErrorMessage("Invalid email address.");
+          break;
+        default:
+          setErrorMessage("Registration failed. Please try again.");
+      }
+    };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-    setLoading(true);
+    setisLoading(true);
 
     if (registerPassword !== confirmPassword) {
       setErrorMessage("Passwords do not match.");
-      setLoading(false);
+      setisLoading(false);
       return;
     }
 
@@ -36,64 +53,32 @@ export default function Register() {
         registerPassword
       );
       const user = userCredential.user;
-
-      // Add user data to Firestore
-      await db.collection("users").doc(user.uid).set({
+      console.log("Successfully registered:", user);
+      // Add user data obj to context
+      const userobj ={
+        uid: user.uid,
+      }
+      setUser(userobj);
+      // Add user data obj to Firestore
+      await setDoc(doc(db, "users", user.uid),{
         email: user.email,
-        role: "user",
+        role: "student",
         username: user.email.split("@")[0],
-        created_at: new Date().toISOString(),
-      });
-
-      // Send email verification
-      await sendEmailVerification(user);
-      setVerificationStatus("waiting"); // Mettre le statut à "waiting" après l'envoi de l'email
-
-      // Débuter un intervalle pour vérifier l'état de vérification
-      const startTime = Date.now();
-      const interval = setInterval(async () => {
-        await user.reload();
-
-        // Si l'email est vérifié
-        if (user.emailVerified) {
-          clearInterval(interval); // Arrêter l'intervalle
-          setVerificationStatus("success"); // Mettre à jour le statut à "success"
-          setErrorMessage("Email verified. Registration successful.");
-          navigate("/login"); // Rediriger l'utilisateur
-        }
-
-        // Si plus de 60 secondes se sont écoulées
-        if (Date.now() - startTime > 60000) {
-          clearInterval(interval); // Arrêter l'intervalle
-          setVerificationStatus("timeout"); // Mettre à jour le statut à "timeout"
-          setErrorMessage("Verification timed out. Please try again.");
-        }
-      }, 1000); // Vérifier toutes les secondes
+        createdAt: new Date().toISOString(),
+      } );
+      console.log("Successfully added user to Firestore:");
+      // generate JWT token and save it to local storage
+        getJWT(user.uid);
+       // Redirect to set username and role page after registration is successful 
+         navigate("/Auth/user-role");
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      setisLoading(false);
     }
   };
 
-  // Gérer les erreurs
-  const handleError = (error) => {
-    switch (error.code) {
-      case "auth/email-already-in-use":
-        setErrorMessage(
-          "This email is already registered. Please verify or log in."
-        );
-        break;
-      case "auth/weak-password":
-        setErrorMessage("Password is too weak.");
-        break;
-      case "auth/invalid-email":
-        setErrorMessage("Invalid email address.");
-        break;
-      default:
-        setErrorMessage("Registration failed. Please try again.");
-    }
-  };
+
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-blue-100">
@@ -101,33 +86,13 @@ export default function Register() {
         <h2 className="text-2xl font-bold text-center text-gray-800">
           Register
         </h2>
-        {/* uncomment in the end */}
+
          {/* Affichage des erreurs ou du statut */}
         {errorMessage && (
           <div className="p-3 bg-red-100 text-red-600 rounded">
             {errorMessage}
           </div>
         )}
-
-        {/* Affichage du message de statut selon l'état */}
-        {verificationStatus === "waiting" && (
-          <div className="p-3 bg-yellow-100 text-yellow-600 rounded text-center">
-            A verification email has been sent. Please verify your email.
-          </div>
-        )}
-
-        {verificationStatus === "success" && (
-          <div className="p-3 bg-green-100 text-green-600 rounded text-center">
-            Your email has been verified successfully.
-          </div>
-        )}
-
-        {verificationStatus === "timeout" && (
-          <div className="p-3 bg-red-100 text-red-600 rounded text-center">
-            Verification timed out. Please try again.
-          </div>
-        )}
-
         <form onSubmit={handleRegister}>
           <div className="mb-4">
             <label
@@ -179,15 +144,15 @@ export default function Register() {
           </div>
           <button
             type="submit"
-            disabled={loading}
+            disabled={isloading}
             className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? "Registering..." : "Register"}
+            {isloading ? "Registering..." : "Register"}
           </button>
-          <GoogleAuth />
+          <GoogleAuthButton />
         </form>
         <p className="text-sm text-center text-gray-600">
-          Allready have an account?{" "}
+          Already have an account?{" "}
           <span
             onClick={() => navigate("/auth/Login")}
             className="text-blue-500 hover:underline cursor-pointer"

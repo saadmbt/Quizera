@@ -5,6 +5,7 @@ import Landingpage from '../pages/Landingpage'
 import NotFoundpage from '../pages/NotFoundpage'
 import Contactpage from '../pages/Contactpage'
 import authRoutes from './authRoutes'
+import ProtectedRoute from './ProtectedRoute'
 const Home = () => {
     const router=createBrowserRouter(createRoutesFromElements(
        <>
@@ -12,10 +13,10 @@ const Home = () => {
             <Route index element={<Landingpage/>}/>
             <Route path='/Contact' element={<Contactpage/>}/>
             <Route path="/profDash" element={<ProtectedRoute allowedRoles={["professeur"]}>
-                <Profdashbord/>
+                {/* <Profdashbord/> */}
                 </ProtectedRoute>}/>
             <Route path="/studentDash" element={<ProtectedRoute allowedRoles={["student"]}>
-                <Studdashbord/>
+                {/* <Studdashbord/> */}
                 </ProtectedRoute>}/>
             <Route path='*' element={<NotFoundpage/>}/> 
         </Route>

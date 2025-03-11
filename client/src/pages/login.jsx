@@ -1,13 +1,11 @@
-import { useState } from "react";
-import { auth } from "../firebase-config";
+import { useState ,useContext } from "react";
+import { auth, db } from "../firebase-config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
-import {jwtDecode} from "jwt-decode";
-
-// add firestor to signup  and store the JWT  to the context hook
-// add a protected route  for student and professor each one has a different dashboard
-
+import { GoogleAuthButton } from "../components/Auth/GoogleAuth";
+import { doc, getDoc } from "firebase/firestore";
+import  {AuthContext} from "../components/Auth/AuthContext";
+import getJWT from "../services/authService";
 export default function LoginWithFirebase() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +13,8 @@ export default function LoginWithFirebase() {
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const navigate = useNavigate();
-  
+  const {setUser} = useContext(AuthContext);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -28,11 +27,23 @@ export default function LoginWithFirebase() {
         password
       );
       const user = userCredential.user;
-      if (user){
+      console.log("Successfully logged in:", user.uid);
+      // Check if user exists in Firestore
+      const userRef = doc(db, "users", uid);
+      const userExists = await getDoc(userRef);
+
+      if (userExists.exists()) {
+        const userData = userExists.data();
+        console.log("User data:", userData);
+        const userobj={uid:user.uid,username:userData.username,role:userData.role}
+        setUser(userobj);
+        console.log("User object:", userobj);
+        // generate JWT token and save it to local storage
         getJWT(user.uid);
-        navigate("/dashboard")
-      } ;
-     
+        navigate(`/${userData.role}-dashboard`);
+      } else {
+        setErrorMessage("No user found with this email.");
+      }
     } catch (error) {
       console.error("Login failed:", error.code, error.message);
       switch (error.code) {
@@ -62,7 +73,6 @@ export default function LoginWithFirebase() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-blue-100" loading="lazy">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        
         <h2 className="text-3xl font-bold text-center text-gray-800">Login</h2>
         {errorMessage && (
           <div className="p-3 bg-red-100 text-red-600 rounded">
@@ -120,7 +130,7 @@ export default function LoginWithFirebase() {
           >
             {loading ? "Logging in..." : "Log in"}
           </button>
-          <GoogleLogin onSuccess={(Credential)=>{ console.log(Credential)}} className="w-full h-10 flex items-center justify-center border border-gray-200 bg-transparent  text-black font-semibold rounded-lg  hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+           <GoogleAuthButton />        
         </form>
         <p className="text-sm text-center text-gray-600">
           Forgot your password?{" "}
