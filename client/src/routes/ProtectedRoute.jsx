@@ -6,7 +6,7 @@ export default function ProtectedRoute({allowedRoles,children}){
     const{isSelected}=useContext(AuthContext)
 
     if(!user){
-        return <Navigate to="/Auth/login"/>;
+        return <Navigate to="/auth/login"/>;
     }
     if(!allowedRoles.includes(user.role)){
         return <Navigate to="*"/>;
