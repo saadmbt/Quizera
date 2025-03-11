@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { auth } from "../firebase-config";
+import { auth,db } from "../firebase-config";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuth } from "../components/Auth/GoogleAuth";
 import { GoogleLogin } from "@react-oauth/google";
+import { doc, setDoc } from "firebase/firestore";
 export default function LoginWithFirebase() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,6 +17,15 @@ export default function LoginWithFirebase() {
     e.preventDefault();
     setErrorMessage("");
     setLoading(true);
+    // Store user data in Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      email: user.email,
+      uid: user.uid,
+      createdAt: new Date(),
+      
+    });
+
+    console.log("User logged in and data stored:", user.uid);
 
     try {
       const userCredential = await signInWithEmailAndPassword(
