@@ -22,7 +22,7 @@ from LLM_functions import generate_and_insert_questions
 from flask_cors import CORS
 import json
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DELETE'], headers=['Content-Type', 'Authorization'])
 # Load credentials from environment variables
 load_dotenv()
 # Load the service account key from the environment variable
@@ -44,17 +44,20 @@ DropBox_Access_Token = os.environ.get('DropBox_access_token')
 @app.route('/api/auth', methods=['POST'])
 def login():
     """
-    Authenticate a user using the Firebase Auth service.
+    Authenticate a user using the Firebase Auth uid.
     """
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
-    user_token = data["uid"]
+    uid = data["uid"]
     try:
-        decoded_token = auth.verify_id_token(user_token)
-        uid = decoded_token['uid']
+        # Generate a custom token from the UID
+        custom_token = auth.create_custom_token(uid)
+        # Verify the custom token to get a Firebase ID token
+        id_token = auth.verify_id_token(custom_token)
         access_token = create_token(uid)
         response = jsonify({"access_token": access_token})
+
         # Set the access token in a cookie
         response.set_cookie(
             'access_token', 
@@ -64,8 +67,12 @@ def login():
             # samesite='Lax'  # Helps prevent CSRF attacks
         )
         return response, 201
-    except auth.UserNotFoundError:
-        return jsonify({'error': 'User  not found'}), 404
+    except ValueError as e:
+        return jsonify({'error': f'Invalid token format: {str(e)}'}), 400
+    except auth.InvalidIdTokenError:
+        return jsonify({'error': 'Invalid or expired token'}), 401
+    except Exception as e:
+        return jsonify({'error': f'Authentication failed: {str(e)}'}), 500
 
 @app.route('/api/profile', methods=['GET'])
 @jwt_required()

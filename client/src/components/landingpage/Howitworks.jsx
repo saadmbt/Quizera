@@ -52,8 +52,8 @@ const Howitworks = () => {
                       muted
                       loop
                       playsInline
-                      
-              
+                      loading='lazy'
+
                     />
                 </div>
             </div>

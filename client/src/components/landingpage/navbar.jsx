@@ -15,7 +15,7 @@ const Navbar = (props) => {
       <div className='container lg-centered'>
         <div className='flex items-center justify-between'>
           <a href='/' className='cursor-pointer'>
-            <img src={logo} alt='logo' className='w-40 h-13' />
+            <img src={logo} alt='logo' loading="lazy" className='w-40 h-13' />
           </a>
 
           {/* Hamburger menu */}

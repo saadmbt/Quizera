@@ -6,7 +6,7 @@ const NavbarAuth = () => {
             <div className="container lg-centered ">
                 <div className="flex justify-center items-center ">
                     <a href="/" className="cursor-pointer">
-                        <img src={logo} alt="Logo" className="w-48 h-13"/>
+                        <img src={logo} alt="Logo" className="w-48 h-13" loading='lazy'/>
                     </a>
                 </div>
             </div>

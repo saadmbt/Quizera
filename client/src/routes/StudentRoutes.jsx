@@ -1,15 +1,15 @@
 import { Route } from 'react-router-dom';
-import AuthLayout from '../layouts/AuthLayout';
 import Login from '../pages/login';
 import Register from '../pages/Register';
 import UserRoleSelection from '../pages/UserRoleSelection';
+import DashboardLayout from '../layouts/DashboardLayout';
 
-const authRoutes = (
-  <Route path="/Auth" element={<AuthLayout />}>
-    <Route path="login" element={<Login />} />
+const StudentRoutes = (
+  <Route path="/Dashboard" element={<DashboardLayout />}>
+    <Route path="upload" element={<Login />} />
     <Route path="Signup" element={<Register />} />
     <Route path="user-role" element={<UserRoleSelection />} />
   </Route>
 );
 
-export default authRoutes;
+export default StudentRoutes;
