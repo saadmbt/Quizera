@@ -64,9 +64,8 @@ def login():
             # samesite='Lax'  # Helps prevent CSRF attacks
         )
         return response, 201
-    except auth.UserNotFoundError:
-        return jsonify({'error': 'User  not found'}), 404
-
+    except Exception as e:
+        return jsonify({'error': f'User  not found : {e}'}), 404
 @app.route('/api/profile', methods=['GET'])
 @jwt_required()
 def profile():
