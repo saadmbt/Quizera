@@ -44,7 +44,7 @@ DropBox_Access_Token = os.environ.get('DropBox_access_token')
 @app.route('/api/auth', methods=['POST'])
 def login():
     """
-    Authenticate a user using the Firebase Auth service.
+    Authenticate a user using the Firebase Auth uid.
     """
     data = request.json
     if not data:
@@ -64,8 +64,13 @@ def login():
             # samesite='Lax'  # Helps prevent CSRF attacks
         )
         return response, 201
+    except ValueError as e:
+        return jsonify({'error': f'Invalid token format: {str(e)}'}), 400
+    except auth.InvalidIdTokenError:
+        return jsonify({'error': 'Invalid or expired token'}), 401
     except Exception as e:
-        return jsonify({'error': f'User  not found : {e}'}), 404
+        return jsonify({'error': f'Authentication failed: {str(e)}'}), 500
+
 @app.route('/api/profile', methods=['GET'])
 @jwt_required()
 def profile():
