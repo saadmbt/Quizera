@@ -4,7 +4,7 @@ import StatCard from './StatCard';
 import LessonCard from './LessonCard';
 import GroupCard from './GroupCard';
 
-const Dashboard = () => {
+const ProfDashboard = () => {
   const recentLessons = [
     { title: 'Advanced Grammar', subject: 'English' },
     { title: 'Business Vocabulary', subject: 'Spanish' },
@@ -83,4 +83,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default ProfDashboard;

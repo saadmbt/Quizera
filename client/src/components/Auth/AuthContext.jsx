@@ -15,7 +15,9 @@ export const AuthProvider = ({ children }) => {
       if (user) {
         setUserdetails(user); // Mettre à jour l'état lorsque l'utilisateur se connecte
 
+        setUser(user); // Add this line to set the user state
       } else {
+
         setUserdetails(null); // Mettre à jour l'état lorsque l'utilisateur se déconnecte
       }
     });

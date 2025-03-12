@@ -8,7 +8,7 @@ const Sidebar = () => {
   
   const menuItems = [
     { icon: HomeIcon, text: 'Dashboard', path: '/' },
-    { icon: UserGroupIcon, text: 'Groups', path: '/groups' },
+    { icon: UserGroupIcon, text: 'Groups', path: '/professor-dashboard/groups' },
     { icon: ArrowUpTrayIcon, text: 'Upload', path: '/upload' },
     { icon: BookOpenIcon, text: 'Lessons', path: '/lessons' },
     { icon: AcademicCapIcon, text: 'Quizzes', path: '/quizzes' },
