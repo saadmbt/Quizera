@@ -9,8 +9,10 @@ import os
 from functionsDB import (
     insert_Lessons, Fetch_Lesson, 
     fetch_all_lessons_by_user,Fetch_Quizzes,
-    Insert_Quiz_Results, Fetch_Quiz_Results, lastID
-)
+    Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
+    insert_group,add_student_to_group,get_group_by_code,
+    get_professor_groups,get_student_groups,Fetch_Groups
+    )
 from main_functions import (save_to_azure_storage,create_token,check_request_body,get_file_type)
 from file_handling import file_handler
 from image_Handling import image_handler
@@ -329,9 +331,102 @@ def create_quiz_results():
         return jsonify({"error": str(quiz_result_id)}), 500
     
     return jsonify({"message": "Quiz result created successfully", "quiz_result_id": str(quiz_result_id)}), 201
+#groups management
+# 1. Fetch Groups for a Professor (GET /api/groups/<ProfId>)
+@app.route('/api/groups/<ProfId>', methods=['GET'])
+@jwt_required()
+def get_groups(ProfId):
+    groups = Fetch_Groups(ProfId)
+    if isinstance(groups, str) and "error" in groups.lower():
+        return jsonify({"error": str(groups)}), 500
+    if not groups:
+        return jsonify({"error": "Groups not found"}), 404
+    return jsonify(groups), 200
 
-    
-    
+# 2. Create a New Group (POST /api/groups)
+@app.route('/api/groups', methods=['POST'])
+@jwt_required()
+def create_group():
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    # Validate required fields
+    group_name = data.get("group_name")
+    prof_id = data.get("prof_id")
+    description = data.get("description")
+    if not group_name or not prof_id or not description:
+        return jsonify({"error": "Missing required parameters"}), 400
+
+    # Prepare group data
+    group_data = {
+        "group_name": group_name,
+        "prof_id": prof_id,
+        "description": description
+    }
+
+    # Insert the group into the database
+    group_id = insert_group(group_data)
+    if "error" in str(group_id).lower():
+        return jsonify({"error": str(group_id)}), 500
+
+    return jsonify({"message": "Group created successfully", "group_id": str(group_id)}), 201
+
+# 3. Add a Student to a Group (POST /api/groups/<group_id>/add-student)
+@app.route('/api/groups/<group_id>/add-student', methods=['POST'])
+@jwt_required()
+def add_student(group_id):
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    # Validate required fields
+    student_uid = data.get("student_uid")
+    if not student_uid:
+        return jsonify({"error": "Missing required parameter: student_uid"}), 400
+
+    # Add the student to the group
+    result = add_student_to_group(group_id, student_uid)
+    if isinstance(result, str) and "error" in result.lower():
+        return jsonify({"error": str(result)}), 500
+    if not result:
+        return jsonify({"error": "Failed to add student to group"}), 400
+
+    return jsonify({"message": "Student added to group successfully"}), 200
+
+# 4. Get a Group by Group ID and Professor ID (GET /api/groups/<group_id>/<prof_id>)
+@app.route('/api/groups/<group_id>/<prof_id>', methods=['GET'])
+@jwt_required()
+def get_group(group_id, prof_id):
+    group = get_group_by_code(group_id, prof_id)
+    if isinstance(group, str) and "error" in group.lower():
+        return jsonify({"error": str(group)}), 500
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+    return jsonify(group), 200
+
+# 5. Get All Groups Created by a Professor (GET /api/professor-groups/<prof_id>)
+@app.route('/api/professor-groups/<prof_id>', methods=['GET'])
+@jwt_required()
+def get_professor_groups_route(prof_id):
+    groups = get_professor_groups(prof_id)
+    if isinstance(groups, str) and "error" in groups.lower():
+        return jsonify({"error": str(groups)}), 500
+    if not groups:
+        return jsonify({"error": "No groups found for this professor"}), 404
+    return jsonify(groups), 200
+
+# 6. Get All Groups a Student Belongs To (GET /api/student-groups/<student_uid>)
+@app.route('/api/student-groups/<student_uid>', methods=['GET'])
+@jwt_required()
+def get_student_groups_route(student_uid):
+    groups = get_student_groups(student_uid)
+    if isinstance(groups, str) and "error" in groups.lower():
+        return jsonify({"error": str(groups)}), 500
+    if not groups:
+        return jsonify({"error": "No groups found for this student"}), 404
+    return jsonify(groups), 200
+
 
 @app.route('/api/refresh_token', methods=['POST'])
 @jwt_required(refresh=True)

@@ -141,8 +141,8 @@ def Fetch_Quiz_Results(Quiz_res_id):
             return quiz_res
     except PyMongoError as e :
         return f"Error fetching quiz result :{str(e)}" 
-def create_group(group_data):
-    """Create a new group"""
+def insert_group(group_data):
+    """insert a new group"""
     try:
         result = groups_collection.insert_one(group_data)
         return str(result.inserted_id)
@@ -196,4 +196,13 @@ def get_student_groups(student_uid):
         return groups
     except Exception as e:
         return f"Error fetching student groups: {str(e)}"
+def Fetch_Groups(ProfId):
+    try:
+        groups = list(groups_collection.find({"professor_uid": ProfId}))
+        for group in groups:
+            group['_id'] = str(group['_id'])
+            return groups
+    except Exception as e:
+        return f"Error fetching groups: {str(e)}"
+        
     
