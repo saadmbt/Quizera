@@ -13,6 +13,12 @@ const ProfRoutes = (
     <Route path="profDash" element={<ProfDashboard/>}/>
     <Route path="groups" element={<Groups />} />
   </Route>
+//   <Route path="/professor" element={<DashboardLayout />}>
+//   <Route index element={<ProfDashboard />} /> {/* Default route when accessing /professor */}
+//   <Route path="dashboard" element={<ProfDashboard />} />
+//   <Route path="groups" element={<Groups />} />
+//   {/* Add more professor-specific routes here */}
+// </Route>
 );
 
 export default ProfRoutes;

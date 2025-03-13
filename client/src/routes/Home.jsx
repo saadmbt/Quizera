@@ -9,7 +9,8 @@ import ProtectedRoute from './ProtectedRoute'
 import ProfRoutes from './ProfRoutes'
 const Home = () => {
     const router=createBrowserRouter(createRoutesFromElements(
-       <>
+       <Route>
+        {/* Public routes */}
         <Route path="/" element={<MainLayout/>}>
             <Route index element={<Landingpage/>}/>
             <Route path='/Contact' element={<Contactpage/>}/>
@@ -22,9 +23,24 @@ const Home = () => {
                 </ProtectedRoute>}/>
             <Route path='*' element={<NotFoundpage/>}/> 
         </Route>
+
+        {/* Auth routes */}
         {authRoutes}
+        {/* Protected routes */}
         {ProfRoutes}
-       </>
+        {/*<Route path="dashboard">
+            <Route path="professor/*" element={
+                <ProtectedRoute allowedRoles={["professeur"]}>
+                {ProfRoutes}
+                </ProtectedRoute>
+            }/>
+            <Route path="student/*" element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                {/* Student routes */} {/*
+                </ProtectedRoute>
+            }/>
+            </Route>*/}
+       </Route> 
         
       ))
   return <RouterProvider router={router}/>
