@@ -19,3 +19,8 @@ export const fadeIn=(direction,delay)=>{
     }
 
 }
+// Light and dark variants
+// "bg-white dark:bg-gray-800"  // Background colors
+// "text-gray-600 dark:text-gray-400"  // Text colors
+// "border-gray-200 dark:border-gray-700"  // Border colors
+// "hover:bg-gray-100 dark:hover:bg-gray-700"  // Hover states

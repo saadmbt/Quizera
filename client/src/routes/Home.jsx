@@ -7,6 +7,7 @@ import Contactpage from '../pages/Contactpage'
 import authRoutes from './authRoutes'
 import ProtectedRoute from './ProtectedRoute'
 import ProfRoutes from './ProfRoutes'
+import StudentRoutes from './StudentRoutes'
 const Home = () => {
     const router=createBrowserRouter(createRoutesFromElements(
        <Route>
@@ -28,6 +29,7 @@ const Home = () => {
         {authRoutes}
         {/* Protected routes */}
         {ProfRoutes}
+        {StudentRoutes}
         {/*<Route path="dashboard">
             <Route path="professor/*" element={
                 <ProtectedRoute allowedRoles={["professeur"]}>

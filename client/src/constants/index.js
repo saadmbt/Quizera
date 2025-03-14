@@ -9,7 +9,7 @@ import Target from '../assets/whyusicons/Target.svg';
 import ClockArrowUp from '../assets/whyusicons/clock-arrow-up.svg';
 import BrainCog from '../assets/whyusicons/brain-cog.svg';
 import Users from '../assets/whyusicons/users.svg';
-import { BarChart, BookOpen, BrainCircuit, Crown, Library, Settings, UploadIcon } from 'lucide-react';
+import { BarChart, BookOpen, BrainCircuit, Crown, Library, Settings, Upload, UploadIcon } from 'lucide-react';
 export const websiteConstants = {
     // Website URL
     WEBSITE_URL: 'https://PrepGenius.com',
@@ -233,12 +233,12 @@ export const footerlinks = [
 // End Landing page Constants
 
 export const navigationItems = [
-    { icon: <BookOpen />, label: 'Dashboard', id: 'dashboard' },
-    { icon: <UploadIcon />, label: 'Upload', id: 'upload' },
-    { icon: <Library />, label: 'Flashcards', id: 'flashcards' },
-    { icon: <BrainCircuit />, label: 'Quizzes', id: 'quizzes' },
-    { icon: <BarChart />, label: 'Analytics', id: 'analytics' },
-    { icon: <Settings />, label: 'Settings', id: 'settings' }
+    { icon: BookOpen, label: 'Dashboard', to: '/' },
+    { icon: Upload, label: 'Upload', to: '/upload' },
+    { icon: Library, label: 'Flashcards', to: '/flashcards' },
+    { icon: BrainCircuit, label: 'Quizzes', to: '/quizzes' },
+    { icon: BarChart, label: 'Analytics', to: '/analytics' },
+    { icon: Settings, label: 'Settings', to: '/settings' }
   ];
 export const stats = [
     { title: 'Completed Lessons', value: '24', color: 'bg-blue-500', icon: BookOpen },
