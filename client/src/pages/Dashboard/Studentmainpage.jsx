@@ -1,7 +1,6 @@
 import React from 'react'
 import ProgressOverviewSection from '../../components/dashboard/ProgressOverviewSection';
 import { useOutletContext } from 'react-router-dom';
-
 import Header from '../../components/dashboard/Header'
 import QuizHistory from '../../components/dashboard/QuizHistory';
 import { History } from 'lucide-react';

@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/dashboard/Sidebar';
+
 const StudentDashboardLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-    
- 
-  
+    const toggleSidebar = () => {
+        console.log("Toggling sidebar. Current state:", isSidebarOpen);
+        setIsSidebarOpen((prev) => !prev);
+    };
+
+
     return (
-        <div className={`min-h-screen flex ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
-            <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} onClose={() => setIsSidebarOpen(false)}/>
+        <div className='min-h-screen flex bg-gray-50'>
+            <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} onClose={() => setIsSidebarOpen(false)} />
             <div className="p-4 md:p-8 lg:p-12 w-full">
-                <Outlet />
+                <Outlet context={{ toggleSidebar }} />
             </div>
         </div>
     );
