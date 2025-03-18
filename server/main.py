@@ -77,9 +77,9 @@ def login():
         return jsonify({'error': f'Authentication failed: {str(e)}'}), 500
 
 @app.route('/api/profile', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def profile():
-    uid = get_jwt_identity()
+    uid = "get_jwt_identity()"
     try:
         user = auth.get_user(uid)
         # dictionary of user information
@@ -108,7 +108,7 @@ def profile():
 # Lesson Management Endpoints
  
 @app.route('/api/upload', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def handle_theuploaded():
     # check if the request body  is text or file or image
     request_type=check_request_body()
@@ -124,7 +124,7 @@ def handle_theuploaded():
         lesson_obj={
             "title":request.form["title"],
             "id":New_id,
-            "author":get_jwt_identity(),
+            "author":"get_jwt_identity()",
             "content" :request.form['text'],
             "uploadedAt": datetime.now(timezone.utc).isoformat(),
         }
@@ -150,7 +150,7 @@ def handle_theuploaded():
             lesson_obj={
                 "title":request.form["title"],
                 "id":New_id,
-                "author":get_jwt_identity(),
+                "author":"get_jwt_identity()",
                 "content" :file_extracted_text,
                 "lesson_save_link":str(url),
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
@@ -187,7 +187,7 @@ def handle_theuploaded():
             lesson_obj={
                 "title":request.form["title"],
                 "id":New_id,
-                "author":get_jwt_identity(),
+                "author":"get_jwt_identity()",
                 "content" :extracted_text,
                 "lesson_save_link":str(url),
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
@@ -206,7 +206,7 @@ def handle_theuploaded():
         return jsonify({"error": "Invalid request type"}), 400
     
 @app.route('/api/lessons', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def fetch_lessons():
     """
     Fetch all lessons for the authenticated user.
@@ -214,7 +214,7 @@ def fetch_lessons():
         Response: JSON response containing the lessons or an error message.
     """
     # Get the user's id from the JWT token 
-    user_id = get_jwt_identity()
+    user_id = "get_jwt_identity()"
     # Fetch all lessons for the authenticated user.
     lessons = fetch_all_lessons_by_user(user_id)
     print("lenght of the array",len(lessons))
@@ -226,7 +226,7 @@ def fetch_lessons():
     return jsonify(lessons), 200
 
 @app.route('/api/lessons/<lesson_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def fetch_lesson(lesson_id):
     """
     Fetch a specific lesson by its ID.
@@ -250,7 +250,7 @@ def fetch_lesson(lesson_id):
 
 # Quiz Management Endpoints
 @app.route('/api/create_quiz', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def create_quiz():
     #par: lessonid, type of question, number of question, dif of question
     data = request.json
@@ -271,7 +271,7 @@ def create_quiz():
     return jsonify({"message": "Quiz created successfully", "quiz_id": str(quiz_result)}), 201
 #just for show the quiz if needed 
 @app.route('/api/quizzes/<quiz_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def fetch_quiz(quiz_id):
     quiz = Fetch_Quizzes(ObjectId(quiz_id))
     if quiz is None:
@@ -283,7 +283,7 @@ def fetch_quiz(quiz_id):
 """yet"""
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/<quiz_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def fetch_quiz_results(quiz_id):
     """Fetches the quiz results for a given quiz ID.
     This endpoint requires a valid JWT token to access.
@@ -304,7 +304,7 @@ def fetch_quiz_results(quiz_id):
 
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/insert', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def create_quiz_results():
     data = request.json
     if not data:
@@ -334,7 +334,7 @@ def create_quiz_results():
 #groups management
 # 1. Fetch Groups for a Professor (GET /api/groups/<ProfId>)
 @app.route('/api/groups/<ProfId>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_groups(ProfId):
     groups = Fetch_Groups(ProfId)
     if isinstance(groups, str) and "error" in groups.lower():
@@ -345,7 +345,7 @@ def get_groups(ProfId):
 
 # 2. Create a New Group (POST /api/groups)
 @app.route('/api/groups', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def create_group():
     data = request.json
     if not data:
@@ -374,7 +374,7 @@ def create_group():
 
 # 3. Add a Student to a Group (POST /api/groups/<group_id>/add-student)
 @app.route('/api/groups/<group_id>/add-student', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def add_student(group_id):
     data = request.json
     if not data:
@@ -396,7 +396,7 @@ def add_student(group_id):
 
 # 4. Get a Group by Group ID and Professor ID (GET /api/groups/<group_id>/<prof_id>)
 @app.route('/api/groups/<group_id>/<prof_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_group(group_id, prof_id):
     group = get_group_by_code(group_id, prof_id)
     if isinstance(group, str) and "error" in group.lower():
@@ -407,7 +407,7 @@ def get_group(group_id, prof_id):
 
 # 5. Get All Groups Created by a Professor (GET /api/professor-groups/<prof_id>)
 @app.route('/api/professor-groups/<prof_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_professor_groups_route(prof_id):
     groups = get_professor_groups(prof_id)
     if isinstance(groups, str) and "error" in groups.lower():
@@ -418,7 +418,7 @@ def get_professor_groups_route(prof_id):
 
 # 6. Get All Groups a Student Belongs To (GET /api/student-groups/<student_uid>)
 @app.route('/api/student-groups/<student_uid>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_student_groups_route(student_uid):
     groups = get_student_groups(student_uid)
     if isinstance(groups, str) and "error" in groups.lower():
@@ -431,7 +431,7 @@ def get_student_groups_route(student_uid):
 @app.route('/api/refresh_token', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
-    current_user = get_jwt_identity()
+    current_user = "get_jwt_identity()"
     new_access_token = create_access_token(identity=current_user)
     return jsonify({"access_token":new_access_token}), 200
 
@@ -443,7 +443,7 @@ def refresh_expiring_jwts(response):
         target_timestamp = (now + timedelta(minutes=20)).timestamp()
         
         if target_timestamp > exp_timestamp:
-            access_token = create_access_token(identity=get_jwt_identity())
+            access_token = create_access_token(identity="get_jwt_identity()")
             data = response.get_json()
             if isinstance(data, dict):  # Check if the response data is a dictionary
                 data["access_token"] = access_token 
