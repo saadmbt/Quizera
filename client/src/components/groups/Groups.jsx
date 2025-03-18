@@ -4,32 +4,47 @@ import { PlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import GroupList from './GroupList';
 import GroupForm from './GroupForm';
 import { fetchProfessorGroups, createGroup } from '../../services/ProfServices';
-import {AuthContext} from "../Auth/AuthContext"
-
+import { AuthContext } from "../Auth/AuthContext";
 
 const Groups = () => {
+  const [newGroup, setNewGroup] = useState({
+    name: '',
+    description: '',
+  });
+
   const [groups, setGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const {user} = useContext(AuthContext); 
-  const profId=user.uid
+  const { user } = useContext(AuthContext);
 
   // Fetch groups from the API
   useEffect(() => {
     const fetchGroups = async () => {
+      if (!user || !user.uid) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const data = await fetchProfessorGroups(profId);
+const data = await fetchProfessorGroups(user.uid);
+if (Array.isArray(data)) {
+  setGroups(data);
+} else {
+  toast.error('Unexpected data format received');
+}
+
         setGroups(data);
       } catch (error) {
         toast.error('Failed to fetch groups');
+        console.error('Error fetching groups:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchGroups();
-  }, [profId]);
+  }, [user]);
 
   // Handle search input change
   const handleSearchQueryChange = (event) => {
@@ -47,13 +62,30 @@ const Groups = () => {
   };
 
   // Handle group creation
-  const handleCreateGroup = async (newGroup) => {
+  const handleCreateGroup = async (groupData) => {
+    if (!user || !user.uid) {
+      toast.error('You must be logged in to create a group');
+      return;
+    }
+
+    // Log the group data before creating it
+    console.log('Creating group with data:', groupData);
+
     try {
-      const data = await createGroup(newGroup);
-      setGroups((prevGroups) => [...prevGroups, data]);
+      // Send the data to the API
+      const createdGroup = await createGroup({
+        name: groupData.name,
+        description: groupData.description
+      }, user);
+      console.log(createdGroup);
+      
+      // Add the new group to the local state
+      setGroups((prevGroups) => [...prevGroups, createdGroup]);
+      
       toast.success('Group created successfully!');
     } catch (error) {
-      toast.error('Failed to create group');
+      toast.error('Failed to create group. Please check your input and try again.');
+      console.error('Error creating group:', error);
     } finally {
       setIsModalOpen(false);
     }
@@ -87,11 +119,20 @@ const Groups = () => {
         </div>
       </div>
 
+      {/* Display user ID for debugging if needed */}
+      {user && user.uid && (
+        <div className="mb-4 text-sm text-gray-500">
+          Professor ID: {user.uid}
+        </div>
+      )}
+
       {/* Group List or Loading Message */}
       {isLoading ? (
         <p>Loading...</p>
-      ) : (
+      ) : groups.length > 0 ? (
         <GroupList groups={groups} searchQuery={searchQuery} />
+      ) : (
+        <p className="text-center text-gray-500 py-8">No groups found. Create a new group to get started.</p>
       )}
 
       {/* Group Form Modal */}

@@ -1,4 +1,5 @@
 import axios from "axios";
+
 // Fetch groups for a professor
 export const fetchProfessorGroups = async (profId) => {
   try {
@@ -21,13 +22,30 @@ export const fetchStudentGroups = async (studentUid) => {
   }
 };
 
-// Create a new group
-export const createGroup = async (groupData) => {
+export const createGroup = async (groupData, user) => {
   try {
-    const response = await axios.post('https://prepgenius-backend.vercel.app/api/groups', groupData);
-    return response.data; // Returns the created group ID
+    // const token = localStorage.getItem('authToken');
+    // console.log('Auth Token:', token);
+      console.log('Payload:', {
+      group_name: groupData.name,
+      prof_id: user.uid,
+      description: groupData.description,
+    });
+    const response = await axios.post('https://prepgenius-backend.vercel.app/api/groups', {
+      group_name: groupData.name,
+      prof_id: user.uid,
+      description: groupData.description,
+    }
+    // {
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //   },
+   //}
+     );
+
+    return response.data;
   } catch (error) {
-    console.error('Error creating group:', error.response?.data || error.message);
+    console.error('Error creating group:', error);
     throw error;
   }
 };
