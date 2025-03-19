@@ -3,6 +3,7 @@ import { Upload as UploadIcon } from 'lucide-react';
 import UploadTabs from '../../components/dashboard/UploadTabs';
 import FileUpload from '../../components/dashboard/FileUpload';
 import TextUpload from '../../components/dashboard/TextUpload';
+import { useNavigate } from 'react-router-dom';
 
 export default function Upload({ onComplete }) {
   const [activeTab, setActiveTab] = useState('file');
@@ -10,7 +11,7 @@ export default function Upload({ onComplete }) {
   const [text, setText] = useState('');
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-
+  const navigate=useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     if ((!file && activeTab === 'file') || (!text && activeTab === 'text')) return;
@@ -21,6 +22,7 @@ export default function Upload({ onComplete }) {
       setIsUploading(false);
       onComplete();
     }, 2000);
+    navigate('/Dashboard/upload/QuizSetup');
   };
 
   return (

@@ -1,4 +1,4 @@
-import { Route } from 'react-router-dom';
+import { Navigate, Route, useLocation } from 'react-router-dom';
 import StudentDashboardLayout from '../layouts/StudentDashboardLayout';
 import Studentmainpage from '../pages/Dashboard/Studentmainpage';
 import Quizzespage from '../pages/Dashboard/Quizzespage';
@@ -7,13 +7,30 @@ import FlashcardsSection from '../components/dashboard/FlashcardDeckSection';
 import FlashcardStudy from '../components/dashboard/FlashCardStudy';
 import Upload from '../pages/Dashboard/uploadpage';
 import QuizSetup from '../pages/Dashboard/QuizSetup';
-import Quiz from '../pages/Quiz';
+import Quiz from '../pages/Dashboard/Quiz';
 
+
+const redirectIfDirectAccess = (path) => {
+  const location = useLocation();
+  if (location.pathname === path) {
+    return <Navigate to="/Dashboard/upload" replace />;
+  }
+  return null;
+};
 const StudentRoutes =(
+  
     <Route path="/Dashboard" element={<StudentDashboardLayout/>}>
       <Route index element={<Studentmainpage />} />
       <Route path="upload" element={<Upload onComplete={() => {}} />} />
-      <Route path="quiz/setup" element={<QuizSetup onStartQuiz={() => {}}  />} />
+      <Route
+          path="upload/QuizSetup"
+          element={
+            <>
+              {redirectIfDirectAccess("/Dashboard/upload/QuizSetup")}
+              <QuizSetup onStartQuiz={() => {}} />
+            </>
+          }
+        />
       <Route path="quiz" element={<Quiz settings={null} />} />
       <Route path="quizzes" element={<Quizzespage />} />
       <Route path="quizzes/:id" element={<QuizDetailspage />} />

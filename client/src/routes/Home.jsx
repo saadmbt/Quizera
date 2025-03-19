@@ -1,5 +1,5 @@
 import React from 'react'
-import {Route , createBrowserRouter , createRoutesFromElements , RouterProvider} from'react-router-dom'
+import {Route , createBrowserRouter , createRoutesFromElements , RouterProvider, useLocation} from'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
 import Landingpage from '../pages/Landingpage'
 import NotFoundpage from '../pages/NotFoundpage'
@@ -8,7 +8,9 @@ import authRoutes from './authRoutes'
 import ProtectedRoute from './ProtectedRoute'
 import ProfRoutes from './ProfRoutes'
 import StudentRoutes from './StudentRoutes'
+
 const Home = () => {
+    const location = useLocation();
     const router=createBrowserRouter(createRoutesFromElements(
        <Route>
         {/* Public routes */}
