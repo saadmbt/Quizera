@@ -11,7 +11,8 @@ const StatCard = ({ title, value, color, percentage }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-sm">
+    <div className="bg-white rounded-lg p-4 shadow-sm">
+
       <h3 className="text-gray-600 text-sm mb-2">{title}</h3>
       <div className="flex items-center justify-between mb-4">
         <span className="text-2xl font-bold">{value}</span>

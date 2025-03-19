@@ -4,11 +4,11 @@ import { History } from 'lucide-react'
 import Header from '../../components/dashboard/Header'
 import { useOutletContext } from 'react-router-dom';
 
-function Quizzespage() {
-    const { toggleSidebar } = useOutletContext();
+function Quizzespage({headerSet}) {
+    const { toggleSidebar } =headerSet && useOutletContext();
   return (
     <>
-         <Header onToggleSidebar={toggleSidebar} />
+         {headerSet && <Header onToggleSidebar={toggleSidebar} />}
         {/* Quiz History Section */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-4">

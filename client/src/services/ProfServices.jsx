@@ -1,17 +1,16 @@
 import axios from "axios";
 
 // Fetch groups for a professor
-export const fetchProfessorGroups = async (profId) => {
+export const fetchProfessorGroups = async (user) => {
   try {
+    console.log('Fetching groups for professor:', user.uid); // Debug log
     const response = await axios.get(
-      `https://prepgenius-backend.vercel.app/api/professor-groups/${profId}`
+      `https://prepgenius-backend.vercel.app/api/groups/${user.uid}`
     );
-    return response.data; // Returns the list of groups
+    console.log('Groups fetched successfully:', response.data); // Debug log
+    return response.data;
   } catch (error) {
-    console.error(
-      "Error fetching professor groups:",
-      error.response?.data || error.message
-    );
+    console.error('Error fetching professor groups:', error);
     throw error;
   }
 };

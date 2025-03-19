@@ -7,11 +7,6 @@ import { fetchProfessorGroups, createGroup } from '../../services/ProfServices';
 import { AuthContext } from "../Auth/AuthContext";
 
 const Groups = () => {
-  const [newGroup, setNewGroup] = useState({
-    name: '',
-    description: '',
-  });
-
   const [groups, setGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,28 +16,29 @@ const Groups = () => {
   // Fetch groups from the API
   useEffect(() => {
     const fetchGroups = async () => {
-      if (!user || !user.uid) {
-        setIsLoading(false);
-        return;
-      }
-
       try {
-const data = await fetchProfessorGroups(user.uid);
-if (Array.isArray(data)) {
-  setGroups(data);
-} else {
-  toast.error('Unexpected data format received');
-}
-
-        setGroups(data);
+        console.log('Fetching groups for user:', user); // Debug log
+        if (!user || !user.uid) {
+          console.error('User or user.uid is undefined');
+          return;
+        }
+        const data = await fetchProfessorGroups(user);
+  
+        if (Array.isArray(data)) {
+          setGroups(data);
+          console.log('Groups fetched:', data); // Debug log
+        } else {
+          console.error('Expected array, got:', typeof data);
+          toast.error('Unexpected data format received');
+        }
       } catch (error) {
-        toast.error('Failed to fetch groups');
         console.error('Error fetching groups:', error);
+        toast.error('Failed to fetch groups');
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchGroups();
   }, [user]);
 
@@ -68,16 +64,12 @@ if (Array.isArray(data)) {
       return;
     }
 
-    // Log the group data before creating it
-    console.log('Creating group with data:', groupData);
-
     try {
       // Send the data to the API
       const createdGroup = await createGroup({
         name: groupData.name,
         description: groupData.description
       }, user);
-      console.log(createdGroup);
       
       // Add the new group to the local state
       setGroups((prevGroups) => [...prevGroups, createdGroup]);
@@ -92,13 +84,13 @@ if (Array.isArray(data)) {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       {/* Header and Create Group Button */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">Groups</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">Groups</h1>
         <button
           onClick={handleModalOpen}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto justify-center"
         >
           <PlusIcon className="w-5 h-5 mr-2" />
           Create Group
@@ -121,18 +113,22 @@ if (Array.isArray(data)) {
 
       {/* Display user ID for debugging if needed */}
       {user && user.uid && (
-        <div className="mb-4 text-sm text-gray-500">
+        <div className="mb-4 text-xs sm:text-sm text-gray-500">
           Professor ID: {user.uid}
         </div>
       )}
 
       {/* Group List or Loading Message */}
       {isLoading ? (
-        <p>Loading...</p>
+        <div className="flex justify-center py-8">
+          <p>Loading...</p>
+        </div>
       ) : groups.length > 0 ? (
         <GroupList groups={groups} searchQuery={searchQuery} />
       ) : (
-        <p className="text-center text-gray-500 py-8">No groups found. Create a new group to get started.</p>
+        <div className="text-center text-gray-500 py-8">
+          <p>No groups found. Create a new group to get started.</p>
+        </div>
       )}
 
       {/* Group Form Modal */}
