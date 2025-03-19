@@ -198,10 +198,10 @@ def get_student_groups(student_uid):
         return f"Error fetching student groups: {str(e)}"
 def Fetch_Groups(ProfId):
     try:
-        groups = list(groups_collection.find({"professor_uid": ProfId}))
+        groups = list(groups_collection.find({"prof_id": ProfId}))
         for group in groups:
-            group['_id'] = str(group['_id'])
-            return groups
+            group['_id'] = str(group['_id'])  # Convert ObjectId to string
+        return groups  # Return all groups after processing
     except Exception as e:
         return f"Error fetching groups: {str(e)}"
         
