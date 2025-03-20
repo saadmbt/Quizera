@@ -1,53 +1,62 @@
-import React from 'react'
-import {Route , createBrowserRouter , createRoutesFromElements , RouterProvider, useLocation} from'react-router-dom'
-import MainLayout from '../layouts/MainLayout'
-import Landingpage from '../pages/Landingpage'
-import NotFoundpage from '../pages/NotFoundpage'
-import Contactpage from '../pages/Contactpage'
-import authRoutes from './authRoutes'
-import ProtectedRoute from './ProtectedRoute'
-import ProfRoutes from './ProfRoutes'
-import StudentRoutes from './StudentRoutes'
+import React from 'react';
+import { BrowserRouter as Router, createBrowserRouter, Route, RouterProvider, Routes } from 'react-router-dom';
+import PublicRoutes from './PublicRoutes';
+import AuthRoutes from './AuthRoutes';
+import ProfessorRoutes from './ProfessorRoutes';
+import StudentRoutes from './StudentRoutes';
+import MainLayout from '../layouts/MainLayout';
+import DashboardLayout from '../layouts/DashboardLayout';
+import StudentDashboardLayout from '../layouts/StudentDashboardLayout';
+import AuthLayout from '../layouts/AuthLayout';
 
 const Home = () => {
-    const location = useLocation();
-    const router=createBrowserRouter(createRoutesFromElements(
-       <Route>
-        {/* Public routes */}
-        <Route path="/" element={<MainLayout/>}>
-            <Route index element={<Landingpage/>}/>
-            <Route path='/Contact' element={<Contactpage/>}/>
-            {/* <Route path="/profDash" element={<ProtectedRoute allowedRoles={["professeur"]}>
-                { <ProfDashboard/>}
-                </ProtectedRoute>}/> */}
-                
-            <Route path="/studentDash" element={<ProtectedRoute allowedRoles={["student"]}>
-                {/* <Studdashbord/> */}
-                </ProtectedRoute>}/>
-            <Route path='*' element={<NotFoundpage/>}/> 
-        </Route>
+  return (
+    <Router>
+        <Routes>
+           {/* Map all routes with their respective layouts */}
+           <Route path="/" element={<MainLayout />}>
+            {PublicRoutes.map((route,i) => (
+                        <Route 
+                            key={i}
+                                {...(route.index ? { index: true } : { path: route.path })}
+                                element={route.element}
+                            />
+                        ))}
+           </Route>
+           {/* Auth Routes  */}
+           <Route path="/auth" element={<AuthLayout />}>
+            {AuthRoutes.map((route,i) => (
+                        <Route 
+                            key={i}
+                            {...(route.index ? { index: true } : { path: route.path })}
+                            element={route.element}
+                        />
+                        ))}
+           </Route>
+              {/* Professor Routes */}
+              <Route path="/professor-dashboard" element={<DashboardLayout />}>
+                {ProfessorRoutes.map((route,i) => (
+                            <Route 
+                                key={i}
+                                {...(route.index ? { index: true } : { path: route.path })}
+                                element={route.element}
+                            />
+                            ))}
+             </Route>
+                {/* Student Routes */}
+                <Route path="/Dashboard" element={<StudentDashboardLayout />}>
+                {StudentRoutes.map((route,i) => (
+                            <Route 
+                                key={i}
+                                {...(route.index ? { index: true } : { path: route.path })}
+                                element={route.element}
+                            />
+                            ))}
+                </Route>
+            
+        </Routes>
+    </Router>
+  )
+};
 
-        {/* Auth routes */}
-        {authRoutes}
-        {/* Protected routes */}
-        {ProfRoutes}
-        {StudentRoutes}
-        {/*<Route path="dashboard">
-            <Route path="professor/*" element={
-                <ProtectedRoute allowedRoles={["professeur"]}>
-                {ProfRoutes}
-                </ProtectedRoute>
-            }/>
-            <Route path="student/*" element={
-                <ProtectedRoute allowedRoles={["student"]}>
-                {/* Student routes */} {/*
-                </ProtectedRoute>
-            }/>
-            </Route>*/}
-       </Route> 
-        
-      ))
-  return <RouterProvider router={router}/>
-}
-
-export default Home
+export default Home;
