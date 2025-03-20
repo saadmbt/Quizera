@@ -13,7 +13,7 @@ const GroupCard = ({ group }) => {
       <div className="flex flex-col">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="font-semibold text-lg">{group.name}</h3>
+            <h3 className="font-semibold text-lg">{group.group_name}</h3>
             <div className="flex items-center mt-2 text-gray-600">
               <UserGroupIcon className="w-4 h-4 mr-1" />
               <span className="text-sm">{group.students?.length || 0} students</span>
