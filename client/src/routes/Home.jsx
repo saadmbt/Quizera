@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, createBrowserRouter, Route, RouterProvider, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import PublicRoutes from './PublicRoutes';
 import AuthRoutes from './AuthRoutes';
 import ProfessorRoutes from './ProfessorRoutes';
