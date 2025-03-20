@@ -1,42 +1,53 @@
-import { Navigate, Route, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 import StudentDashboardLayout from '../layouts/StudentDashboardLayout';
 import Studentmainpage from '../pages/Dashboard/Studentmainpage';
-import Quizzespage from '../pages/Dashboard/Quizzespage';
 import QuizDetailspage from '../pages/Dashboard/QuizDetailspage';
 import FlashcardsSection from '../components/dashboard/FlashcardDeckSection';
 import FlashcardStudy from '../components/dashboard/FlashCardStudy';
-import Upload from '../pages/Dashboard/uploadpage';
 import QuizSetup from '../pages/Dashboard/QuizSetup';
 import Quiz from '../pages/Dashboard/Quiz';
+import Upload from '../pages/Dashboard/uploadpage';
+import Quizzespage from '../pages/Dashboard/Quizzespage';
 
-
-const redirectIfDirectAccess = (path) => {
-  const location = useLocation();
-  if (location.pathname === path) {
-    return <Navigate to="/Dashboard/upload" replace />;
+const StudentRoutes =[
+  {
+    index: true,
+    element: <Studentmainpage />,
+  },
+  {
+    path: 'upload',
+    element: <Upload />,
+  },
+  {
+    path: 'quiz',
+    element: <Quiz />,
+  },
+  {
+    path: 'upload/quizsetup',
+    element: <QuizSetup />,
+  },
+  {
+    path: 'quizzes',
+    element: <Quizzespage />,
+  },
+  {
+    path: 'quizzes/:id',
+    element: <QuizDetailspage />,
+  },
+  {
+    path: 'flashcards',
+    element: <FlashcardsSection/>,
+  },
+  {
+    path: 'flashcards/study/:id',
+    element: <FlashcardStudy />,
   }
-  return null;
-};
-const StudentRoutes =(
-  
-    <Route path="/Dashboard" element={<StudentDashboardLayout/>}>
-      <Route index element={<Studentmainpage />} />
-      <Route path="upload" element={<Upload onComplete={() => {}} />} />
-      <Route
-          path="upload/QuizSetup"
-          element={
-            <>
-              {redirectIfDirectAccess("/Dashboard/upload/QuizSetup")}
-              <QuizSetup onStartQuiz={() => {}} />
-            </>
-          }
-        />
-      <Route path="quiz" element={<Quiz settings={null} />} />
-      <Route path="quizzes" element={<Quizzespage />} />
-      <Route path="quizzes/:id" element={<QuizDetailspage />} />
-      <Route path="flashcards" element={<FlashcardsSection />} />
-      <Route path="flashcards/study/:id" element={<FlashcardStudy />} />
-    </Route>
-  );
+]
+  // return (
+  //   <Routes>
+  //     <Route path="/Dashboard" element={<StudentDashboardLayout />}>
+  // );
+
 
 export default StudentRoutes;
