@@ -13,11 +13,11 @@ import UpgradePlanCard from '../dashboard/UpgradePlanCard';
 
 const Sidebar = ({ isSidebarOpen, onClose, toggleSidebar }) => {
   const navigationItems = [
-    { icon: HomeIcon, label: 'Dashboard', to: '/professor-dashboard/profDash' },
-    { icon: UserGroupIcon, label: 'Groups', to: '/professor-dashboard/groups' },
-    { icon: ArrowUpTrayIcon, label: 'Upload', to: '/professor-dashboard/upload' },
-    { icon: AcademicCapIcon, label: 'Quizzes', to: '/professor-dashboard/quizzes' },
-    { icon: Cog6ToothIcon, label: 'Settings', to: '/professor-dashboard/settings' },
+    { icon: HomeIcon, label: 'Dashboard', to: '/professor/dashboard' },
+    { icon: UserGroupIcon, label: 'Groups', to: '/professor/groups' },
+    { icon: ArrowUpTrayIcon, label: 'Upload', to: '/professor/upload' },
+    { icon: AcademicCapIcon, label: 'Quizzes', to: '/professor/quizzes' },
+    { icon: Cog6ToothIcon, label: 'Settings', to: '/professor/settings' },
   ];
 
   return (
