@@ -5,6 +5,7 @@ import ProfDashboard from '../components/dashbord prof/ProfDashboard';
 import Groups from '../components/groups/Groups';
 import Upload from '../pages/Dashboard/uploadpage';
 import Quizzespage from '../pages/Dashboard/Quizzespage';
+import Settings from '../components/settings/settings';
 
 const ProfessorRoutes = [
   {
@@ -23,6 +24,10 @@ const ProfessorRoutes = [
     path: 'quizzes',
     element: <Quizzespage />,
     },
+    {
+      path: 'settings',
+      element: <Settings/>,
+      },
 ]
   // return (
   //   <Routes>

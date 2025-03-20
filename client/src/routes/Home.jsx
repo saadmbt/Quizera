@@ -9,7 +9,7 @@ import DashboardLayout from '../layouts/DashboardLayout';
 import StudentDashboardLayout from '../layouts/StudentDashboardLayout';
 import AuthLayout from '../layouts/AuthLayout';
 
-const Home = () => {
+const Home = () => { 
   return (
     <Router>
         <Routes>
@@ -34,7 +34,7 @@ const Home = () => {
                         ))}
            </Route>
               {/* Professor Routes */}
-              <Route path="/professor-dashboard" element={<DashboardLayout />}>
+              <Route path="/professor" element={<DashboardLayout />}>
                 {ProfessorRoutes.map((route,i) => (
                             <Route 
                                 key={i}

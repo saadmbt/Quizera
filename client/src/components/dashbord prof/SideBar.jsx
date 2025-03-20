@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   HomeIcon,
   UserGroupIcon,
@@ -12,8 +12,10 @@ import Logo from '../../assets/authnavbarlogo.png'; // Update the path to your l
 import UpgradePlanCard from '../dashboard/UpgradePlanCard';
 
 const Sidebar = ({ isSidebarOpen, onClose, toggleSidebar }) => {
+  const location = useLocation();
+  
   const navigationItems = [
-    { icon: HomeIcon, label: 'Dashboard', to: '/professor/dashboard' },
+    { icon: HomeIcon, label: 'Dashboard', to: '/professor', exact: true },
     { icon: UserGroupIcon, label: 'Groups', to: '/professor/groups' },
     { icon: ArrowUpTrayIcon, label: 'Upload', to: '/professor/upload' },
     { icon: AcademicCapIcon, label: 'Quizzes', to: '/professor/quizzes' },
@@ -59,7 +61,11 @@ const Sidebar = ({ isSidebarOpen, onClose, toggleSidebar }) => {
               className={({ isActive }) => `
                 flex items-center px-6 py-3 text-gray-700
                 hover:bg-blue-50 transition-colors duration-200
-                ${isActive ? 'bg-blue-50 border-r-4 border-blue-500' : ''}
+                ${isActive && 
+                  ((item.exact && location.pathname === item.to) || 
+                   (!item.exact && location.pathname.startsWith(item.to)))
+                  ? 'bg-blue-50 border-r-4 border-blue-500' 
+                  : ''}
               `}
             >
               <item.icon className="h-5 w-5 mr-3" />
