@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { copyInviteLink } from '../../services/ProfServices';
+import { AuthContext } from '../Auth/AuthContext';
 
 const GroupCard = ({ group }) => {
-  const copyInviteLink = () => {
-    navigator.clipboard.writeText(group.invitation_link);
-    toast.success('Invitation link copied to clipboard');
+  const { user } = useContext(AuthContext); // Get the current user
+  
+  const handleCopyLink = async () => {
+    try {
+      await copyInviteLink(user, group._id);
+      toast.success('Invitation link copied to clipboard!');
+    } catch (error) {
+      console.error('Failed to copy invitation link:', error);
+      toast.error('Failed to copy invitation link');
+    }
   };
 
   return (
@@ -26,8 +35,8 @@ const GroupCard = ({ group }) => {
         </p>
 
         <div className="flex justify-between items-center mt-auto">
-          <button
-            onClick={copyInviteLink}
+          <button 
+            onClick={handleCopyLink}
             className="text-sm text-blue-600 hover:text-blue-700"
           >
             Copy Invite Link

@@ -6,6 +6,9 @@ import Groups from '../components/groups/Groups';
 import Upload from '../pages/Dashboard/uploadpage';
 import Quizzespage from '../pages/Dashboard/Quizzespage';
 import Settings from '../components/settings/settings';
+import QuizzesProf from '../components/ProfQuizzes/QuizzesProf';
+import QuizDetailspage from '../pages/Dashboard/QuizDetailspage';
+import ProfQuizzdp from '../components/ProfQuizzes/ProfQuizzdp';
 
 const ProfessorRoutes = [
   {
@@ -22,12 +25,16 @@ const ProfessorRoutes = [
   },
   {
     path: 'quizzes',
-    element: <Quizzespage />,
+    element: <QuizzesProf />,
     },
-    {
-      path: 'settings',
-      element: <Settings/>,
-      },
+  {
+    path: 'quizzes/:id',
+    element: <ProfQuizzdp />,
+  },
+{
+    path: 'settings',
+    element: <Settings/>,
+  },
 ]
   // return (
   //   <Routes>

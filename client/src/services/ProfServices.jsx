@@ -33,9 +33,7 @@ export const fetchStudentGroups = async (studentUid) => {
 
 export const createGroup = async (groupData, user) => {
   try {
-    // const token = localStorage.getItem('authToken');
-    // console.log('Auth Token:', token);
-      console.log('Payload:', {
+    console.log('Payload:', {
       group_name: groupData.name,
       prof_id: user.uid,
       description: groupData.description,
@@ -44,13 +42,7 @@ export const createGroup = async (groupData, user) => {
       group_name: groupData.name,
       prof_id: user.uid,
       description: groupData.description,
-    }
-    // {
-    //   headers: {
-    //     Authorization: `Bearer ${token}`,
-    //   },
-   //}
-     );
+    });
 
     return response.data;
   } catch (error) {
@@ -92,3 +84,51 @@ export const getGroupById = async (groupId, profId) => {
   }
 };
 
+// Generate and return an invitation link for a group
+export const generateInviteLink = async (user, groupId) => {
+  try {
+    // const token = localStorage.getItem('authToken');
+    const response = await axios.post(
+      'https://prepgenius-backend.vercel.app/api/generate-invite-link',
+      {
+        prof_id: user.uid,
+        group_id: groupId
+      },
+      // {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //     'Content-Type': 'application/json',
+      //   },
+      // }
+    );
+
+    if (!response.data || !response.data.invite_link) {
+      throw new Error('Failed to generate invitation link');
+    }
+
+    return response.data.invite_link;
+  } catch (error) {
+    console.error('Error generating invitation link:', error);
+    throw new FetchError(`Error generating invitation link: ${error.message}`);
+  }
+};
+
+// Copy invitation link to clipboard
+export const copyInviteLink = async (user, groupId) => {
+  try {
+    const inviteLink = await generateInviteLink(user, groupId);
+    
+    await navigator.clipboard.writeText(inviteLink);
+    return true; // Successfully copied to clipboard
+  } catch (error) {
+    console.error('Error copying invitation link:', error);
+    throw error;
+  }
+};
+
+class FetchError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'FetchError';
+  }
+}
