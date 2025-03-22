@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import (
-    JWTManager, create_access_token, jwt_required, get_jwt_identity,get_jwt
+    JWTManager, create_access_token, jwt_required, get_jwt_identity,decode_token
 )
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta,timezone
@@ -11,7 +11,7 @@ from functionsDB import (
     fetch_all_lessons_by_user,Fetch_Quizzes,
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
     insert_group,add_student_to_group,get_group_by_code,
-    get_professor_groups,get_student_groups,Fetch_Groups
+    get_professor_groups,get_student_groups,Fetch_Groups,get_group_by_id,get_professor_by_id
     )
 from main_functions import (save_to_azure_storage,create_token,check_request_body,get_file_type)
 from file_handling import file_handler
@@ -372,27 +372,6 @@ def create_group():
 
     return jsonify({"message": "Group created successfully", "group_id": str(group_id)}), 201
 
-# 3. Add a Student to a Group (POST /api/groups/<group_id>/add-student)
-@app.route('/api/groups/<group_id>/add-student', methods=['POST'])
-# @jwt_required()
-def add_student(group_id):
-    data = request.json
-    if not data:
-        return jsonify({"error": "No data provided"}), 400
-
-    # Validate required fields
-    student_uid = data.get("student_uid")
-    if not student_uid:
-        return jsonify({"error": "Missing required parameter: student_uid"}), 400
-
-    # Add the student to the group
-    result = add_student_to_group(group_id, student_uid)
-    if isinstance(result, str) and "error" in result.lower():
-        return jsonify({"error": str(result)}), 500
-    if not result:
-        return jsonify({"error": "Failed to add student to group"}), 400
-
-    return jsonify({"message": "Student added to group successfully"}), 200
 
 # 4. Get a Group by Group ID and Professor ID (GET /api/groups/<group_id>/<prof_id>)
 @app.route('/api/groups/<group_id>/<prof_id>', methods=['GET'])
@@ -426,6 +405,117 @@ def get_student_groups_route(student_uid):
     if not groups:
         return jsonify({"error": "No groups found for this student"}), 404
     return jsonify(groups), 200
+
+# Generate invitation link
+@app.route('/api/generate-invite-link', methods=['POST'])
+# @jwt_required()
+def generate_invite_link():
+    professor_id = get_jwt_identity()  # Get the professor's ID from the JWT token
+    
+    # Get group_id from request body
+    group_id = request.json.get('group_id')
+    if not group_id:
+        return jsonify({"error": "Missing group_id"}), 400
+    
+    # Create a JWT token with both professor ID and group ID
+    expires_in = timedelta(days=7)
+    token_payload = {
+        "prof_id": professor_id,
+        "group_id": group_id
+    }
+    invite_token = create_access_token(identity=token_payload, expires_delta=expires_in)
+    
+    # Create the invitation link with proper path format
+    frontend_url = request.host_url.rstrip('/')
+    invite_link = f"{frontend_url}/join-group/{invite_token}"
+    
+    return jsonify({"invite_link": invite_link}), 200
+
+# Join a group
+@app.route('/api/groups/join', methods=['POST'])
+# @jwt_required()
+def join_group():
+    student_uid = get_jwt_identity()
+    token = request.json.get('token')
+    
+    if not token:
+        return jsonify({"error": "Missing token"}), 400
+    
+    try:
+        # Decode the invitation token to get both professor ID and group ID
+        decoded = decode_token(token)
+        token_payload = decoded['sub']
+        
+        # Handle both string and dictionary identities
+        if isinstance(token_payload, dict):
+            professor_id = token_payload.get('prof_id')
+            group_id = token_payload.get('group_id')
+        else:
+            # For backward compatibility with older tokens
+            professor_id = token_payload
+            group_id = None
+            
+        if not group_id:
+            return jsonify({"error": "Invalid token: missing group_id"}), 400
+        
+        # Add the student to the specific group
+        result = add_student_to_group(group_id, student_uid)
+        
+        if isinstance(result, str) and "error" in result.lower():
+            return jsonify({"error": str(result)}), 500
+        if not result:
+            return jsonify({"error": "Failed to add student to group"}), 400
+        
+        return jsonify({"message": "Student added to group successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+# Validate invitation token
+@app.route('/api/validate-invite-token', methods=['POST'])
+# @jwt_required()
+def validate_invite_token():
+    token = request.json.get('token')
+    
+    if not token:
+        return jsonify({"error": "Missing token"}), 400
+    
+    try:
+        # Decode the token to get professor ID and group ID
+        decoded = decode_token(token)
+        token_payload = decoded['sub']
+        
+        # Handle both string and dictionary identities
+        if isinstance(token_payload, dict):
+            professor_id = token_payload.get('prof_id')
+            group_id = token_payload.get('group_id')
+        else:
+            # For backward compatibility with older tokens
+            professor_id = token_payload
+            group_id = None
+            
+        if not group_id:
+            return jsonify({"error": "Invalid token: missing group_id"}), 400
+        
+        # Get group information using group_id
+        group = get_group_by_id(group_id)
+        if not group:
+            return jsonify({"error": "Group not found"}), 404
+        
+        # Get professor information
+        professor = get_professor_by_id(professor_id)
+        
+        # Return group and professor info
+        return jsonify({
+            "group_name": group.get("group_name", "Unknown Group"),
+            "professor_name": professor.get("name", "Unknown Professor"),
+            "professor_id": professor_id,
+            "group_id": group_id
+        }), 200
+    except Exception as e:
+        return jsonify({"error": f"Invalid token: {str(e)}"}), 400
+
+
+
 
 
 @app.route('/api/refresh_token', methods=['POST'])

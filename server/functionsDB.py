@@ -14,6 +14,8 @@ mongodb_name=os.environ.get("MONGO_DB")
 client = MongoClient(mongodb_url)
 db = client[mongodb_name]
 groups_collection = db['groups']
+user = db["users"]
+
 # get the last id in any collection 
 def lastID(collection_name):
     try:
@@ -204,5 +206,19 @@ def Fetch_Groups(ProfId):
         return groups  # Return all groups after processing
     except Exception as e:
         return f"Error fetching groups: {str(e)}"
-        
-    
+def get_group_by_id(groupid):
+    try:
+        group = groups_collection.find_one({"_id":ObjectId(groupid)})
+        if group:
+            group['_id'] = str(group['_id'])
+            return group
+    except Exception as e:
+        return f"Error fetching group: {str(e)}"
+def get_professor_by_id(profid):
+    try:
+        prof = user.find_one({"_id":ObjectId(profid)})
+        if prof:
+            prof['_id'] = str(prof['_id'])
+            return prof
+    except Exception as e:
+        return f"Error fetching group: {str(e)}"
