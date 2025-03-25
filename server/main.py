@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import (
-    JWTManager, create_access_token, jwt_required, get_jwt_identity,decode_token
+    JWTManager, create_access_token, jwt_required, get_jwt_identity,decode_token,get_jwt
 )
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta,timezone
