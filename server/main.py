@@ -47,16 +47,18 @@ DropBox_Access_Token = os.environ.get('DropBox_access_token')
 def login():
     """
     Authenticate a user using the Firebase Auth uid.
+
+    :return: A JSON response with an access token
     """
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
     uid = data["uid"]
     try:
-        # Generate a custom token from the UID
-        custom_token = auth.create_custom_token(uid)
-        # Verify the custom token to get a Firebase ID token
-        id_token = auth.verify_id_token(custom_token)
+        user = auth.get_user(uid)
+        if user is None:
+            return jsonify({"error": "Invalid or unknown UID"}), 401
+
         access_token = create_token(uid)
         response = jsonify({"access_token": access_token})
 
