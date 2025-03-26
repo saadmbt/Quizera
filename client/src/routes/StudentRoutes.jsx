@@ -25,11 +25,11 @@ const StudentRoutes =[
   },
   {
     path: 'upload/quizsetup',
-    element: <QuizSetup />,
+    element: <QuizSetup onStartQuiz={() => {}} />,
   },
   {
     path: 'quizzes',
-    element: <Quizzespage />,
+    element: <Quizzespage headerSet={true}/>,
   },
   {
     path: 'quizzes/:id',

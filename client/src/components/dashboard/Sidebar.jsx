@@ -17,7 +17,7 @@ function Sidebar({isSidebarOpen,onClose,toggleSidebar}) {
         />
       )}
       {/* Sidebar */}
-            <aside className={`
+    <aside className={`
       fixed md:sticky top-0 left-0 h-screen w-64 bg-white  shadow-lg flex flex-col z-50
       transform transition-transform duration-200 ease-in-out
       ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronRight, Brain, Target, HelpCircle} from 'lucide-react';
 import {Select, SelectItem} from "@heroui/react";
+import { useNavigate } from 'react-router-dom';
 
 const QUESTION_TYPES = [
   { id: 'multiple-choice', label: 'Multiple Choice', icon: Brain },
@@ -18,7 +19,7 @@ export default function QuizSetup({ onStartQuiz }) {
   const [questionType, setQuestionType] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [questionCount, setQuestionCount] = useState(10);
-
+  const navigate=useNavigate()
   const handleSubmit = (e) => {
     e.preventDefault();
     onStartQuiz({
@@ -26,6 +27,7 @@ export default function QuizSetup({ onStartQuiz }) {
       difficulty,
       questionCount
     });
+    navigate('/Dashboard/quiz');
   };
 
   return (
