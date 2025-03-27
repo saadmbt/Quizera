@@ -410,7 +410,7 @@ def get_student_groups_route(student_uid):
 
 # Generate invitation link
 @app.route('/api/generate-invite-link', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def generate_invite_link():
     professor_id = get_jwt_identity()  # Get the professor's ID from the JWT token
     
@@ -435,7 +435,7 @@ def generate_invite_link():
 
 # Join a group
 @app.route('/api/groups/join', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def join_group():
     student_uid = get_jwt_identity()
     token = request.json.get('token')
@@ -474,7 +474,7 @@ def join_group():
 
 # Validate invitation token
 @app.route('/api/validate-invite-token', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def validate_invite_token():
     token = request.json.get('token')
     
