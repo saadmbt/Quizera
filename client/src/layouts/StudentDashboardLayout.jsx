@@ -13,7 +13,12 @@ const StudentDashboardLayout = () => {
     return (
         <div className='min-h-screen flex bg-gray-50'>
             <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} onClose={() => setIsSidebarOpen(false)} />
+            
             <div className="p-4 md:p-8 lg:p-12 w-full">
+            <div>
+                
+            </div>
+                {/* Main Content */}
                 <Outlet context={{ toggleSidebar }} />
             </div>
         </div>

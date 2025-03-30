@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronRight, Brain, Target, HelpCircle} from 'lucide-react';
 import {Select, SelectItem} from "@heroui/react";
 import { useNavigate } from 'react-router-dom';
@@ -27,7 +27,7 @@ export default function QuizSetup({ onStartQuiz }) {
       difficulty,
       questionCount
     });
-    navigate('/Dashboard/quiz');
+    navigate('/Student/quiz');
   };
 
   return (

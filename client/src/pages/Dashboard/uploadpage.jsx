@@ -32,7 +32,8 @@ export default function Upload({ onComplete }) {
       console.log('Lesson uploaded:', response);
       console.log('Lesson uploaded ID:', LessonID);
       setIsUploading(false);
-      onComplete();
+      onComplete(LessonID);
+      navigate('/Student/upload/quizsetup');
     }
     catch (error) {
       console.error('Error uploading lesson:', error);
