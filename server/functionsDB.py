@@ -206,14 +206,20 @@ def Fetch_Groups(ProfId):
         return groups  # Return all groups after processing
     except Exception as e:
         return f"Error fetching groups: {str(e)}"
-def get_group_by_id(groupid):
+def get_group_by_id(group_id):
     try:
-        group = groups_collection.find_one({"_id":ObjectId(groupid)})
+        # Ensure group_id is a valid ObjectId
+        if not ObjectId.is_valid(group_id):
+            return None
+            
+        group = groups_collection.find_one({"_id": ObjectId(group_id)})
         if group:
-            group['_id'] = str(group['_id'])
+            group['_id'] = str(group['_id'])  # Convert ObjectId to string
             return group
+        return None
     except Exception as e:
-        return f"Error fetching group: {str(e)}"
+        print(f"Error in get_group_by_id: {str(e)}")
+        return None
 def get_professor_by_id(profid):
     try:
         prof = user.find_one({"_id":ObjectId(profid)})

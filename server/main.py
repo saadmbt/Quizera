@@ -408,7 +408,7 @@ def get_student_groups_route(student_uid):
 
 # Generate invitation link
 @app.route('/api/generate-invite-link', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def generate_invite_link():
     professor_id = get_jwt_identity()  # Get the professor's ID from the JWT token
     
@@ -427,7 +427,7 @@ def generate_invite_link():
     
     # Create the invitation link with proper path format
     frontend_url = request.host_url.rstrip('/')
-    invite_link = f"{frontend_url}/join-group/{invite_token}"
+    invite_link = f"http://localhost:5173/join-group/{invite_token}"
     
     return jsonify({"invite_link": invite_link}), 200
 
