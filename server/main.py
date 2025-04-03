@@ -447,7 +447,7 @@ def generate_invite_link():
     
     # Create the invitation link with proper path format
     frontend_url = request.host_url.rstrip('/')
-    invite_link = f"{frontend_url}/join-group/{invite_token}"
+    invite_link = f"http://localhost:5173/join-group/{invite_token}"
     
     return jsonify({"invite_link": invite_link}), 200
 

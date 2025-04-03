@@ -14,20 +14,21 @@ const JoinGroup = () => {
 
   useEffect(() => {
     // Redirect to login if the student is not authenticated
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: `/join-group/${token}` }});  // Redirect to login with the current URL as the return path
-      return;
-    }
+    // if (!isAuthenticated) {
+    //   navigate('/login', { state: { from: `/join-group/${token}` }});  // Redirect to login with the current URL as the return path
+    //   return;
+    // }
 
     const validateInvitation = async () => {
       try {
         // Validate the invitation token
         const response = await axios.post(
           'https://prepgenius-backend.vercel.app/api/validate-invite-token',
-          { token },
+          { token, group_id: groupInfo._id },  // Include the group _id
+
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MzAzMTkwNiwianRpIjoiNTRkNmY3M2MtNzZlMi00NGNjLWJhODctMDVkMWJhZjAwMDQyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjdlRGJWbUZjdENUcDhpdE0zRUtxM3p3SG94MzIiLCJuYmYiOjE3NDMwMzE5MDYsImNzcmYiOiIxZGI3MGJmMC1jYmQ2LTQ5NzEtYWNhZC04NjY3ZWY1ZGZlOGQiLCJleHAiOjE3NDMwNDI3MDZ9.oaYROnSJiph00wmeC4EZW3IZYtDuoS1FYTTWsG93xEw`,
             },
           }
         );
@@ -51,7 +52,7 @@ const JoinGroup = () => {
         { token },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MzAzMTkwNiwianRpIjoiNTRkNmY3M2MtNzZlMi00NGNjLWJhODctMDVkMWJhZjAwMDQyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjdlRGJWbUZjdENUcDhpdE0zRUtxM3p3SG94MzIiLCJuYmYiOjE3NDMwMzE5MDYsImNzcmYiOiIxZGI3MGJmMC1jYmQ2LTQ5NzEtYWNhZC04NjY3ZWY1ZGZlOGQiLCJleHAiOjE3NDMwNDI3MDZ9.oaYROnSJiph00wmeC4EZW3IZYtDuoS1FYTTWsG93xEw}`,
           },
         }
       );

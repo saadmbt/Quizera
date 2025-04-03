@@ -9,6 +9,8 @@ import Upload from "../pages/Dashboard/uploadpage";
 import Quizzespage from "../pages/Dashboard/Quizzespage";
 import { useNavigate } from "react-router-dom";
 import { StateContext } from "./StudentProvider";
+import JoinGroup from '../components/groups/Joingroup';
+
 const NotAccessibleRoute = ({ condition, redirectTo, children }) => {
   const navigate = useNavigate();
 
@@ -78,9 +80,14 @@ const StudentRoutes = ({
       {
         path: "flashcards/study/:id",
         element: <FlashcardStudy />,
-      },
+      },,
+      { 
+        path: "join-group/:token",
+        element: <JoinGroup />,
+      }
     ],
     [lessonID, quizSettings, onComplete, onStartQuiz]
   );
 };
 export default StudentRoutes;
+
