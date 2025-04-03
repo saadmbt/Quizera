@@ -32,6 +32,8 @@ export const fetchStudentGroups = async (studentUid) => {
 };
 
 export const createGroup = async (groupData, user) => {
+  console.log('Creating group with data:', groupData); // Debug log
+
   try {
     console.log('Payload:', {
       group_name: groupData.name,
@@ -44,7 +46,9 @@ export const createGroup = async (groupData, user) => {
       description: groupData.description,
     });
 
-    return response.data;
+    console.log('Group created successfully:', response.data); // Debug log
+    return response.data; 
+
   } catch (error) {
     console.error('Error creating group:', error);
     throw error;
@@ -87,19 +91,19 @@ export const getGroupById = async (groupId, profId) => {
 // Generate and return an invitation link for a group
 export const generateInviteLink = async (user, groupId) => {
   try {
-    // const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('access_token');
     const response = await axios.post(
       'https://prepgenius-backend.vercel.app/api/generate-invite-link',
       {
         prof_id: user.uid,
         group_id: groupId
       },
-      // {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //     'Content-Type': 'application/json',
-      //   },
-      // }
+      {
+        headers: {
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MzAzMTkwNiwianRpIjoiNTRkNmY3M2MtNzZlMi00NGNjLWJhODctMDVkMWJhZjAwMDQyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjdlRGJWbUZjdENUcDhpdE0zRUtxM3p3SG94MzIiLCJuYmYiOjE3NDMwMzE5MDYsImNzcmYiOiIxZGI3MGJmMC1jYmQ2LTQ5NzEtYWNhZC04NjY3ZWY1ZGZlOGQiLCJleHAiOjE3NDMwNDI3MDZ9.oaYROnSJiph00wmeC4EZW3IZYtDuoS1FYTTWsG93xEw`,
+          'Content-Type': 'application/json',
+        },
+      }
     );
 
     if (!response.data || !response.data.invite_link) {

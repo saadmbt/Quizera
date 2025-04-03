@@ -9,6 +9,7 @@ import QuizSetup from '../pages/Dashboard/QuizSetup';
 import Quiz from '../pages/Dashboard/Quiz';
 import Upload from '../pages/Dashboard/uploadpage';
 import Quizzespage from '../pages/Dashboard/Quizzespage';
+import JoinGroup from '../components/groups/Joingroup';
 
 const StudentRoutes =[
   {
@@ -42,7 +43,12 @@ const StudentRoutes =[
   {
     path: 'flashcards/study/:id',
     element: <FlashcardStudy />,
+  },
+  { 
+    path: "join-group/:token",
+    element: <JoinGroup />,
   }
+
 ]
   // return (
   //   <Routes>
