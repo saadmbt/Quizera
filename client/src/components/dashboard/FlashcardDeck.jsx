@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 function FlashcardDeck({ id, title, description, cardCount }) {
     const navigate = useNavigate();
     const handleStudy = () => {
-        navigate(`/Dashboard/flashcards/study/${id}`);
+        navigate(`/Student/flashcards/study/${id}`);
     };
 
     return (

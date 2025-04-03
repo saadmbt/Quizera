@@ -233,12 +233,12 @@ export const footerlinks = [
 // End Landing page Constants
 
 export const navigationItems = [
-    { icon: BookOpen, label: 'Dashboard', to: '/Dashboard' },
-    { icon: Upload, label: 'Upload', to: '/Dashboard/upload' },
-    { icon: Library, label: 'Flashcards', to: '/Dashboard/flashcards' },
-    { icon: BrainCircuit, label: 'Quizzes', to: '/Dashboard/quizzes' },
-    { icon: BarChart, label: 'Analytics', to: '/Dashboard/analytics' },
-    { icon: Settings, label: 'Settings', to: '/Dashboard/settings' }
+    { icon: BookOpen, label: 'Dashboard', to: '/Student',exact:true },
+    { icon: Upload, label: 'Upload', to: '/Student/upload' },
+    { icon: Library, label: 'Flashcards', to: '/Student/flashcards' },
+    { icon: BrainCircuit, label: 'Quizzes', to: '/Student/quizzes' },
+    { icon: BarChart, label: 'Analytics', to: '/Student/analytics' },
+    { icon: Settings, label: 'Settings', to: '/Student/settings' }
   ];
 export const stats = [
     { title: 'Completed Lessons', value: '24', color: 'bg-blue-500', icon: BookOpen },

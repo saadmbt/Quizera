@@ -12,12 +12,12 @@ export default function QuizProgress({ currentQuestion, totalQuestions, timer })
 
   return (
     <div className="flex justify-between items-center mb-8">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-xl">
         <div className="flex justify-between text-sm text-gray-600  mb-2">
           <span>Progress</span>
           <span>{currentQuestion + 1} of {totalQuestions}</span>
         </div>
-        <div className="h-2 bg-gray-200  rounded-full">
+        <div className="h-2  bg-gray-200  rounded-full">
           <div
             className="h-full bg-blue-500 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}

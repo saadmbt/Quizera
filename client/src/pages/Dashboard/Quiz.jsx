@@ -4,16 +4,17 @@ import FillInBlank from '../../components/quiz/FillInBlank';
 import QuizProgress from '../../components/quiz/QuizProgress';
 import QuizComplete from '../../components/quiz/QuizComplete';
 import Videos from '../../components/dashboard/Videos';
+import { generateQuiz } from '../../services/StudentService';
 
 
 // interface Question {
 //   id: number;
 //   type: 'multiple-choice' | 'true-false' | 'fill-blank';
 //   question: string;
-//   options?: string[];
+//   options?: [string];
 //   correctAnswer: string;
-//   blanks?: string[];
-//   answers?: string[];
+//   blanks?: [string];
+//   answers?: [string];
 // }
 
 // interface Answer {
@@ -49,7 +50,7 @@ const MOCK_QUESTIONS= [
   }
 ];
 
-export default function Quiz({ settings }) {
+export default function Quiz({ settings , LessonID}) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [timer, setTimer] = useState(0);
@@ -57,15 +58,34 @@ export default function Quiz({ settings }) {
   const [showFlashcards, setShowFlashcards] = useState(false);
   const [showVideos, setShowVideos] = useState(false);
   const [startTime, setStartTime] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   const score = answers.filter(answer => answer.isCorrect).length;
   const keywords = ['geography', 'capitals', 'planets', 'oceans'];
-
+  // use effect to generate the Quiz by calling the generateQuiz function from the StudentService
   useEffect(() => {
-    let interval
+    const getQuiz = async () => {
+      try {
+        const quiz = await generateQuiz(LessonID, settings.type, settings.questionCount, settings.difficulty);
+        console.log('Quiz:', quiz);
+        setIsLoading(true);
+        // setQuiz(quiz);
+        } catch (error) {
+          setError(error);
+        }finally{
+          setIsLoading(false);
+        }
+      };
+      getQuiz();
+  }
+  , [LessonID, settings]);
+
+  // use effect to start the timer
+  useEffect(() => {
+    let interval;
     try {
-      interval = window.setInterval(() => {
+      interval = setInterval(() => {
         if (!quizComplete) {
           setTimer(prev => prev + 1);
         }
@@ -76,11 +96,12 @@ export default function Quiz({ settings }) {
 
     return () => {
       if (interval) {
-        window.clearInterval(interval);
+        clearInterval(interval);
       }
     };
   }, [quizComplete]);
 
+  // use effect to set the start time
   useEffect(() => {
     try {
       setStartTime(Date.now());
@@ -112,7 +133,17 @@ export default function Quiz({ settings }) {
       setTimeout(() => setError(null), 3000);
     }
   };
-
+  // add a dev that tell the user if the quiz is gennrating 
+  if (isLoading) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Generating Quiz</h1>
+          <p className="text-gray-600">Please wait while we generate the quiz for you.</p>
+        </div>
+      </div>
+    );
+  }
   if (showFlashcards) {
     return <Flashcards keywords={keywords} onBack={() => setShowFlashcards(false)} />;
   }
@@ -149,8 +180,8 @@ export default function Quiz({ settings }) {
         timer={timer}
       />
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-        {question.type === 'fill-blank' ? (
+      <div className="bg-white  rounded-lg shadow-lg p-6 mb-8">
+        {settings.type === 'fill-blank' ? (
           <FillInBlank
             question={question.question}
             answers={question.answers || []}
@@ -165,10 +196,6 @@ export default function Quiz({ settings }) {
           />
         )}
       </div>
-
-      {answers.length > 0 && answers[answers.length - 1].questionId === MOCK_QUESTIONS[currentQuestion - 1]?.id && (
-        <AnswerFeedback isCorrect={answers[answers.length - 1].isCorrect} />
-      )}
     </div>
   );
 }

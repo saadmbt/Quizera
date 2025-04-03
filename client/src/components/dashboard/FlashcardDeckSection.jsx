@@ -1,6 +1,7 @@
 import React from 'react';
-import { Library, Plus } from 'lucide-react';
+import { Library, Plus, Sidebar } from 'lucide-react';
 import FlashcardDeck from './flashcarddeck';
+import { useOutletContext } from 'react-router-dom';
 
 const DECKS = [
   {
@@ -52,18 +53,27 @@ const DECKS = [
 
 function FlashcardsSection({ limit }) {
   const displayedDecks = limit ? DECKS.slice(0, limit) : DECKS
-
+  const { toggleSidebar } = useOutletContext();
   return (
     <div className="space-y-6 mb-8 px-4 md:px-0">
       {/* Header */}
       <div className="flex flex-col md:flex-col md:items-start lg:flex-row justify-between gap-4">
         <div>
+          <button
+            className="md:hidden text-gray-600"
+            onClick={() => {
+            console.log("Toggle button clicked.");
+            toggleSidebar();
+              }}
+          >
+                <Sidebar className="h-6 w-6" />
+          </button>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Library className="h-6 w-6 text-blue-500" />
             Flashcard Decks
           </h2>
           <p className="text-gray-600 mt-1">
-            Review and manage your study materials
+            Review and manage your study Flashcards
           </p>
         </div>
         <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">

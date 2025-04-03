@@ -54,9 +54,10 @@ def extract_images_from_pdf(file_bytes):
     return images
 
 # Function to get the file type
-def get_file_type(file_bytes):
-    #Get the file extension
-    _, ext = os.path.splitext(file_bytes)
+def get_file_type(file_name):
+    # Get the file extension
+    _, ext = os.path.splitext(file_name)
+
     
     # Map extensions to file types
     ALLOWEDd_EXTENSIONS = {
@@ -122,4 +123,3 @@ def file_handler(file_bytes,file_name):
         return str(ex_text)
     else:
         return 'file type not supported'
-

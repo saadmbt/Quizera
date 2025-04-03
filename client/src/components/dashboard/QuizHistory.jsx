@@ -88,7 +88,7 @@ function QuizHistory(props) {
                 {quiz.questionsCount} Questions
               </div>
               <Link
-                to={`/Dashboard/quizzes/${quiz.id}`}
+                to={`/Student/quizzes/${quiz.id}`}
                 className="p-2 hover:bg-gray-100  rounded-full transition-colors"
               >
                 <ChevronRight className="h-5 w-5 text-gray-400" />
@@ -100,7 +100,7 @@ function QuizHistory(props) {
 
       {props.showViewAll && (
         <Link
-          to="/Dashboard/quizzes"
+          to="/Student/quizzes"
           className="flex items-center justify-center py-3 text-blue-600  hover:text-blue-800 -300"
         >
           View All Quizzes

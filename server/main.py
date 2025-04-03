@@ -1,19 +1,19 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import (
-    JWTManager, create_access_token, jwt_required, get_jwt_identity,decode_token
+    JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token, get_jwt
 )
 from bson.objectid import ObjectId
-from datetime import datetime, timedelta,timezone
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 import os
 from functionsDB import (
     insert_Lessons, Fetch_Lesson, 
-    fetch_all_lessons_by_user,Fetch_Quizzes,
+    fetch_all_lessons_by_user, Fetch_Quizzes,
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
-    insert_group,add_student_to_group,get_group_by_code,
-    get_professor_groups,get_student_groups,Fetch_Groups,get_group_by_id,get_professor_by_id
-    )
-from main_functions import (save_to_azure_storage,create_token,check_request_body,get_file_type)
+    insert_group, add_student_to_group, get_group_by_code,
+    get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id
+)
+from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
 from image_Handling import image_handler
 from werkzeug.utils import secure_filename
@@ -23,8 +23,10 @@ import tempfile
 from LLM_functions import generate_and_insert_questions 
 from flask_cors import CORS
 import json
+
 app = Flask(__name__)
 CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DELETE'], headers=['Content-Type', 'Authorization'])
+
 # Load credentials from environment variables
 load_dotenv()
 # Load the service account key from the environment variable
@@ -32,31 +34,32 @@ service_account_key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
 # Initialize Firebase Admin
 cred = credentials.Certificate(service_account_key) 
 firebase_admin.initialize_app(cred)
+
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_TOKEN_SECRET')
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
-jwt = JWTManager(app)
+# app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
+# jwt = JWTManager(app)
 
 # Replace with your Dropbox access token
 DropBox_Access_Token = os.environ.get('DropBox_access_token')
 
-      
 # User Management Endpoints
-
 @app.route('/api/auth', methods=['POST'])
 def login():
     """
     Authenticate a user using the Firebase Auth uid.
+
+    :return: A JSON response with an access token
     """
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
     uid = data["uid"]
     try:
-        # Generate a custom token from the UID
-        custom_token = auth.create_custom_token(uid)
-        # Verify the custom token to get a Firebase ID token
-        id_token = auth.verify_id_token(custom_token)
+        user = auth.get_user(uid)
+        if user is None:
+            return jsonify({"error": "Invalid or unknown UID"}), 401
+
         access_token = create_token(uid)
         response = jsonify({"access_token": access_token})
 
@@ -87,38 +90,48 @@ def profile():
             "uid": user.uid,
             "email": user.email,
             "display_name": user.display_name,
-            "createdAt":user.user_metadata.creation_timestamp,
-            "lastLoginAt":user.user_metadata.last_sign_in_timestamp,
+            "createdAt": user.user_metadata.creation_timestamp,
+            "lastLoginAt": user.user_metadata.last_sign_in_timestamp,
         }
         response = jsonify({"user": user_info})
         return response, 200
     except auth.UserNotFoundError:
-        return jsonify({'error': 'User  not found'}), 404
-    
-# User Management Endpoints is done and tested 100% 
-# Next step is to implement the user management endpoints for the admin
-# This will include endpoints for creating, reading, updating, and deleting users
-# This will also include endpoints for managing user roles and permissions
-# and user notifications and alerts and user settings and preferences
-# and user analytics and insights and  user security and authentication
-# and user identity and access control and user data encryption and decryption
-# and user data backup and restore
-# add update mehode for access token 
+        return jsonify({'error': 'User not found'}), 404
 
 # Lesson Management Endpoints
- 
 @app.route('/api/upload', methods=['POST'])
 # @jwt_required()
 def handle_theuploaded():
-    # check if the request body  is text or file or image
-    request_type=check_request_body()
-    try:
-        if request_type is None:
-            response=jsonify({"st":'It is None',"value":request_type})
+    # Check if the request body is text, file, or image
+    request_type = check_request_body()
+    if request_type is None:
+        return jsonify({"error": "Request type could not be determined."}), 400
+
+    # Limit file size to 10MB
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+    New_id = lastID("lessons")
+
+    if request_type == "text":
+        lesson_obj = {
+            "title": request.form["title"],
+            "id": New_id,
+            "author": "get_jwt_identity()",
+            "content": request.form['text'],
+            "uploadedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        lesson_objid = insert_Lessons(lesson_obj)
+        response = jsonify({'message': 'Lesson uploaded successfully', "lesson_id": str(lesson_objid)})
+        return response, 201
+    
+    elif request_type == "file":
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        if file.content_length > MAX_FILE_SIZE:
             return response,400
-    except NameError:
-        return jsonify ({"st":"This variable is not defined"})
-    New_id=lastID("lessons")
+    # Limit file size to 10MB
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+    New_id = lastID("lessons")
+
     if request_type=="text":
         # Get the data from the request body
         lesson_obj={
@@ -134,11 +147,16 @@ def handle_theuploaded():
         return response, 201
     
     elif request_type=="file":
-        # get the file from the requset
+        # Get the file from the request
+
         file=request.files['file']
         # Secure the filename
         filename = secure_filename(file.filename)
-        # Save the file to the DropBox storage // function args :(access_token,file,filename)
+        # Check file size
+        if file.content_length > MAX_FILE_SIZE:
+            return jsonify({"error": "File size exceeds the 10MB limit."}), 400
+        # Save the file to Azure storage
+
         try:
             # Proccess the file 
             file_content = file.read()
@@ -160,12 +178,14 @@ def handle_theuploaded():
             response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
             return response, 200
         except Exception as e:
-            response=jsonify({"error file": str(e)})
+            response = jsonify({"error": "File processing error: " + str(e)})
+
             return response, 400
         
     # case if the file is image
     elif request_type=="img":
-        # get the image from the requset
+        # Get the image from the request
+
         image=request.files['file']
         # Secure the filename
         try:
@@ -433,7 +453,7 @@ def generate_invite_link():
 
 # Join a group
 @app.route('/api/groups/join', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def join_group():
     student_uid = get_jwt_identity()
     token = request.json.get('token')
@@ -472,7 +492,7 @@ def join_group():
 
 # Validate invitation token
 @app.route('/api/validate-invite-token', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def validate_invite_token():
     token = request.json.get('token')
     

@@ -11,7 +11,7 @@ const QUIZ_DETAILS = {
     date: '2024-03-15',
     score: 85,
     timeSpent: '12:30',
-    category: 'Geography',
+    type: 'multiple-choice',
     questions: [
       {
         id: 1,
@@ -52,7 +52,7 @@ function QuizDetailspage() {
               <h2 className="text-2xl font-bold text-gray-900  mb-2">Quiz Not Found</h2>
               <p className="text-gray-600  mb-6">The quiz you're looking for doesn't exist.</p>
               <Link
-                to="/Dashboard/quizzes"
+                to="/Student/quizzes"
                 className="inline-flex items-center text-blue-600  hover:text-blue-800"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -71,7 +71,7 @@ function QuizDetailspage() {
          {/* Header */}
       <div className="flex items-center justify-between">
         <Link
-          to="/Dashboard/quizzes"
+          to="/Student/quizzes"
           className="flex items-center text-gray-600  hover:text-gray-900 "
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
@@ -79,7 +79,7 @@ function QuizDetailspage() {
         </Link>
         <div className="flex items-center gap-2">
           <Brain className="h-6 w-6 text-blue-500" />
-          <h1 className="text-2xl font-bold text-gray-900 ">{quiz.title}</h1>
+          <h1 className="text-base md:text-2xl font-bold text-gray-900 ">{quiz.title}</h1>
         </div>
       </div>
       {/* General Information */}
@@ -109,8 +109,8 @@ function QuizDetailspage() {
             <div className="flex items-center gap-3">
                 <Brain className="h-5 w-5 text-gray-400" />
                 <div>
-                <p className="text-sm text-gray-500 ">Category</p>
-                <p className="font-medium ">{quiz.category}</p>
+                <p className="text-sm text-gray-500 ">type</p>
+                <p className="font-medium ">{quiz.type}</p>
                 </div>
             </div>
         </div>

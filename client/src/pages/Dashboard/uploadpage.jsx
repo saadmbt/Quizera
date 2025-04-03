@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Upload as UploadIcon } from 'lucide-react';
+import { Sidebar, Upload as UploadIcon } from 'lucide-react';
 import UploadTabs from '../../components/dashboard/UploadTabs';
 import FileUpload from '../../components/dashboard/FileUpload';
 import TextUpload from '../../components/dashboard/TextUpload';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import {uploadLesson} from '../../services/StudentService'
+import toast from 'react-hot-toast';
 
 export default function Upload({ onComplete }) {
   const [activeTab, setActiveTab] = useState('file');
@@ -12,23 +14,55 @@ export default function Upload({ onComplete }) {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const navigate=useNavigate();
+   const {toggleSidebar} = useOutletContext();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if ((!file && activeTab === 'file') || (!text && activeTab === 'text')) return;
+    if ((!file && activeTab === 'file') || (!text && activeTab === 'text') || (activeTab === 'file' && file.size > 10 * 1024 * 1024)) {
+        toast.error('File must be less than 10MB.');
+        return;
+    }
 
+    const data = activeTab === 'file' ? file : text
+    console.log('Data:', data);
     setIsUploading(true);
-    // Simulate upload delay
-    setTimeout(() => {
+    try {
+      const response = await uploadLesson(data, title, activeTab);
+
+      const LessonID=response.lesson_id;
+      console.log('Lesson uploaded:', response);
+      console.log('Lesson uploaded ID:', LessonID);
       setIsUploading(false);
-      onComplete();
-    }, 2000);
-    navigate('/Dashboard/upload/QuizSetup');
+      onComplete(LessonID);
+      navigate('/Student/upload/quizsetup');
+    }
+    catch (error) {
+      console.error('Error uploading lesson:', error);
+      setIsUploading(false);
+    }
+    // Simulate upload delay
+    // setTimeout(() => {
+    //   setIsUploading(false);
+    //   onComplete();
+    // }, 2000);
+    // navigate('/Dashboard/upload/QuizSetup');
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900  mb-2">Upload Learning Material</h1>
+        <div className='flex items-start justify-center gap-4'>
+          <button
+            className="md:hidden text-gray-600 "
+            onClick={() => {
+            console.log("Toggle button clicked.");
+            toggleSidebar();
+            }}
+          >
+            <Sidebar className="h-8 w-6" />
+          </button>
+          <h1 className="text-2xl font-bold text-gray-900  mb-2">Upload Learning Material</h1>
+        </div>
+        
         <p className="text-gray-600 ">Add new content to your learning library</p>
       </div>
 
