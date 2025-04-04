@@ -146,8 +146,20 @@ def Fetch_Quiz_Results(Quiz_res_id):
 def insert_group(group_data):
     """insert a new group"""
     try:
-        result = groups_collection.insert_one(group_data)
-        return str(result.inserted_id)
+        # Format the group data
+        formatted_group = {
+            "group_name": group_data["group_name"],
+            "description": group_data.get("description", ""),
+            "prof_id": group_data["prof_id"],
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "students": []
+        }
+        
+        result = groups_collection.insert_one(formatted_group)
+        return {
+            "group_id": str(result.inserted_id),
+            "success": True
+        }
     except Exception as e:
         return f"Error creating group: {str(e)}"
 
