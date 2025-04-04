@@ -52,7 +52,7 @@ export default function Upload({ onComplete }) {
       <div className="mb-8">
         <div className='flex items-start justify-center gap-4'>
           <button
-            className="md:hidden text-gray-600 "
+            className="md:hidden text-gray-600 mr-2 hover:text-gray-900 focus:outline-none justify-self-start"
             onClick={() => {
             console.log("Toggle button clicked.");
             toggleSidebar();
@@ -62,8 +62,7 @@ export default function Upload({ onComplete }) {
           </button>
           <h1 className="text-2xl font-bold text-gray-900  mb-2">Upload Learning Material</h1>
         </div>
-        
-        <p className="text-gray-600 ">Add new content to your learning library</p>
+        <p className="text-gray-600 text-center ">Add new content to your learning library</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { StateContext } from "./StudentProvider";
 import JoinGroup from '../components/groups/Joingroup';
 
-const NotAccessibleRoute = ({ condition, redirectTo, children }) => {
+export const NotAccessibleRoute = ({ condition, redirectTo, children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {

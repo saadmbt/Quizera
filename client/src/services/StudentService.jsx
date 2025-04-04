@@ -28,7 +28,7 @@ export const generateQuiz = async (LessonID,type,number,difficulty) => {
   try {
     const response = await axios.post("https://prepgenius-backend.vercel.app/api/create_quiz",
      {
-      LessonID,
+      "lesson_id":LessonID,
       type,
       number,
       difficulty
