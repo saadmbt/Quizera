@@ -429,22 +429,30 @@ def get_student_groups_route(student_uid):
 # Generate invitation link
 @app.route('/api/generate-invite-link', methods=['POST'])
 def generate_invite_link():
-    # Get group_id from request body
-    group_id = request.json.get('group_id')
-    if not group_id:
-        return jsonify({"error": "Missing group_id"}), 400
-    
-    # Create a JWT token with group ID
-    expires_in = timedelta(days=7)
-    token_payload = {
-        "group_id": group_id
-    }
-    invite_token = create_access_token(identity=token_payload, expires_delta=expires_in)
-    
-    # Create the invitation link
-    invite_link = f"http://localhost:5173/join-group/{invite_token}"
-    
-    return jsonify({"invite_link": invite_link}), 200
+    try:
+        data = request.get_json()
+        if not data or 'group_id' not in data:
+            return jsonify({"error": "Missing group_id in request"}), 400
+
+        group_id = data['group_id']
+        
+        # Verify group exists
+        group = get_group_by_id(group_id)
+        if not group:
+            return jsonify({"error": "Group not found"}), 404
+
+        # Create token
+        token = create_access_token(
+            identity={"group_id": group_id},
+            expires_delta=timedelta(days=7)
+        )
+        
+        invite_link = f"http://localhost:5173/join-group/{token}"
+        return jsonify({"invite_link": invite_link}), 200
+
+    except Exception as e:
+        print(f"Error generating invite link: {str(e)}")
+        return jsonify({"error": "Failed to generate invitation link"}), 500
 
 # Join a group
 @app.route('/api/groups/join', methods=['POST'])
