@@ -6,7 +6,7 @@ import GroupForm from './GroupForm';
 import { fetchProfessorGroups, createGroup } from '../../services/ProfServices';
 import { AuthContext } from "../Auth/AuthContext";
 
-const Groups = () => {
+const  Groups = () => {
   const [groups, setGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');

@@ -5,6 +5,8 @@ import QuizProgress from '../../components/quiz/QuizProgress';
 import QuizComplete from '../../components/quiz/QuizComplete';
 import Videos from '../../components/dashboard/Videos';
 import { generateQuiz } from '../../services/StudentService';
+import Flashcards from '../../components/dashboard/Flashcards';
+import QuestionReview from '../../components/quiz/QuestionReview';
 
 
 // interface Question {
@@ -57,29 +59,30 @@ export default function Quiz({ settings , LessonID}) {
   const [quizComplete, setQuizComplete] = useState(false);
   const [showFlashcards, setShowFlashcards] = useState(false);
   const [showVideos, setShowVideos] = useState(false);
+  const [showQuestions, setshowQuestions] = useState(false);
   const [startTime, setStartTime] = useState(0);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   
   const score = answers.filter(answer => answer.isCorrect).length;
   const keywords = ['geography', 'capitals', 'planets', 'oceans'];
   // use effect to generate the Quiz by calling the generateQuiz function from the StudentService
-  useEffect(() => {
-    const getQuiz = async () => {
-      try {
-        const quiz = await generateQuiz(LessonID, settings.type, settings.questionCount, settings.difficulty);
-        console.log('Quiz:', quiz);
-        setIsLoading(true);
-        // setQuiz(quiz);
-        } catch (error) {
-          setError(error);
-        }finally{
-          setIsLoading(false);
-        }
-      };
-      getQuiz();
-  }
-  , [LessonID, settings]);
+  // useEffect(() => {
+  //   const getQuiz = async () => {
+  //     try {
+  //       const quiz = await generateQuiz(LessonID, settings.type, settings.questionCount, settings.difficulty);
+  //       console.log('Quiz:', quiz);
+  //       setIsLoading(true);
+  //       // setQuiz(quiz);
+  //       } catch (error) {
+  //         setError(error);
+  //       }finally{
+  //         setIsLoading(false);
+  //       }
+  //     };
+  //     getQuiz();
+  // }
+  // , [LessonID, settings]);
 
   // use effect to start the timer
   useEffect(() => {
@@ -134,22 +137,26 @@ export default function Quiz({ settings , LessonID}) {
     }
   };
   // add a dev that tell the user if the quiz is gennrating 
-  if (isLoading) {
-    return (
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Generating Quiz</h1>
-          <p className="text-gray-600">Please wait while we generate the quiz for you.</p>
-        </div>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="max-w-2xl mx-auto p-6">
+  //       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+  //         <h1 className="text-2xl font-bold text-gray-900 mb-2">Generating Quiz</h1>
+  //         <p className="text-gray-600">Please wait while we generate the quiz for you.</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
   if (showFlashcards) {
-    return <Flashcards keywords={keywords} onBack={() => setShowFlashcards(false)} />;
+    return <Flashcards onBack={() => setShowFlashcards(false)} />;
   }
 
   if (showVideos) {
     return <Videos keywords={keywords} onBack={() => setShowVideos(false)} />;
+  }
+  if (showQuestions) {
+    return <QuestionReview  onBack={() => setshowQuestions(false)} />;
   }
 
   if (quizComplete) {
@@ -160,6 +167,7 @@ export default function Quiz({ settings , LessonID}) {
         answers={answers}
         onShowFlashcards={() => setShowFlashcards(true)}
         onShowVideos={() => setShowVideos(true)}
+        onshowQuestions={() => setshowQuestions(true)}
       />
     );
   }
@@ -181,7 +189,7 @@ export default function Quiz({ settings , LessonID}) {
       />
 
       <div className="bg-white  rounded-lg shadow-lg p-6 mb-8">
-        {settings.type === 'fill-blank' ? (
+        {question.type === 'fill-blank' ? (
           <FillInBlank
             question={question.question}
             answers={question.answers || []}

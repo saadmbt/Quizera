@@ -9,7 +9,8 @@ import Target from '../assets/whyusicons/Target.svg';
 import ClockArrowUp from '../assets/whyusicons/clock-arrow-up.svg';
 import BrainCog from '../assets/whyusicons/brain-cog.svg';
 import Users from '../assets/whyusicons/users.svg';
-import { BarChart, BookOpen, BrainCircuit, Crown, Library, Settings, Upload, UploadIcon } from 'lucide-react';
+import {BookOpen, BrainCircuit, Crown, Library, Settings, Upload } from 'lucide-react';
+import { UserGroupIcon } from '@heroicons/react/24/outline';
 export const websiteConstants = {
     // Website URL
     WEBSITE_URL: 'https://PrepGenius.com',
@@ -237,7 +238,7 @@ export const navigationItems = [
     { icon: Upload, label: 'Upload', to: '/Student/upload' },
     { icon: Library, label: 'Flashcards', to: '/Student/flashcards' },
     { icon: BrainCircuit, label: 'Quizzes', to: '/Student/quizzes' },
-    { icon: BarChart, label: 'Analytics', to: '/Student/analytics' },
+    { icon: UserGroupIcon, label: 'Groups', to: '/Student/groups' },
     { icon: Settings, label: 'Settings', to: '/Student/settings' }
   ];
 export const stats = [

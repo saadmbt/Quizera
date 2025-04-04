@@ -9,9 +9,9 @@ import { GripHorizontal } from 'lucide-react';
 // }
 
 export default function FillInBlank({ question, answers, blanks, onAnswer }) {
-  console.log(question);
-  console.log(answers);
-  console.log(blanks);
+  // console.log(question);
+  // console.log(answers);
+  // console.log(blanks);
   const [draggedItem, setDraggedItem] = useState(null);
   const [filledBlanks, setFilledBlanks] = useState(new Array(blanks.length).fill(''));
 

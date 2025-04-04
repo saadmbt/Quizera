@@ -1,8 +1,8 @@
 import React from 'react';
-import { BarChart, Brain, Clock, Youtube } from 'lucide-react';
+import { BarChart, Brain, ChevronRight, Share, Share2, Youtube } from 'lucide-react';
 import ScoreSummary from '../dashboard/ScoreSummary';
 
-//  QuizCompleteProps {
+//  Props {
 //   score: number;
 //   totalQuestions: number;
 //   answers: Array;
@@ -11,11 +11,10 @@ import ScoreSummary from '../dashboard/ScoreSummary';
 // }
 
 export default function QuizComplete({ score, totalQuestions, answers,onShowFlashcards
-    ,onShowVideos }) {
+    ,onShowVideos, onshowQuestions}) {
   const scorePercentage = Math.round((score / totalQuestions) * 100);
   const isLowScore = scorePercentage < 70;
   const incorrectanswers = answers.filter(answer => !answer.isCorrect).length;
-
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg p-6 space-y-8">
@@ -42,9 +41,16 @@ export default function QuizComplete({ score, totalQuestions, answers,onShowFlas
 
       {/* Performance Stats */}
       <div className="space-y-6">
-        <div className="flex items-center gap-2 border-b pb-2">
-        <BarChart className="h-5 w-5 text-blue-500" />
-        <h3 className="font-semibold">Performance Breakdown</h3>
+        <div className="flex items-center gap-2 border-b pb-2 justify-between">
+          <div className='flex items-center gap-2'>
+            <BarChart className="h-5 w-5 text-blue-500" />
+            <h3 className="font-semibold">Performance Breakdown</h3>
+          </div>
+          {/* share quiz button to copy quiz link */}
+          <button className="btn btn-primary py-1 hover:transition-all duration-300 transform hover:scale-105 " onClick={onShowFlashcards}>
+            <Share2 className="h-5 w-5 text-white mr-2 " />
+            Share Quiz
+          </button>
         </div>
         <ScoreSummary quizLenght={totalQuestions} correctAnswers={score} incorrectAnswers={incorrectanswers} />
 
@@ -57,21 +63,18 @@ export default function QuizComplete({ score, totalQuestions, answers,onShowFlas
       </div>
 
       {/* Questions Review */}
-      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-        <h3 className="font-semibold text-gray-800">Questions Review</h3>
-        <div className="space-y-4">
-        {answers.map((answer, index) => (
-          <div key={index} className={`p-4 rounded-lg ${answer.isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
-          <h4 className="font-medium mb-2">Question {index + 1}</h4>
-          <div className="text-medium space-y-1">
-            <p className="text-gray-700">Your Answer: {answer.selectedAnswer}</p>
-            <p className="text-gray-600 flex gap-2 items-center"><Clock className='h-4 w-4'/>Time taken: {answer.time}s</p>
-          </div>
-          </div>
-        ))}
+      <div className="flex items-center justify-between bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h3 className="font-semibold text-gray-800 text-lg">Questions Review</h3>
+        <div className="flex items-center space-x-2 cursor-pointer hover:transition-all duration-300 transform hover:scale-105" 
+        onClick={onshowQuestions}
+        >
+          <span className="text-medium text-blue-600">
+            {answers.length} questions 
+          </span>
+          <ChevronRight className="h-5 w-5 text-blue-600" />
         </div>
       </div>
-
+  
       {/* Recommendations for low scores */}
       {isLowScore && (
         <div className="space-y-6">

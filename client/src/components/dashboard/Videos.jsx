@@ -3,7 +3,7 @@ import { Play, ArrowLeft, Youtube } from 'lucide-react';
 
 // VideosProps {
 //   keywords: string[];
-//   onBack: () => void;
+//   onBack: () => function;
 // }
 
 // Video {
@@ -14,7 +14,7 @@ import { Play, ArrowLeft, Youtube } from 'lucide-react';
 //   views: string;
 // }
 
-export default function Videos({ keywords, onBack }) {
+export default function Videos({onBack }) {
   // Mock video data based on keywords
   const videos = [
     {
@@ -45,7 +45,7 @@ export default function Videos({ keywords, onBack }) {
       <div className="mb-6 flex items-center justify-between">
         <button
           onClick={onBack}
-          className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+          className="flex items-center text-gray-600 hover:text-gray-900  "
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
           Back to Results
@@ -56,21 +56,14 @@ export default function Videos({ keywords, onBack }) {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold mb-2">Educational Videos</h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Based on keywords: {keywords.join(', ')}
-          </p>
-        </div>
-
+      <div className="bg-white  rounded-xl shadow-lg p-8">
         <div className="grid gap-6">
           {videos.map((video) => (
             <div
               key={video.id}
-              className="flex flex-col md:flex-row gap-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+              className="flex flex-col md:flex-row gap-4 bg-gray-50  rounded-lg overflow-hidden hover:shadow-md transition-shadow"
             >
-              <div className="relative md:w-64 h-48 md:h-auto">
+              <div className="relative md:w-64 h-48 ">
                 <img
                   src={video.thumbnail}
                   alt={video.title}
@@ -79,19 +72,19 @@ export default function Videos({ keywords, onBack }) {
                 <div className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded">
                   {video.duration}
                 </div>
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/50 transition-opacity">
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 hover:cursor-pointer bg-black/50 transition-opacity">
                   <Play className="h-12 w-12 text-white" />
                 </div>
               </div>
               <div className="p-4 flex-1">
                 <h3 className="font-semibold text-lg mb-2">{video.title}</h3>
-                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center text-sm text-gray-600 ">
                   <span className="flex items-center">
                     <Play className="h-4 w-4 mr-1" />
                     {video.views} views
                   </span>
                 </div>
-                <button className="mt-4 inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                <button className="mt-4 inline-flex items-center text-sm text-blue-600  hover:text-blue-800 ">
                   Watch Now
                   <ArrowLeft className="h-4 w-4 ml-1 rotate-180" />
                 </button>
