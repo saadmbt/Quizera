@@ -9,7 +9,7 @@ import { Link } from 'react-scroll'
 
 const Hero = () => {
   return (
-    <section className='pt-8 pl-4 pb-20 md:pt-5 md:pb-[59px] lg:pt-2 lg:pb-[68px] bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#D2DCFF,#fafcff_45%)] md:bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#D2DCFF,#fafcff_66%)] overflow-x-clip'>
+    <section className='pt-8 pl-4 pb-20 md:pt-5 md:pb-[59px] lg:pt-2 lg:pb-[68px] bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#D2DCFF,#fafcff_45%)] md:bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#D2DCFF,#fafcff_66%)] overflow-x-clip relative'>
       <div className='container lg-centered'>
         <div className='md:flex items-center gap-6'>
           {/* text section */}
@@ -51,9 +51,9 @@ const Hero = () => {
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }} 
-                className='btn btn-primary text-white bg-[#1884FF] hover:bg-[#0066cc] px-6 py-3 rounded-lg font-medium shadow-lg shadow-blue-200'
+                className='btn btn-primary text-white bg-[#1884FF] hover:bg-[#0066cc] px-6 md:px-3 py-3 rounded-lg font-medium shadow-lg shadow-blue-200'
               >
-                <a href="/login">{herotext.cta}</a>
+                <a href="/auth/login">{herotext.cta}</a>
               </motion.button>
               <motion.button 
                 whileHover={{ y: 2 }}
@@ -71,7 +71,7 @@ const Hero = () => {
             </div>
           </motion.div>
           
-          {/* Enhanced illustration section */}
+          {/* illustration section */}
           <motion.div 
             variants={fadeIn('left', 0.3)}
             initial='hidden'
@@ -80,7 +80,7 @@ const Hero = () => {
             className='relative hidden md:block mt-20 md:mt-0 md:w-2/3 lg:w-2/4 lg:ml-28 xl:ml-40'
             id='usedby'
           >
-            {/* Icon animations */}
+            {/* Icon animations
             <motion.div 
               className="absolute -top-4 left-20 bg-white p-2 rounded-full shadow-lg z-10"
               animate={{ y: [0, -10, 0] }}
@@ -94,30 +94,30 @@ const Hero = () => {
               animate={{ x: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 3 }}
             >
-              <HelpCircle className="h-6 w-6 text-[#1884FF]" />
-            </motion.div>
+              <HelpCircle className="h-6 w-6 text-[#1884FF]" /> 
+            </motion.div>*/}
             
-            <motion.div 
+            {/* <motion.div 
               className="absolute bottom-1/4 right-4 bg-white p-2 rounded-full shadow-lg z-10"
               animate={{ rotate: [0, 10, 0] }}
               transition={{ repeat: Infinity, duration: 2, delay: 1 }}
             >
               <CheckCircle className="h-6 w-6 text-green-500" />
-            </motion.div>
+            </motion.div> */}
             
             {/* Main image with enhancement */}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-blue-50/50 rounded-2xl"></div>
+              <div className="absolute  rounded-2xl"></div>
               <img 
                 src={heroimage} 
                 alt="PrepGenius quiz creation illustration" 
-                className="relative z-0 rounded-2xl shadow-xl"
+                className="relative z-0 rounded-2xl "
               />
             </div>
             
             {/* Social proof badge */}
             <motion.div 
-              className="absolute -bottom-4 left-10 bg-white px-3 py-2 rounded-lg shadow-lg z-10"
+              className="absolute bottom-4 left-10 bg-white px-3 py-2 rounded-lg shadow-lg z-10"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1 }}

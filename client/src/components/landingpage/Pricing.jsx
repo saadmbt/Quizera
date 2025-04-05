@@ -6,12 +6,14 @@ import { pricingTiers } from '../../constants'
 import { twMerge } from 'tailwind-merge'
 import { motion } from "framer-motion"
 import {fadeIn} from '../../constants/variants'
+// i need to up date the animtion
+
 const Pricing = () => {
   return (
     <section className='bg-gradient-to-t from-[#FFFFFF] to-[#D2DCFF]' id='Pricing'>
         <div className="container lg-centered py-10 px-4">
             <motion.div 
-            variants={fadeIn('left',0.3)}
+            variants={fadeIn('up',0.3)}
             initial='hidden'
             whileInView={'show'}
             viewport={{once:false,amount:0.7}}
