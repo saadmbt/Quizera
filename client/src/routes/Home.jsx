@@ -20,9 +20,7 @@ import FlashcardsSection from "../components/dashboard/FlashcardDeckSection";
 import FlashcardStudy from "../components/dashboard/FlashCardStudy";
 import JoinGroup from "../components/groups/Joingroup";
 import Settings from "../components/settings/settings";
-import Groups from "../components/groups/Groups";
 import ProfUpload from "../components/dashbord prof/Upload";
-import QuizPreview from "../components/dashbord prof/QuizPreview";
 
 import Groupspage from "../pages/Dashboard/Groupspage";
 import GroupDetailspage from "../pages/Dashboard/GroupDetailspage";
@@ -58,7 +56,8 @@ const Home = () => {
         {renderRoutes(AuthRoutes)}
       </Route>
       <Route path="/professor" element={
-            <ProtectedRoute allowedRoles={["student"]}>
+            <ProtectedRoute allowedRoles={["professor"]}>
+
               <DashboardLayout />
             </ProtectedRoute>
           }>
