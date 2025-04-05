@@ -447,7 +447,7 @@ def generate_invite_link():
             expires_delta=timedelta(days=7)
         )
         
-        invite_link = f"http://localhost:5173/join-group/{token}"
+        invite_link = f"http://localhost:5173/Student/join-group/{token}"
         return jsonify({"invite_link": invite_link}), 200
 
     except Exception as e:
