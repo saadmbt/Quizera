@@ -458,40 +458,41 @@ def generate_invite_link():
 @app.route('/api/groups/join', methods=['POST'])
 @jwt_required()
 def join_group():
-    student_uid = get_jwt_identity()
-    token = request.json.get('token')
-    
-    if not token:
-        return jsonify({"error": "Missing token"}), 400
-    
     try:
-        # Decode the invitation token to get both professor ID and group ID
-        decoded = decode_token(token)
-        token_payload = decoded['sub']
+        data = request.get_json()
+        if not data or 'token' not in data:
+            return jsonify({"error": "Missing token"}), 400
+
+        student_uid = get_jwt_identity()
+        token = data['token']
         
-        # Handle both string and dictionary identities
-        if isinstance(token_payload, dict):
-            professor_id = token_payload.get('prof_id')
-            group_id = token_payload.get('group_id')
-        else:
-            # For backward compatibility with older tokens
-            professor_id = token_payload
-            group_id = None
+        # Decode the invitation token
+        try:
+            decoded = decode_token(token)
+            group_id = decoded['sub'].get('group_id') if isinstance(decoded['sub'], dict) else None
             
-        if not group_id:
-            return jsonify({"error": "Invalid token: missing group_id"}), 400
-        
-        # Add the student to the specific group
-        result = add_student_to_group(group_id, student_uid)
-        
-        if isinstance(result, str) and "error" in result.lower():
-            return jsonify({"error": str(result)}), 500
-        if not result:
-            return jsonify({"error": "Failed to add student to group"}), 400
-        
-        return jsonify({"message": "Student added to group successfully"}), 200
+            if not group_id:
+                return jsonify({"error": "Invalid invitation token"}), 400
+            
+            # Verify group exists
+            group = get_group_by_id(group_id)
+            if not group:
+                return jsonify({"error": "Group not found"}), 404
+            
+            # Add student to group
+            result = add_student_to_group(group_id, student_uid)
+            if isinstance(result, str) and "error" in result.lower():
+                return jsonify({"error": result}), 500
+            if not result:
+                return jsonify({"error": "Failed to add student to group"}), 400
+            
+            return jsonify({"message": "Successfully joined group", "group": group}), 200
+            
+        except Exception as e:
+            return jsonify({"error": f"Invalid token: {str(e)}"}), 400
+            
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": f"Failed to join group: {str(e)}"}), 500
 
 # Validate invitation token
 @app.route('/api/validate-invite-token', methods=['POST'])
