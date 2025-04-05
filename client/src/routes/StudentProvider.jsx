@@ -7,7 +7,7 @@ export const StateContext = createContext();
  * state for lessonID and quizSettings to its child components.
  *
  * @param {Object} props - The props object.
- * @param {React.ReactNode} props.children - The child components that will consume the context.
+ * @param  props.children - The child components that will consume the context.
  * @returns {JSX.Element} The context provider with state and handlers.
  */
 export const StateProvider = ({ children }) => {

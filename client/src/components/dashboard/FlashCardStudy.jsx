@@ -39,7 +39,7 @@ export default function FlashcardStudy() {
          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Deck Not Found</h2>
           <Link
-            to="/Dashboard/flashcards"
+            to="/Student/flashcards"
             className="inline-flex items-center text-blue-600 hover:text-blue-800"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -69,7 +69,7 @@ export default function FlashcardStudy() {
       {/* Header */}
       <div className="flex flex-col items-start md:flex-col md:items-start lg:flex-row lg:items-start justify-between mb-8">
         <Link
-          to="/Dashboard/flashcards"
+          to="/Student/flashcards"
           className="flex mb-3 items-center text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="h-5 w-5 mr-2" />

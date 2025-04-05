@@ -50,7 +50,7 @@ const answers = [
       explanation: "The Blue Whale is the largest animal known to have ever existed, reaching lengths of up to 30 meters."
     }
   ];
-function QuestionReview(onBack) {
+function QuestionReview({onBack}) {
     const [showAll, setShowAll] = useState(false);
     const [expandedExplanations, setExpandedExplanations] = useState([]);
 

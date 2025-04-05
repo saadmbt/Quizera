@@ -42,7 +42,7 @@ export const GoogleAuthButton = () => {
        // Add user data to Firestore
             await setDoc(doc(db, "users", uid), {
               email: credential.email,
-              role: "user", // Default role set to 'user'
+              role: "student", // Default role set to 'user'
               createdAt: new Date().toISOString(),
             }, { merge: true });
         // Add user data obj to context

@@ -1,6 +1,7 @@
 import React from 'react';
-import { BarChart, Brain, ChevronRight, Share, Share2, Youtube } from 'lucide-react';
+import { ArrowLeft, BarChart, Brain, ChevronRight, Share, Share2, Youtube } from 'lucide-react';
 import ScoreSummary from '../dashboard/ScoreSummary';
+import { useNavigate } from 'react-router-dom';
 
 //  Props {
 //   score: number;
@@ -15,6 +16,7 @@ export default function QuizComplete({ score, totalQuestions, answers,onShowFlas
   const scorePercentage = Math.round((score / totalQuestions) * 100);
   const isLowScore = scorePercentage < 70;
   const incorrectanswers = answers.filter(answer => !answer.isCorrect).length;
+  const navigate = useNavigate();
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg p-6 space-y-8">
@@ -102,20 +104,28 @@ export default function QuizComplete({ score, totalQuestions, answers,onShowFlas
 
         <div className="grid grid-cols-2 gap-4">
           <button
-          onClick={onShowFlashcards}
-          className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-blue-500 text-blue-500 hover:bg-blue-50 transition-all duration-300 transform hover:scale-105"
+            onClick={onShowFlashcards}
+            className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-blue-500 text-blue-500 hover:bg-blue-50 transition-all duration-300 transform hover:scale-105"
           >
-          <Brain className="h-5 w-5" />
-          Study Flashcards
+            <Brain className="h-5 w-5" />
+            Study Flashcards
           </button>
           <button
-          onClick={onShowVideos}
-          className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-red-500 text-red-500 hover:bg-red-50 transition-all duration-300 transform hover:scale-105"
+            onClick={onShowVideos}
+            className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-red-500 text-red-500 hover:bg-red-50 transition-all duration-300 transform hover:scale-105"
           >
-          <Youtube className="h-5 w-5" />
-          Watch Videos
+            <Youtube className="h-5 w-5" />
+            Watch Videos
           </button>
         </div>
+          <button
+            onClick={()=>navigate('/Student')}
+            className="flex items-center w-full justify-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-500 text-gray-500 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Back to Dashboard
+          </button>
+
         </div>
       )}
       </div>
