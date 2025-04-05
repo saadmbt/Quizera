@@ -156,12 +156,21 @@ def insert_group(group_data):
         }
         
         result = groups_collection.insert_one(formatted_group)
+        if result.inserted_id:
+            return {
+                "success": True,
+                "group_id": str(result.inserted_id),
+                "message": "Group created successfully"
+            }
         return {
-            "group_id": str(result.inserted_id),
-            "success": True
+            "success": False,
+            "error": "Failed to create group"
         }
     except Exception as e:
-        return f"Error creating group: {str(e)}"
+        return {
+            "success": False,
+            "error": str(e)
+        }
 
 def add_student_to_group(group_id, student_uid):
     """Add a student to a group"""

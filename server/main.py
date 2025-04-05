@@ -365,33 +365,26 @@ def get_groups(ProfId):
 
 # 2. Create a New Group (POST /api/groups)
 @app.route('/api/groups', methods=['POST'])
-# @jwt_required()
 def create_group():
-    data = request.json
-    if not data:
-        return jsonify({"error": "No data provided"}), 400
+    try:
+        data = request.get_json()
+        if not data or not all(key in data for key in ["group_name", "prof_id"]):
+            return jsonify({
+                "success": False,
+                "error": "Missing required fields"
+            }), 400
 
-    # Validate required fields
-    group_name = data.get("group_name")
-    prof_id = data.get("prof_id")
-    description = data.get("description")
-    if not group_name or not prof_id or not description:
-        return jsonify({"error": "Missing required parameters"}), 400
+        result = insert_group(data)
+        if result.get("success"):
+            return jsonify(result), 201
+        else:
+            return jsonify(result), 400
 
-    # Prepare group data
-    group_data = {
-        "group_name": group_name,
-        "prof_id": prof_id,
-        "description": description
-    }
-
-    # Insert the group into the database
-    group_id = insert_group(group_data)
-    if "error" in str(group_id).lower():
-        return jsonify({"error": str(group_id)}), 500
-
-    return jsonify({"message": "Group created successfully", "group_id": str(group_id)}), 201
-
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 # 4. Get a Group by Group ID and Professor ID (GET /api/groups/<group_id>/<prof_id>)
 @app.route('/api/groups/<group_id>/<prof_id>', methods=['GET'])
