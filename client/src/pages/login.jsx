@@ -6,6 +6,14 @@ import { GoogleAuthButton } from "../components/Auth/GoogleAuth";
 import { doc, getDoc } from "firebase/firestore";
 import  {AuthContext} from "../components/Auth/AuthContext";
 import getJWT from "../services/authService";
+/**
+ * LoginWithFirebase is a React component that provides a login form for users.
+ * It allows users to log in using their email and password or via Google authentication.
+ * On successful login, it retrieves user data from Firestore, generates a JWT token,
+ * and navigates the user to their respective dashboard based on their role.
+ *
+ * @returns {JSX.Element} The rendered login form component.
+ */
 export default function LoginWithFirebase() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,16 +27,6 @@ export default function LoginWithFirebase() {
     e.preventDefault();
     setErrorMessage("");
     setLoading(true);
-    // Store user data in Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      email: user.email,
-      uid: user.uid,
-      createdAt: new Date(),
-      
-    });
-
-    console.log("User logged in and data stored:", user.uid);
-
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -38,7 +36,7 @@ export default function LoginWithFirebase() {
       const user = userCredential.user;
       console.log("Successfully logged in:", user.uid);
       // Check if user exists in Firestore
-      const userRef = doc(db, "users", uid);
+      const userRef = doc(db, "users", user.uid);
       const userExists = await getDoc(userRef);
 
       if (userExists.exists()) {
@@ -48,13 +46,14 @@ export default function LoginWithFirebase() {
         setUser(userobj);
         console.log("User object:", userobj);
         // generate JWT token and save it to local storage
-        getJWT(user.uid);
-        navigate(`/${userData.role}-dashboard`);
+        const token = getJWT(user.uid);
+        localStorage.setItem("access_token", token);
+        navigate(`/${userData.role}`);
       } else {
         setErrorMessage("No user found with this email.");
       }
     } catch (error) {
-      console.error("Login failed:", error.code, error.message);
+      console.error(`Login failed: [${error.code}] ${error.message}`);
       switch (error.code) {
         case "auth/user-not-found":
           setErrorMessage("No user found with this email.");
@@ -105,32 +104,34 @@ export default function LoginWithFirebase() {
               className="w-full px-4 py-2 mt-2 text-gray-900 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="mb-4 relative">
+          <div className="mb-4">
             <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-600"
             >
               Password
             </label>
-            <input
-              type={passwordVisible ? "text" : "password"}
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 mt-2 text-gray-900 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="button"
-              onClick={togglePasswordVisibility}
-              className="absolute right-4 top-11 text-gray-600 focus:outline-none"
-            >
-              {passwordVisible ? (
-                <i className="fas fa-eye-slash"></i>
-              ) : (
-                <i className="fas fa-eye"></i>
-              )}
-            </button>
+            <div className="flex items-center mt-2 bg-gray-200 rounded-lg">
+              <input
+                type={passwordVisible ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-4 py-2 text-gray-900 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="px-3 text-gray-600 focus:outline-none"
+              >
+                {passwordVisible ? (
+                  <i className="fas fa-eye-slash"></i>
+                ) : (
+                  <i className="fas fa-eye"></i>
+                )}
+              </button>
+            </div>
           </div>
           <button
             type="submit"

@@ -1,17 +1,29 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { db } from "../../firebase-config";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode} from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import { doc ,getDoc ,setDoc} from "firebase/firestore";
 import { AuthContext } from "./AuthContext";
 import { useContext } from "react";
 
 export const GoogleAuthButton = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const {setUser} = useContext(AuthContext);
   const handleGoogleLogin = async (credentialResponse) => {
-    const credential = jwtDecode(credentialResponse.credential);
+    if (!credentialResponse || !credentialResponse.credential) {
+      console.error("Invalid credential response");
+      return;
+    }
+
+    let credential;
+    try {
+      credential = jwtDecode(credentialResponse.credential);
+    } catch (error) {
+      console.error("Failed to decode credential:", error);
+      return;
+    }
+
     const uid = credential.sub;
-    const {setUser} = useContext(AuthContext);
     // Check if user exists by ID in Firestore
       const userRef = doc(db, "users", uid);
       const userExists = await getDoc(userRef);
@@ -25,31 +37,35 @@ export const GoogleAuthButton = () => {
       console.log("User data:", userData)
       // generate JWT token and save it to local storage
       getJWT(uid);
-      navigate(`/${userData.role}-dashboard`);
+      navigate(`/${userData.role}`);
     } else {
        // Add user data to Firestore
             await setDoc(doc(db, "users", uid), {
               email: credential.email,
-              role: "nnn",
+              role: "user", // Default role set to 'user'
               createdAt: new Date().toISOString(),
-            });
+            }, { merge: true });
         // Add user data obj to context
         const userobj ={
           uid: uid,
         }
         setUser(userobj);
         // generate JWT token and save it to local storage
-       getJWT(uid);
-      console.log("User does not exist, redirecting to set username and role");
+       getJWT(uid)
+
+      console.log(`User with UID ${uid} does not exist, redirecting to set username and role`);
       navigate("/Auth/user-role");
     }
   };
   
   return (
-    <div className="mt-4 ">
+    <div className="mt-4">
       <GoogleLogin
         onSuccess={handleGoogleLogin}
-        onError={() => console.log("Error occurred")}
+        onError={() => {
+          console.error("Error occurred during Google login");
+          alert("An error occurred while trying to log in. Please try again.");
+        }}
       />
     </div>
   );
