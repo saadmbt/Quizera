@@ -3,10 +3,9 @@ import GroupCard from './GroupCard';
 
 const GroupList = ({ groups, searchQuery }) => {
   // Filter groups based on the search query
-const filteredGroups = (groups || []).filter((group) =>
-  (group.name || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-);
-
+  const filteredGroups = groups.filter((group) =>
+    group.group_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (filteredGroups.length === 0) {
     return (

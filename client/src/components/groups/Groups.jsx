@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import toast from 'react-hot-toast';
-import { PlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, MagnifyingGlassIcon,UserGroupIcon } from '@heroicons/react/24/outline';
 import GroupList from './GroupList';
 import GroupForm from './GroupForm';
 import { fetchProfessorGroups, createGroup } from '../../services/ProfServices';
 import { AuthContext } from "../Auth/AuthContext";
 
-const  Groups = () => {
+const Groups = () => {
   const [groups, setGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,18 +65,27 @@ const  Groups = () => {
     }
 
     try {
-      // Send the data to the API
-      const createdGroup = await createGroup({
+      const newGroup = {
         name: groupData.name,
-        description: groupData.description
-      }, user);
+        description: groupData.description,
+        prof_id: user.uid
+      };
       
-      // Add the new group to the local state
-      setGroups((prevGroups) => [...prevGroups, createdGroup]);
+      const result = await createGroup(newGroup, user);
       
+      // Add the new group to the local state with correct structure
+      const formattedGroup = {
+        _id: result.group_id,
+        group_name: groupData.name,
+        description: groupData.description,
+        prof_id: user.uid,
+        students: []
+      };
+      
+      setGroups(prevGroups => [...prevGroups, formattedGroup]);
       toast.success('Group created successfully!');
     } catch (error) {
-      toast.error('Failed to create group. Please check your input and try again.');
+      toast.error('Failed to create group. Please try again.');
       console.error('Error creating group:', error);
     } finally {
       setIsModalOpen(false);
@@ -120,14 +129,44 @@ const  Groups = () => {
 
       {/* Group List or Loading Message */}
       {isLoading ? (
-        <div className="flex justify-center py-8">
-          <p>Loading...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-white rounded-lg p-6 shadow-sm animate-pulse">
+              <div className="h-6 w-3/4 bg-gray-200 rounded mb-4"></div>
+              <div className="flex items-center mb-4">
+                <div className="h-4 w-4 bg-gray-200 rounded-full mr-2"></div>
+                <div className="h-4 w-1/4 bg-gray-200 rounded"></div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              </div>
+              <div className="flex justify-between mt-6">
+                <div className="h-8 w-24 bg-gray-200 rounded"></div>
+                <div className="space-x-2">
+                  <div className="h-8 w-16 bg-gray-200 rounded inline-block"></div>
+                  <div className="h-8 w-16 bg-gray-200 rounded inline-block"></div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : groups.length > 0 ? (
         <GroupList groups={groups} searchQuery={searchQuery} />
       ) : (
-        <div className="text-center text-gray-500 py-8">
-          <p>No groups found. Create a new group to get started.</p>
+        <div className="text-center py-12">
+          <div className="mx-auto w-24 h-24 text-gray-300 mb-4">
+            <UserGroupIcon className="w-full h-full" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">No groups yet</h3>
+          <p className="text-gray-500 mb-6">Get started by creating your first group</p>
+          <button
+            onClick={handleModalOpen}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            Create Group
+          </button>
         </div>
       )}
 
