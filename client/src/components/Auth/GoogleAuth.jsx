@@ -54,7 +54,7 @@ export const GoogleAuthButton = () => {
        getJWT(uid)
 
       console.log(`User with UID ${uid} does not exist, redirecting to set username and role`);
-      navigate("/Auth/user-role");
+      navigate("/Auth/UserRoleSelection");
     }
   };
   

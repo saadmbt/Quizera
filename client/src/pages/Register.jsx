@@ -70,7 +70,7 @@ export default function Register() {
       // generate JWT token and save it to local storage
         getJWT(user.uid);
        // Redirect to set username and role page after registration is successful 
-         navigate("/Auth/user-role");
+         navigate("/Auth/UserRoleSelection");
     } catch (error) {
       handleError(error);
     } finally {
