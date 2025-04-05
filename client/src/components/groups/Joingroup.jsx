@@ -2,40 +2,41 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { AuthContext } from '../Auth/AuthContext';  // Import your authentication context
+import { AuthContext } from '../Auth/AuthContext';
 
 const JoinGroup = () => {
-  const { token } = useParams();  // Get the token from the URL params
+  const { token } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useContext(AuthContext);  // Get authentication state
+  const { user, isAuthenticated } = useContext(AuthContext);
   const [groupInfo, setGroupInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Redirect to login if the student is not authenticated
-    // if (!isAuthenticated) {
-    //   navigate('/login', { state: { from: `/join-group/${token}` }});  // Redirect to login with the current URL as the return path
-    //   return;
-    // }
+    if (!isAuthenticated) {
+      navigate('/auth/login', { state: { from: `/join-group/${token}` }});
+      return;
+    }
 
     const validateInvitation = async () => {
       try {
-        // Validate the invitation token
+        const authToken = localStorage.getItem('access_token');
         const response = await axios.post(
           'https://prepgenius-backend.vercel.app/api/validate-invite-token',
-          { token, group_id: groupInfo._id },  // Include the group _id
-
+          { 
+            token,
+          },
           {
             headers: {
-              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MzAzMTkwNiwianRpIjoiNTRkNmY3M2MtNzZlMi00NGNjLWJhODctMDVkMWJhZjAwMDQyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjdlRGJWbUZjdENUcDhpdE0zRUtxM3p3SG94MzIiLCJuYmYiOjE3NDMwMzE5MDYsImNzcmYiOiIxZGI3MGJmMC1jYmQ2LTQ5NzEtYWNhZC04NjY3ZWY1ZGZlOGQiLCJleHAiOjE3NDMwNDI3MDZ9.oaYROnSJiph00wmeC4EZW3IZYtDuoS1FYTTWsG93xEw`,
+              Authorization: `Bearer ${authToken}`,
+              'Content-Type': 'application/json',
             },
           }
         );
 
-        // Set the group information from the response
         setGroupInfo(response.data);
       } catch (error) {
+        console.error('Validation error:', error);
         setError(error.response?.data?.error || 'Invalid or expired invitation link');
       } finally {
         setIsLoading(false);
@@ -47,44 +48,53 @@ const JoinGroup = () => {
 
   const handleJoinGroup = async () => {
     try {
+      const authToken = localStorage.getItem('access_token');
       await axios.post(
         'https://prepgenius-backend.vercel.app/api/groups/join',
         { token },
         {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MzAzMTkwNiwianRpIjoiNTRkNmY3M2MtNzZlMi00NGNjLWJhODctMDVkMWJhZjAwMDQyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjdlRGJWbUZjdENUcDhpdE0zRUtxM3p3SG94MzIiLCJuYmYiOjE3NDMwMzE5MDYsImNzcmYiOiIxZGI3MGJmMC1jYmQ2LTQ5NzEtYWNhZC04NjY3ZWY1ZGZlOGQiLCJleHAiOjE3NDMwNDI3MDZ9.oaYROnSJiph00wmeC4EZW3IZYtDuoS1FYTTWsG93xEw}`,
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
           },
         }
       );
+      
       toast.success('Successfully joined group');
-      navigate('/dashboard');  // Redirect to the dashboard after joining
+      navigate('/dashboard');
     } catch (error) {
+      console.error('Join error:', error);
       toast.error(error.response?.data?.error || 'Failed to join group');
     }
   };
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-xl">Loading...</div>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <p className="font-bold">Error</p>
-          <p>{error}</p>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full mx-4">
+          <div className="text-red-600 mb-4">
+            <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-center mb-2">Invalid Invitation</h2>
+          <p className="text-gray-600 text-center">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full mx-4">
         <h2 className="text-2xl font-bold mb-6 text-center">Join Group</h2>
         
         <div className="mb-6">

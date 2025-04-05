@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { UserGroupIcon } from '@heroicons/react/24/outline';
+import { UsersIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { copyInviteLink } from '../../services/ProfServices';
 import { AuthContext } from '../Auth/AuthContext';
@@ -9,13 +9,12 @@ const GroupCard = ({ group }) => {
   const [isLoading, setIsLoading] = useState(false);
   
   const handleCopyLink = async () => {
-    if (!user || !group._id) {
-      toast.error('Missing required information');
-      return;
-    }
-
-    setIsLoading(true);
     try {
+      if (!group._id) {
+        throw new Error('Group ID is missing');
+      }
+      
+      setIsLoading(true);
       await copyInviteLink(user, group._id);
       toast.success('Invitation link copied to clipboard!');
     } catch (error) {
@@ -27,13 +26,13 @@ const GroupCard = ({ group }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5">
       <div className="flex flex-col">
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="font-semibold text-lg">{group.group_name}</h3>
             <div className="flex items-center mt-2 text-gray-600">
-              <UserGroupIcon className="w-4 h-4 mr-1" />
+              <UsersIcon className="w-4 h-4 mr-1" />
               <span className="text-sm">{group.students?.length || 0} students</span>
             </div>
           </div>
@@ -47,17 +46,32 @@ const GroupCard = ({ group }) => {
           <button 
             onClick={handleCopyLink}
             disabled={isLoading}
-            className={`text-sm text-blue-600 hover:text-blue-700 ${
+            className={`text-sm text-blue-600 hover:text-blue-700 flex items-center transition-colors ${
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isLoading ? 'Generating...' : 'Copy Invite Link'}
+            {isLoading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generating...
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                Copy Invite Link
+              </>
+            )}
           </button>
           <div className="space-x-2">
-            <button className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded">
+            <button className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors">
               View
             </button>
-            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded">
+            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors">
               Edit
             </button>
           </div>

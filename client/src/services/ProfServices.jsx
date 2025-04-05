@@ -32,23 +32,22 @@ export const fetchStudentGroups = async (studentUid) => {
 };
 
 export const createGroup = async (groupData, user) => {
-  console.log('Creating group with data:', groupData); // Debug log
-
   try {
-    console.log('Payload:', {
-      group_name: groupData.name,
-      prof_id: user.uid,
-      description: groupData.description,
-    });
     const response = await axios.post('https://prepgenius-backend.vercel.app/api/groups', {
       group_name: groupData.name,
-      prof_id: user.uid,
       description: groupData.description,
+      prof_id: user.uid
     });
 
-    console.log('Group created successfully:', response.data); // Debug log
-    return response.data; 
+    if (!response.data.success) {
+      throw new Error(response.data.error || 'Failed to create group');
+    }
 
+    return {
+      group_id: response.data.group_id,
+      success: true,
+      message: response.data.message
+    };
   } catch (error) {
     console.error('Error creating group:', error);
     throw error;
@@ -91,42 +90,48 @@ export const getGroupById = async (groupId, profId) => {
 // Generate and return an invitation link for a group
 export const generateInviteLink = async (user, groupId) => {
   try {
-    const token = localStorage.getItem('access_token');
     const response = await axios.post(
       'https://prepgenius-backend.vercel.app/api/generate-invite-link',
       {
-        prof_id: user.uid,
-        group_id: groupId
+        group_id: groupId,
       },
       {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MzAzMTkwNiwianRpIjoiNTRkNmY3M2MtNzZlMi00NGNjLWJhODctMDVkMWJhZjAwMDQyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjdlRGJWbUZjdENUcDhpdE0zRUtxM3p3SG94MzIiLCJuYmYiOjE3NDMwMzE5MDYsImNzcmYiOiIxZGI3MGJmMC1jYmQ2LTQ5NzEtYWNhZC04NjY3ZWY1ZGZlOGQiLCJleHAiOjE3NDMwNDI3MDZ9.oaYROnSJiph00wmeC4EZW3IZYtDuoS1FYTTWsG93xEw`,
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'
+        }
       }
     );
 
-    if (!response.data || !response.data.invite_link) {
-      throw new Error('Failed to generate invitation link');
+    if (response.status !== 200 || !response.data.invite_link) {
+      throw new Error(response.data.error || 'Failed to generate invitation link');
     }
 
     return response.data.invite_link;
   } catch (error) {
-    console.error('Error generating invitation link:', error);
-    throw new FetchError(`Error generating invitation link: ${error.message}`);
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error('Failed to generate invitation link');
   }
 };
 
 // Copy invitation link to clipboard
 export const copyInviteLink = async (user, groupId) => {
+  if (!groupId) {
+    throw new Error('Group ID is required');
+  }
+
   try {
     const inviteLink = await generateInviteLink(user, groupId);
+    if (!inviteLink) {
+      throw new Error('Failed to generate invitation link');
+    }
     
     await navigator.clipboard.writeText(inviteLink);
-    return true; // Successfully copied to clipboard
+    return true;
   } catch (error) {
     console.error('Error copying invitation link:', error);
-    throw error;
+    throw new Error(error.message || 'Failed to copy invitation link');
   }
 };
 
@@ -136,3 +141,28 @@ class FetchError extends Error {
     this.name = 'FetchError';
   }
 }
+// share Quiz
+export const shareQuiz = async (quizId) => {
+  try {
+    const response = await axios.post("https://prepgenius-backend.vercel.app/api/share_quiz", {
+      quiz_id: quizId
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error sharing quiz:", error);
+    throw error;
+  }
+};
+
+// Preview quiz details before sharing
+export const previewQuiz = async (quizId) => {
+  try {
+    const response = await axios.get(
+      `https://prepgenius-backend.vercel.app/api/quiz-preview/${quizId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching quiz preview:', error);
+    throw error;
+  }
+};

@@ -7,12 +7,32 @@ const GroupForm = ({ isOpen, onClose, onSubmit }) => {
     name: '',
     description: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData); // Pass the form data to the parent component
-    setFormData({ name: '', description: '' }); // Reset the form
+    
+    // Validate form
+    const validationErrors = {};
+    if (!formData.name.trim()) {
+      validationErrors.name = 'Group name is required';
+    }
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSubmit(formData);
+      setFormData({ name: '', description: '' });
+      setErrors({});
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -47,12 +67,20 @@ const GroupForm = ({ isOpen, onClose, onSubmit }) => {
                 type="text"
                 required
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => {
+                  setFormData({ ...formData, name: e.target.value });
+                  if (errors.name) setErrors({...errors, name: ''});
+                }}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                  errors.name 
+                    ? 'border-red-500 focus:ring-red-500' 
+                    : 'border-gray-300 focus:ring-blue-500'
+                }`}
                 placeholder="Enter group name"
               />
+              {errors.name && (
+                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+              )}
             </div>
 
             {/* Group Description Field */}
@@ -82,9 +110,22 @@ const GroupForm = ({ isOpen, onClose, onSubmit }) => {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={isSubmitting || !formData.name.trim()}
+                className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 ${
+                  isSubmitting ? 'opacity-70' : ''
+                } ${
+                  !formData.name.trim() ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                Create Group
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating...
+                  </>
+                ) : 'Create Group'}
               </button>
             </div>
           </form>

@@ -26,7 +26,7 @@ export default function UserRoleSelection() {
       role: role,
     }, { merge: true });
     // Redirect to the corresponding dashboard based on role
-    navigate(`/${role}-dashboard`);
+    navigate(`/${role}`);
   };
 
   return (

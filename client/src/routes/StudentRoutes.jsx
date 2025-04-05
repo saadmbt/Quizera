@@ -80,7 +80,7 @@ const StudentRoutes = ({
       {
         path: "flashcards/study/:id",
         element: <FlashcardStudy />,
-      },,
+      },
       { 
         path: "join-group/:token",
         element: <JoinGroup />,

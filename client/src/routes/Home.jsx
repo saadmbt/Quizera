@@ -25,6 +25,9 @@ import Flashcards from "../components/dashboard/Flashcards";
 import Videos from "../components/dashboard/Videos";
 import Settings from "../components/settings/settings";
 import Groups from "../components/groups/Groups";
+import ProfUpload from "../components/dashbord prof/Upload";
+import QuizPreview from "../components/dashbord prof/QuizPreview";
+
 
 const renderRoutes = (routes) => {
   return routes.map((route, i) => (
@@ -56,6 +59,7 @@ const Home = () => {
         {renderRoutes(AuthRoutes)}
       </Route>
       <Route path="/professor" element={<DashboardLayout />}>
+        <Route path="upload" element={<ProfUpload onComplete={onComplete}/>}/>
         {renderRoutes(ProfessorRoutes)}
       </Route>
       {/* student routes */}
