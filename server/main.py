@@ -37,8 +37,8 @@ firebase_admin.initialize_app(cred)
 
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_TOKEN_SECRET')
-# app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
-# jwt = JWTManager(app)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
+jwt = JWTManager(app)
 
 # Replace with your Dropbox access token
 DropBox_Access_Token = os.environ.get('DropBox_access_token')
