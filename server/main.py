@@ -104,6 +104,7 @@ def profile():
 def handle_theuploaded():
     # Check if the request body is text, file, or image
     request_type = check_request_body()
+    
     if request_type is None:
         return jsonify({"error": "Request type could not be determined."}), 400
 
@@ -121,29 +122,6 @@ def handle_theuploaded():
         }
         lesson_objid = insert_Lessons(lesson_obj)
         response = jsonify({'message': 'Lesson uploaded successfully', "lesson_id": str(lesson_objid)})
-        return response, 201
-    
-    elif request_type == "file":
-        file = request.files['file']
-        filename = secure_filename(file.filename)
-        if file.content_length > MAX_FILE_SIZE:
-            return response,400
-    # Limit file size to 10MB
-    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
-    New_id = lastID("lessons")
-
-    if request_type=="text":
-        # Get the data from the request body
-        lesson_obj={
-            "title":request.form["title"],
-            "id":New_id,
-            "author":"get_jwt_identity()",
-            "content" :request.form['text'],
-            "uploadedAt": datetime.now(timezone.utc).isoformat(),
-        }
-        # Save the text to the database
-        lesson_objid = insert_Lessons(lesson_obj)
-        response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
         return response, 201
     
     elif request_type=="file":
