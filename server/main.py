@@ -139,17 +139,12 @@ def handle_theuploaded():
             
             # Reset file pointer and upload
             file.seek(0)
-            url = save_to_azure_storage(file, filename)
             
-            if isinstance(url, dict) and "error" in url:
-                raise Exception(url["error"])
-
             lesson_obj = {
                 "title": request.form["title"],
                 "id": New_id,
                 "author": "get_jwt_identity()",
                 "content": file_extracted_text,
-                "lesson_save_link": url,
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
             }
             
@@ -173,9 +168,6 @@ def handle_theuploaded():
             with tempfile.NamedTemporaryFile(delete=False) as temp_file:
                 image.save(temp_file.name)
 
-                # Upload to Azure Blob Storage (if needed)
-                url = save_to_azure_storage(temp_file.name, filename)  # Pass the temporary file path
-
                 # Read image data from the temporary file **after saving**
                 with open(temp_file.name, 'rb') as f:
                     image_data = f.read()
@@ -189,7 +181,6 @@ def handle_theuploaded():
                 "id":New_id,
                 "author":"get_jwt_identity()",
                 "content" :extracted_text,
-                "lesson_save_link":str(url),
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
             }
             # Save the dictionary Lesson to the database
