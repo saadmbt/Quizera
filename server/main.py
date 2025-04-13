@@ -125,40 +125,42 @@ def handle_theuploaded():
         return response, 201
     
     elif request_type=="file":
-        # Get the file from the request
-
-        file=request.files['file']
-        # Secure the filename
-        filename = secure_filename(file.filename)
-        # Check file size
-        if file.content_length > MAX_FILE_SIZE:
-            return jsonify({"error": "File size exceeds the 10MB limit."}), 400
-        # Save the file to Azure storage
-
         try:
-            # Proccess the file 
+            file = request.files['file']
+            filename = secure_filename(file.filename)
+            
+            # Check file size
+            if file.content_length > MAX_FILE_SIZE:
+                return jsonify({"error": "File size exceeds the 10MB limit."}), 400
+
+            # Process file content
             file_content = file.read()
-            file_extracted_text=file_handler(file_content,filename)
-            print("l317 :",len(file_extracted_text))
-            url = save_to_azure_storage(file_content,filename)
-            print("l 311",url)
-            # Get the data from the request body
-            lesson_obj={
-                "title":request.form["title"],
-                "id":New_id,
-                "author":"get_jwt_identity()",
-                "content" :file_extracted_text,
-                "lesson_save_link":str(url),
+            file_extracted_text = file_handler(file_content, filename)
+            
+            # Reset file pointer and upload
+            file.seek(0)
+            url = save_to_azure_storage(file, filename)
+            
+            if isinstance(url, dict) and "error" in url:
+                raise Exception(url["error"])
+
+            lesson_obj = {
+                "title": request.form["title"],
+                "id": New_id,
+                "author": "get_jwt_identity()",
+                "content": file_extracted_text,
+                "lesson_save_link": url,
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
             }
-            # Save the dictionary Lesson to the database
+            
             lesson_objid = insert_Lessons(lesson_obj)
-            response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
-            return response, 200
-        except Exception as e:
-            response = jsonify({"error": "File processing error: " + str(e)})
+            return jsonify({
+                'message': 'Lesson uploaded successfully',
+                "lesson_id": str(lesson_objid)
+            }), 201
 
-            return response, 400
+        except Exception as e:
+            return jsonify({"error": f"File upload failed: {str(e)}"}), 400
         
     # case if the file is image
     elif request_type=="img":
