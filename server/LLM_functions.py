@@ -104,6 +104,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         base_prompt = {
             "multiple-choice": """
                 Generate {num} {difficulty} multiple-choice questions based on this content: {content}
+                And return (question, answers) should be in the language of the content.
                 Return as valid Python list of dictionaries in format:
                 [
                     {{
@@ -115,6 +116,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             """,
             "true-false": """
                 Generate {num} {difficulty} true/false questions based on this content: {content}
+                And return (question, answers) should be in the language of the content.
                 Return as valid Python list of dictionaries in format:
                 [
                     {{
@@ -126,6 +128,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             """,
             "fill-blank": """
                 Generate {num} {difficulty} fill-in-the-blank questions based on this content: {content}
+                And return (question, answers) should be in the language of the content.
                 Return as valid Python list of dictionaries in format:
                 [
                     {{
