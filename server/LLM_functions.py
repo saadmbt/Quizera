@@ -100,32 +100,49 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             raise ValueError("Le contenu de la leçon est vide")
         
         # Construire la requête pour l'API Groq en fonction des paramètres
-        if question_type == "multiple-choice":
-            prompt = (
-                f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
-                Toutes les questions doivent être basées uniquement sur le contenu fourni. 
-                Chaque question doit être suivie de quatre options de réponse "without duplicate the questions". 
-                La réponse doit être structurée comme un dictionnaire Python au format suivant : 
-                [{{"question": "", "options": ["option1", "option2", "option3", "option4"], "correctanswer": "(une des options)"}}]
-                """)
-        elif question_type == "true-false":
-            prompt = (
-                f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
-                Toutes les questions doivent être basées uniquement sur le contenu fourni. 
-                Chaque question doit être suivie de la réponse "True" ou "False". 
-                La réponse doit être structurée comme un dictionnaire Python au format suivant : 
-                [{"question": "", "options": ["True","False"], "correctanswer": "(True ou False)"}]
-                """)
-        elif question_type == "fill-blank":
-            prompt = (
-                f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
-                Toutes les questions doivent être basées uniquement sur le contenu fourni. 
-                Chaque question doit être suivie de la réponse correcte. 
-                La réponse doit être structurée comme un dictionnaire Python au format suivant : 
-                [{"question": " ","blanks":[" ",...] ,"answers":[" ",...],"correctanswer": "(la réponse correcte)"}]
-                """)
-        else:
-            raise ValueError("Type de question non pris en charge")
+        # Standardize prompt format
+        base_prompt = {
+            "multiple-choice": """
+                Generate {num} {difficulty} multiple-choice questions based on this content: {content}
+                Return as valid Python list of dictionaries in format:
+                [
+                    {{
+                        "question": "question text",
+                        "options": ["option1", "option2", "option3", "option4"],
+                        "correctanswer": "exact matching option"
+                    }}
+                ]
+            """,
+            "true-false": """
+                Generate {num} {difficulty} true/false questions based on this content: {content}
+                Return as valid Python list of dictionaries in format:
+                [
+                    {{
+                        "question": "question text", 
+                        "options": ["True", "False"],
+                        "correctanswer": "True or False"
+                    }}
+                ]
+            """,
+            "fill-blank": """
+                Generate {num} {difficulty} fill-in-the-blank questions based on this content: {content}
+                Return as valid Python list of dictionaries in format:
+                [
+                    {{
+                        "question": "question with ___ blank",
+                        "blanks": ["word1","word2","word3"],
+                        "answers": ["correct1"],
+                        "correctanswer": "correct1"
+                    }}
+                ]
+            """
+        }
+
+        prompt = base_prompt[question_type].format(
+            num=num_questions,
+            difficulty=difficulty,
+            content=content
+        )
           # Appeler l'API Groq pour générer les questions
         completion = groq_client.chat.completions.create(
             model="llama3-8b-8192",
@@ -137,7 +154,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             max_tokens=1500,
         )
 
-            # Afficher la réponse complète de l'API pour le débogage
+        # Afficher la réponse complète de l'API pour le débogage
         questions_text = completion.choices[0].message.content.strip()
         # Parse the response to extract the list of questions
         try:
@@ -145,6 +162,8 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             start_index = questions_text.find('[')
             end_index = questions_text.rfind(']') + 1
 
+            if start_index == -1 or end_index == 0:
+                raise ValueError("Invalid response format - no list found")
             # Extract the JSON-like string
             questions_json = questions_text[start_index:end_index]
 
