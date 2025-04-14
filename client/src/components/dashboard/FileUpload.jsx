@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Upload as UploadIcon, File as FileIcon, X as XIcon } from 'lucide-react';
 
-export default function FileUpload({ onFileSelect }) {
+export default function FileUpload({ onFileSelect ,setTitle }) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -36,10 +36,14 @@ export default function FileUpload({ onFileSelect }) {
   const handleFile = (file) => {
     setSelectedFile(file);
     onFileSelect(file);
+    // remove the file extension from the filename
+    const fileName = file.name.split('.').slice(0, -1).join('.');
+    setTitle(fileName);
   };
 
   const removeFile = () => {
     setSelectedFile(null);
+    setTitle("");
   };
 
   return (
