@@ -50,7 +50,9 @@ def extract_images_from_pdf(file_bytes):
             # Convert the image bytes to base64
             base64_image = base64.b64encode(image_bytes).decode('utf-8')
             images.append(base64_image)
-            
+    pdf_document.close()
+    if not images:
+        return None
     return images
 
 # Function to get the file type
@@ -107,7 +109,7 @@ def file_handler(file_bytes,file_name):
         ex_text = extract_text_from_pdf(file_bytes)
         final_text = ex_text
         ex_images = extract_images_from_pdf(file_bytes)
-        if ex_images:
+        if ex_images is not None:
             for img in ex_images:
                 img_text = extract_text_from_image64base(img, type="png")
                 final_text += "\n" + img_text

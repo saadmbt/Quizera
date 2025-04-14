@@ -91,12 +91,16 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         
         # Récupérer le contenu de la leçon
         content = lesson.get('content')
-        
+        title = lesson.get('title')
+        author = lesson.get('author')
+        if not title:
+            raise ValueError("Le titre de la leçon est vide")
+
         if not content:
             raise ValueError("Le contenu de la leçon est vide")
         
         # Construire la requête pour l'API Groq en fonction des paramètres
-        if question_type == "multiple_choice":
+        if question_type == "multiple-choice":
             prompt = (
                 f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
                 Toutes les questions doivent être basées uniquement sur le contenu fourni. 
@@ -104,7 +108,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
                 La réponse doit être structurée comme un dictionnaire Python au format suivant : 
                 [{{"question": "", "options": ["option1", "option2", "option3", "option4"], "correctanswer": "(une des options)"}}]
                 """)
-        elif question_type == "true_false":
+        elif question_type == "true-false":
             prompt = (
                 f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
                 Toutes les questions doivent être basées uniquement sur le contenu fourni. 
@@ -155,6 +159,8 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         question_id = lastID('quizzes')
         quiz = {
             "id": question_id + 1,
+            "title": title,
+            "generated_by": author,
             "type": question_type,
             "questions": questions,
             "createdAt": datetime.now()

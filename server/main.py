@@ -153,7 +153,6 @@ def handle_theuploaded():
                 'message': 'Lesson uploaded successfully',
                 "lesson_id": str(lesson_objid)
             }), 201
-
         except Exception as e:
             return jsonify({"error": f"File upload failed: {str(e)}"}), 400
         
