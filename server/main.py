@@ -258,7 +258,7 @@ def create_quiz():
     if "error" in str(quiz_result).lower():
         return jsonify({"error": quiz_result}), 400
 
-    return jsonify({"message": "Quiz created successfully", "quiz_id": str(quiz_result)}), 201
+    return jsonify({"quiz": str(quiz_result)}), 201
 #just for show the quiz if needed 
 @app.route('/api/quizzes/<quiz_id>', methods=['GET'])
 # @jwt_required()
