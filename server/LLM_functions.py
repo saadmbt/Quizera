@@ -179,6 +179,8 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             return None
         # Insérer les questions dans MongoDB
         question_id = lastID('quizzes')
+        if not isinstance(question_id, int):
+            raise ValueError(f"Invalid question ID returned by lastID: {question_id}")
         quiz = {
             "id": question_id + 1,
             "title": title,
@@ -190,7 +192,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         inserted_quiz_id = insert_Quizzes(quiz)
         if isinstance(inserted_quiz_id, ObjectId):
             print(f"Questions générées et insérées avec succès. ID du quiz : {inserted_quiz_id}")
-            quiz["_id"] = inserted_quiz_id
+            quiz["_id"] = str(inserted_quiz_id)
             return quiz
         else:
             raise ValueError("Erreur lors de l'insertion du quiz.")
