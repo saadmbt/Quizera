@@ -108,11 +108,11 @@ def file_handler(file_bytes,file_name):
     if file_type == 'pdf':
         ex_text = extract_text_from_pdf(file_bytes)
         final_text = ex_text
-        ex_images = extract_images_from_pdf(file_bytes)
-        if ex_images is not None:
-            for img in ex_images:
-                img_text = extract_text_from_image64base(img, type="png")
-                final_text += "\n" + img_text
+        # ex_images = extract_images_from_pdf(file_bytes)
+        # if ex_images is not None:
+        #     for img in ex_images:
+        #         img_text = extract_text_from_image64base(img, type="png")
+        #         final_text += "\n" + img_text
         return str(final_text)
     elif file_type == 'docx':
         ex_text = extract_text_from_docx(file_bytes)

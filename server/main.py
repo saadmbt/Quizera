@@ -150,7 +150,6 @@ def handle_theuploaded():
             
             lesson_objid = insert_Lessons(lesson_obj)
             return jsonify({
-                'message': 'Lesson uploaded successfully',
                 "lesson_id": str(lesson_objid)
             }), 201
         except Exception as e:
