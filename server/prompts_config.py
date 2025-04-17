@@ -1,66 +1,79 @@
 base_prompt = {
     "multiple-choice": """
-        Generate {num} {difficulty} multiple-choice questions based on this content: {content}
+        You are an expert question generator. Based on the following content, generate {num} {difficulty} **multiple-choice questions**.
+
+        Content:
+        {content}
         
-        Requirements:
-        - Questions should be clear, concise and directly related to the content
-        - Each question must have exactly 4 options
-        - All options must be plausible but only one correct
-        - Avoid obvious wrong answers
-        - Use the same language as the content
-        - Questions should test understanding, not just memorization
-        
-        Return as valid Python list of dictionaries in format:
+        Guidelines:
+        - Each question must directly test comprehension or application of the content, not simple recall.
+        - Use the same language as the content.
+        - Each question must have exactly 4 plausible options.
+        - Only one option should be 100% correct; others should be plausible distractors (avoid obviously incorrect choices).
+        - Keep the question and options clear, concise, and free from ambiguity.
+        - Avoid using trick questions or overly complex wording.
+        - Ensure a balance of factual, conceptual, and applied questions.
+
+        Output Format:
+        Return a valid Python list of dictionaries as shown below:
         [
             {{
-                "question": "question text",
-                "options": ["option1", "option2", "option3", "option4"],
-                "correctanswer": "exact matching option",
-                "explanation": "explanation of the answer"
+                "question": "Your question here?",
+                "options": ["Option A", "Option B", "Option C", "Option D"],
+                "correctanswer": "Exact matching correct option",
+                "explanation": "Brief explanation of why the answer is correct."
             }}
         ]
     """,
-    
+
     "true-false": """
-        Generate {num} {difficulty} true/false questions based on this content: {content}
+        You are an expert question generator. Based on the following content, generate {num} {difficulty} **true/false questions**.
+
+        Content:
+        {content}
         
-        Requirements:
-        - Statements should be clear and unambiguous
-        - Avoid double negatives
-        - Focus on key concepts from the content
-        - Mix both true and false statements
-        - Use the same language as the content
-        
-        Return as valid Python list of dictionaries in format:
+        Guidelines:
+        - Create unambiguous, fact-based statements derived from the content.
+        - Avoid double negatives, complex phrasing, or trick statements.
+        - Mix both true and false statements (aim for a near 50/50 split).
+        - Focus on meaningful, core ideas or key takeaways.
+        - Use the same language as the content.
+
+        Output Format:
+        Return a valid Python list of dictionaries in the format below:
         [
             {{
-                "question": "question text",
+                "question": "Statement goes here.",
                 "options": ["True", "False"],
-                "correctanswer": "True or False",
-                "explanation": "explanation of the answer"
+                "correctanswer": "True" or "False",
+                "explanation": "Justification based on the content."
             }}
         ]
     """,
-    
+
     "fill-blank": """
-        Generate {num} {difficulty} fill-in-the-blank questions based on this content: {content}
-        
-        Requirements:
-        - Blanks should test key terms or concepts
-        - Provide context for the answer
-        - Each blank should have only one correct answer
-        - Base on the difficulty level, provide number of blanks
-        - Use the same language as the content
-        - Answer should be 2-4 words maximum
-        
-        Return as valid Python list of dictionaries in format:
+        You are an expert question generator. Based on the following content, generate {num} {difficulty} **fill-in-the-blank questions**.
+
+        Content:
+        {content}
+
+        Guidelines:
+        - Focus on important keywords, phrases, or concepts from the content.
+        - Each question should contain contextual information before and/or after the blank.
+        - The blank(s) should test understanding, not trivia.
+        - Provide 1-3 blanks depending on the difficulty level.
+        - Each blank must have a single correct answer (2-4 words maximum).
+        - Use the same language as the content.
+
+        Output Format:
+        Return a valid Python list of dictionaries in the format below:
         [
             {{
-                "question": "question with ___ blank",
-                "blanks": ["word1","word2","word3"],
-                "answers": ["correct1"],
-                "correctanswer": "correct1",
-                "explanation": "explanation of the answer"
+                "question": "This is a sentence with ___ to be filled.",
+                "blanks": ["term", "term", "term"],
+                "answers": ["Correct term or phrase"],
+                "correctanswer": "Correct term or phrase",
+                "explanation": "Explain why this is the correct answer."
             }}
         ]
     """

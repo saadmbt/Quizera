@@ -151,7 +151,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         }
         inserted_quiz_id = insert_Quizzes(quiz)
         if isinstance(inserted_quiz_id, ObjectId):
-            print(f"Questions générées et insérées avec succès. ID du quiz : {inserted_quiz_id}")
+            print(f"Questions générées et insérées avec succès. ID du quiz : {str(inserted_quiz_id)}")
             quiz["_id"] = str(inserted_quiz_id)
             return quiz
         else:
