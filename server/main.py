@@ -403,12 +403,18 @@ def generate_invite_link():
         if not group:
             return jsonify({"error": "Group not found"}), 404
 
+        # Log the group ID being used
+        print("Generating invite link for group_id:", group_id)
+
         # Create token
         token = create_access_token(
-            identity={"group_id": group_id},
+            identity={"group_id": str(group_id)},  # Ensure group_id is a string
             expires_delta=timedelta(days=7)
         )
         
+        # Log the generated token
+        print("Generated token:", token)
+
         invite_link = f"http://localhost:5173/Student/join-group/{token}"
         return jsonify({"invite_link": invite_link}), 200
 
