@@ -464,51 +464,61 @@ def join_group():
 
 # Validate invitation token
 @app.route('/api/validate-invite-token', methods=['POST'])
-@jwt_required()
 def validate_invite_token():
-    token = request.json.get('token')
-    
-    if not token:
-        return jsonify({"error": "Missing token"}), 400
-    
     try:
-        # Decode the token to get professor ID and group ID
-        decoded = decode_token(token)
-        token_payload = decoded['sub']
+        data = request.get_json()
+        token = data.get('token')
+        uid = data.get('uid')
         
-        # Handle both string and dictionary identities
-        if isinstance(token_payload, dict):
-            professor_id = token_payload.get('prof_id')
-            group_id = token_payload.get('group_id')
-        else:
-            # For backward compatibility with older tokens
-            professor_id = token_payload
-            group_id = None
+        if not token or not uid:
+            return jsonify({"error": "Missing required parameters"}), 400
+        
+        # Log received data
+        print(f"Validating token for user {uid}")
+        
+        # Get user info from Firebase
+        try:
+            user_info = auth.get_user(uid)
+            print(f"User info retrieved: {user_info.uid}")
+        except Exception as e:
+            print(f"Error getting user info: {e}")
+            return jsonify({"error": "Invalid user"}), 401
+
+        # Decode the token
+        try:
+            decoded = decode_token(token)
+            group_id = decoded['sub'].get('group_id')
+            print(f"Decoded group_id: {group_id}")
             
-        if not group_id:
-            return jsonify({"error": "Invalid token: missing group_id"}), 400
-        
-        # Get group information using group_id
-        group = get_group_by_id(group_id)
-        if not group:
-            return jsonify({"error": "Group not found"}), 404
-        
-        # Get professor information
-        professor = get_professor_by_id(professor_id)
-        
-        # Return group and professor info
-        return jsonify({
-            "group_name": group.get("group_name", "Unknown Group"),
-            "professor_name": professor.get("name", "Unknown Professor"),
-            "professor_id": professor_id,
-            "group_id": group_id
-        }), 200
+            if not group_id:
+                return jsonify({"error": "Invalid invitation format"}), 400
+            
+            # Get group and professor info
+            group = get_group_by_id(group_id)
+            if not group:
+                return jsonify({"error": "Group not found"}), 404
+                
+            professor = get_professor_by_id(group.get('prof_id'))
+            if not professor:
+                return jsonify({"error": "Professor not found"}), 404
+
+            # Check if user is already in group
+            if any(student.get('uid') == uid for student in group.get('students', [])):
+                return jsonify({"error": "Already a member of this group"}), 400
+            
+            return jsonify({
+                "group_name": group.get("group_name"),
+                "professor_name": professor.get("name", "Unknown"),
+                "group_id": group_id
+            }), 200
+            
+        except Exception as e:
+            print(f"Token validation error: {e}")
+            return jsonify({"error": "Invalid invitation"}), 400
+            
     except Exception as e:
-        return jsonify({"error": f"Invalid token: {str(e)}"}), 400
-
-
-
-
+        print(f"General error: {e}")
+        return jsonify({"error": "Server error"}), 500
 
 @app.route('/api/refresh_token', methods=['POST'])
 @jwt_required(refresh=True)

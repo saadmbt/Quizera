@@ -175,16 +175,35 @@ def insert_group(group_data):
 def add_student_to_group(group_id, student_uid):
     """Add a student to a group"""
     try:
+        print(f"Adding student {student_uid} to group {group_id}")
+        
+        # Check if group exists
+        group = groups_collection.find_one({"_id": ObjectId(group_id)})
+        if not group:
+            print("Group not found")
+            return "Error: Group not found"
+
+        # Check if student is already in group
+        if any(student.get('uid') == student_uid for student in group.get('students', [])):
+            print("Student already in group")
+            return "Error: Student already in group"
+
+        # Add student
         student_data = {
             "uid": student_uid,
             "joined_at": datetime.now(timezone.utc).isoformat()
         }
+        
         result = groups_collection.update_one(
             {"_id": ObjectId(group_id)},
             {"$addToSet": {"students": student_data}}
         )
+        
+        print(f"Update result: {result.modified_count} documents modified")
         return result.modified_count > 0
+        
     except Exception as e:
+        print(f"Error adding student to group: {e}")
         return f"Error adding student to group: {str(e)}"
 
 def get_group_by_code(group_id, professor_id):
@@ -231,16 +250,18 @@ def get_group_by_id(group_id):
     try:
         # Ensure group_id is a valid ObjectId
         if not ObjectId.is_valid(group_id):
-            return None
-            
-        group = groups_collection.find_one({"_id": ObjectId(group_id)})
+            return {"error": "Invalid group_id format"}
+        try:
+            obj_id = ObjectId(group_id)
+        except Exception:
+            return {"error": "Invalid ObjectId conversion"}
+        group = groups_collection.find_one({"_id": obj_id})
         if group:
             group['_id'] = str(group['_id'])  # Convert ObjectId to string
             return group
-        return None
+        return {"error": "Group not found"}
     except Exception as e:
-        print(f"Error in get_group_by_id: {str(e)}")
-        return None
+        return {"error": f"Error in get_group_by_id: {str(e)}"}
 def get_professor_by_id(profid):
     try:
         prof = user.find_one({"_id":ObjectId(profid)})
