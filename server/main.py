@@ -432,10 +432,10 @@ def join_group():
         student_uid = get_jwt_identity()
         token = data['token']
         
-        # Decode the invitation token
         try:
+            # Decode token and get group_id directly
             decoded = decode_token(token)
-            group_id = decoded['sub'].get('group_id') if isinstance(decoded['sub'], dict) else None
+            group_id = decoded.get('sub')  # Get the subject directly
             
             if not group_id:
                 return jsonify({"error": "Invalid invitation token"}), 400
@@ -469,33 +469,39 @@ def validate_invite_token():
             return jsonify({"error": "No data provided"}), 400
 
         token = data.get('token')
-        uid = data.get('uid')
+        # Temporarily skip uid validation
+        # uid = data.get('uid')
         
-        if not token or not uid:
-            return jsonify({"error": "Missing token or uid"}), 400
+        if not token:
+            return jsonify({"error": "Missing token"}), 400
 
         try:
+            # Decode token and handle nested structure
             decoded = decode_token(token)
-            sub = decoded.get('sub')
-            group_id = sub if isinstance(sub, str) else sub.get('group_id')
+            print("Decoded token:", decoded)  # Debug print
+            
+            # Handle nested sub structure
+            sub = decoded.get('sub', {})
+            group_id = sub.get('group_id') if isinstance(sub, dict) else sub
             
             if not group_id:
                 return jsonify({"error": "Invalid token format"}), 400
 
+            print(f"Extracted group_id: {group_id}")  # Debug print
+
+            # Get group info
             group = get_group_by_id(group_id)
             if not group or isinstance(group, dict) and 'error' in group:
                 return jsonify({"error": "Group not found"}), 404
 
-            professor = get_professor_by_id(group.get('prof_id'))
-            if not professor:
-                return jsonify({"error": "Professor not found"}), 404
-            
-            # Access name directly from professor object
-            professor_name = professor.get('name', 'Unknown Professor')
+            # Skip professor info for now
+            # professor = get_professor_by_id(group.get('prof_id'))
+            # if not professor:
+            #     return jsonify({"error": "Professor not found"}), 404
             
             return jsonify({
                 "group_name": group.get("group_name", "Unknown Group"),
-                "professor_name": professor_name,  # Use the retrieved name
+                "professor_name": "Unknown Professor",  # Hardcoded for now
                 "group_id": group_id
             }), 200
 
