@@ -48,7 +48,17 @@ export default function LoginWithFirebase() {
         // generate JWT token and save it to local storage
         const token = getJWT(user.uid);
         localStorage.setItem("access_token", token);
-        navigate(`/${userData.role}`);
+
+        // Check if there is a redirect path stored in localStorage
+        const redirect = localStorage.getItem('redirectAfterLogin');
+        if (redirect) {
+          // Remove redirect path from localStorage and navigate to it
+          localStorage.removeItem('redirectAfterLogin');
+          navigate(redirect);
+        } else {
+          // Default navigation to user role page
+          navigate(`/${userData.role}`);
+        }
       } else {
         setErrorMessage("No user found with this email.");
       }

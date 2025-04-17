@@ -466,59 +466,61 @@ def join_group():
 @app.route('/api/validate-invite-token', methods=['POST'])
 def validate_invite_token():
     try:
+        # Print raw request data for debugging
+        print("Request data:", request.get_data())
+        print("Request headers:", request.headers)
+        
         data = request.get_json()
+        print("Parsed JSON data:", data)  # Debug log
+        
+        if not data:
+            print("No JSON data received")
+            return jsonify({"error": "No data provided"}), 400
+
         token = data.get('token')
         uid = data.get('uid')
         
+        print(f"Token: {token}, UID: {uid}")  # Debug log
+        
         if not token or not uid:
-            return jsonify({"error": "Missing required parameters"}), 400
-        
-        # Log received data
-        print(f"Validating token for user {uid}")
-        
-        # Get user info from Firebase
-        try:
-            user_info = auth.get_user(uid)
-            print(f"User info retrieved: {user_info.uid}")
-        except Exception as e:
-            print(f"Error getting user info: {e}")
-            return jsonify({"error": "Invalid user"}), 401
+            missing = []
+            if not token: missing.append('token')
+            if not uid: missing.append('uid')
+            return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
 
-        # Decode the token
         try:
+            # Decode token first to validate format
             decoded = decode_token(token)
-            group_id = decoded['sub'].get('group_id')
-            print(f"Decoded group_id: {group_id}")
-            
-            if not group_id:
-                return jsonify({"error": "Invalid invitation format"}), 400
-            
-            # Get group and professor info
-            group = get_group_by_id(group_id)
-            if not group:
-                return jsonify({"error": "Group not found"}), 404
-                
-            professor = get_professor_by_id(group.get('prof_id'))
-            if not professor:
-                return jsonify({"error": "Professor not found"}), 404
+            if not decoded or not isinstance(decoded.get('sub'), dict):
+                return jsonify({"error": "Invalid token format"}), 400
 
-            # Check if user is already in group
-            if any(student.get('uid') == uid for student in group.get('students', [])):
-                return jsonify({"error": "Already a member of this group"}), 400
-            
+            group_id = decoded['sub'].get('group_id')
+            if not group_id:
+                return jsonify({"error": "Invalid token: no group ID found"}), 400
+
+            # Get group info
+            group = get_group_by_id(group_id)
+            if not group or isinstance(group, dict) and 'error' in group:
+                return jsonify({"error": "Group not found"}), 404
+
+            # Get professor info
+            professor = get_professor_by_id(group.get('prof_id'))
+            if not professor or isinstance(professor, str) and 'error' in professor.lower():
+                return jsonify({"error": "Professor information not found"}), 404
+
             return jsonify({
-                "group_name": group.get("group_name"),
-                "professor_name": professor.get("name", "Unknown"),
+                "group_name": group.get("group_name", "Unknown Group"),
+                "professor_name": professor.get("name", "Unknown Professor"),
                 "group_id": group_id
             }), 200
-            
+
         except Exception as e:
-            print(f"Token validation error: {e}")
-            return jsonify({"error": "Invalid invitation"}), 400
-            
+            print(f"Token processing error: {str(e)}")
+            return jsonify({"error": f"Invalid invitation token: {str(e)}"}), 400
+
     except Exception as e:
-        print(f"General error: {e}")
-        return jsonify({"error": "Server error"}), 500
+        print(f"General error in validate_invite_token: {str(e)}")
+        return jsonify({"error": "Server error processing invitation"}), 500
 
 @app.route('/api/refresh_token', methods=['POST'])
 @jwt_required(refresh=True)

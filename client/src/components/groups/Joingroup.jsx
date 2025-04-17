@@ -7,64 +7,83 @@ import { AuthContext } from '../Auth/AuthContext';
 const JoinGroup = () => {
   const { token } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useContext(AuthContext);
+  const { user, isAuthenticated } = useContext(AuthContext); 
+  console.log("User:", user); // Log the user state
+  console.log("Is Authenticated:", isAuthenticated); // Log the authentication state
   const [groupInfo, setGroupInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/auth/login', { state: { from: `/join-group/${token}` }});
-      return;
-    }
-
     const validateInvitation = async () => {
       try {
-        const authToken = localStorage.getItem('access_token');
+        if (!user || !user.uid) {
+          console.log('User not authenticated, redirecting to login');
+          localStorage.setItem('redirectAfterLogin', `/student/join-group/${token}`);
+          navigate('/auth/login');
+          return;
+        }
+
+        if (!token) {
+          setError('Invitation token is missing.');
+          return;
+        }
+
+        // Log the payload for debugging
+        const payload = {
+          token: token,
+          uid: user.uid
+        };
+        console.log('Sending validation payload:', payload);
+
         const response = await axios.post(
           'https://prepgenius-backend.vercel.app/api/validate-invite-token',
-          { 
-            token,
-          },
+          payload,
           {
             headers: {
-              Authorization: `Bearer ${authToken}`,
-              'Content-Type': 'application/json',
-            },
+              'Content-Type': 'application/json'
+            }
           }
         );
 
+        console.log('Validation response:', response.data);
         setGroupInfo(response.data);
       } catch (error) {
-        console.error('Validation error:', error);
-        setError(error.response?.data?.error || 'Invalid or expired invitation link');
+        console.error('Validation error:', error.response || error);
+        setError(error.response?.data?.error || 'Unable to validate invitation token');
       } finally {
         setIsLoading(false);
       }
     };
 
     validateInvitation();
-  }, [token, isAuthenticated, navigate]);
+  }, [token, user, navigate]);
 
   const handleJoinGroup = async () => {
     try {
-      const authToken = localStorage.getItem('access_token');
-      await axios.post(
+      const response = await axios.post(
         'https://prepgenius-backend.vercel.app/api/groups/join',
-        { token },
+        { 
+          token,
+          uid: user.uid 
+        },
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-          },
+            'Content-Type': 'application/json'
+          }
         }
       );
       
       toast.success('Successfully joined group');
-      navigate(`/Student/groups/1`);
+      navigate('/Student/groups/1');
     } catch (error) {
       console.error('Join error:', error);
-      toast.error(error.response?.data?.error || 'Failed to join group');
+      if (error.response?.status === 401) {
+        localStorage.setItem('redirectAfterLogin', `/student/join-group/${token}`);
+        navigate('/auth/login');
+      } else {
+        toast.error(error.response?.data?.error || 'Failed to join group');
+      }
     }
   };
 

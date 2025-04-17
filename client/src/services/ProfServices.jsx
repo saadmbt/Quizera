@@ -90,6 +90,10 @@ export const getGroupById = async (groupId, profId) => {
 // Generate and return an invitation link for a group
 export const generateInviteLink = async (user, groupId) => {
   try {
+    console.log('Generating invite link for group:', groupId); 
+    if (!groupId) {
+      throw new Error('Group ID is required');
+    }
     const response = await axios.post(
       'https://prepgenius-backend.vercel.app/api/generate-invite-link',
       {
