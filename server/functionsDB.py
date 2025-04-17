@@ -264,9 +264,17 @@ def get_group_by_id(group_id):
         return {"error": f"Error in get_group_by_id: {str(e)}"}
 def get_professor_by_id(profid):
     try:
-        prof = user.find_one({"_id":ObjectId(profid)})
+        prof = user.find_one({"_id": ObjectId(profid)})
         if prof:
             prof['_id'] = str(prof['_id'])
-            return prof
+            # Use displayName/name/username based on your user collection schema
+            prof_name = prof.get('displayName') or prof.get('name') or prof.get('username', 'Unknown Professor')
+            return {
+                "_id": prof['_id'],
+                "name": prof_name,
+                # Add other needed fields
+            }
+        return None
     except Exception as e:
-        return f"Error fetching group: {str(e)}"
+        print(f"Error in get_professor_by_id: {str(e)}")
+        return f"Error fetching professor: {str(e)}"
