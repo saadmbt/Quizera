@@ -1,10 +1,6 @@
 base_prompt = {
     "multiple-choice": """
-        You are an expert question generator. Based on the following content, generate {num} {difficulty} **multiple-choice questions**.
-
-        Content:
-        {content}
-        
+        You are an expert question generator. Based on the following content, generate {num} {difficulty} **multiple-choice questions**.Content:{content}
         Guidelines:
         - Each question must directly test comprehension or application of the content, not simple recall.
         - Use the same language as the content.
@@ -27,36 +23,22 @@ base_prompt = {
     """,
 
     "true-false": """
-        You are an expert question generator. Based on the following content, generate {num} {difficulty} **true/false questions**.
-
-        Content:
-        {content}
-        
+        You are an expert question generator. Based on the following content, generate {num} {difficulty} **true/false questions**.Content:{content}
         Guidelines:
         - Create unambiguous, fact-based statements derived from the content.
         - Avoid double negatives, complex phrasing, or trick statements.
         - Mix both true and false statements (aim for a near 50/50 split).
         - Focus on meaningful, core ideas or key takeaways.
         - Use the same language as the content.
-
         Output Format:
         Return a valid Python list of dictionaries in the format below:
-        [
-            {{
-                "question": "Statement goes here.",
-                "options": ["True", "False"],
-                "correctanswer": "True" or "False",
-                "explanation": "Justification based on the content."
-            }}
-        ]
+        [{{"question": "Statement goes here.","options": ["True", "False"],"correctanswer": "True" or "False",
+            "explanation": "Justification based on the content."
+            }}]
     """,
 
     "fill-blank": """
-        You are an expert question generator. Based on the following content, generate {num} {difficulty} **fill-in-the-blank questions**.
-
-        Content:
-        {content}
-
+        Based on the following content, generate {num} {difficulty} **fill-in-the-blank questions**.Content:{content}
         Guidelines:
         - Focus on important keywords, phrases, or concepts from the content.
         - Each question should contain contextual information before and/or after the blank.
@@ -64,17 +46,8 @@ base_prompt = {
         - Provide 1-3 blanks depending on the difficulty level.
         - Each blank must have a single correct answer (2-4 words maximum).
         - Use the same language as the content.
-
         Output Format:
         Return a valid Python list of dictionaries in the format below:
-        [
-            {{
-                "question": "This is a sentence with ___ to be filled.",
-                "blanks": ["term", "term", "term"],
-                "answers": ["Correct term or phrase"],
-                "correctanswer": "Correct term or phrase",
-                "explanation": "Explain why this is the correct answer."
-            }}
-        ]
+        [{{"question": "This is a sentence with ___ to be filled.","blanks": ["term", "term", "term"],"answers": ["Correct term or phrase"],"correctanswer": "Correct term or phrase","explanation": "Explain why this is the correct answer."}}]
     """
 }
