@@ -45,9 +45,11 @@ base_prompt = {
         - The blank(s) should test understanding, not trivia.
         - Provide 1-3 blanks depending on the difficulty level.
         - Each blank must have a single correct answer (2-4 words maximum).
+        - Provide 2-3 plausible incorrect answers for each blank.
+        - incorrect answers must be contextually related to the topic but clearly incorrect in the given sentence.
         - Use the same language as the content.
         Output Format:
         Return a valid Python list of dictionaries in the format below:
-        [{{"question": "This is a sentence with ___ to be filled.","blanks": ["term", "term", "term"],"answers": ["Correct term or phrase"],"correctanswer": "Correct term or phrase","explanation": "Explain why this is the correct answer."}}]
+        [{{"question": "This is a sentence with ___ to be filled.","blanks": ["___"],"answers": ["Correct term or phrase","fasle answers",...],"correctanswer": "Correct term or phrase","explanation": "Explain why this is the correct answer."}}]
     """
 }

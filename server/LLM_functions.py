@@ -100,7 +100,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             raise ValueError("Le contenu de la leçon est vide")
         
         if len(content) > 20000:
-            content= content[:20000]
+            content= content[:19000]
         
         # Construire la requête pour l'API Groq en fonction des paramètres
         # Standardize prompt format
