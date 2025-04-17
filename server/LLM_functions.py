@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId
 from functionsDB import (Fetch_Lesson,insert_Quizzes,lastID)
-
+from prompts_config import base_prompt
 # Load environment variables from .env file
 load_dotenv()
 mongodb_url=os.environ.get("MONGO_URL")  
@@ -91,37 +91,21 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         
         # Récupérer le contenu de la leçon
         content = lesson.get('content')
-        
+        title = lesson.get('title')
+        author = lesson.get('author')
+        if not title:
+            raise ValueError("Le titre de la leçon est vide")
+
         if not content:
             raise ValueError("Le contenu de la leçon est vide")
         
         # Construire la requête pour l'API Groq en fonction des paramètres
-        if question_type == "multiple_choice":
-            prompt = (
-                f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
-                Toutes les questions doivent être basées uniquement sur le contenu fourni. 
-                Chaque question doit être suivie de quatre options de réponse "without duplicate the questions". 
-                La réponse doit être structurée comme un dictionnaire Python au format suivant : 
-                [{{"question": "", "options": ["option1", "option2", "option3", "option4"], "correctanswer": "(une des options)"}}]
-                """)
-        elif question_type == "true_false":
-            prompt = (
-                f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
-                Toutes les questions doivent être basées uniquement sur le contenu fourni. 
-                Chaque question doit être suivie de la réponse "True" ou "False". 
-                La réponse doit être structurée comme un dictionnaire Python au format suivant : 
-                [{"question": "", "options": ["True","False"], "correctanswer": "(True ou False)"}]
-                """)
-        elif question_type == "fill-blank":
-            prompt = (
-                f"""Générer {num_questions} questions de type {question_type} et de difficulté {difficulty} sur le sujet suivant : {content}. 
-                Toutes les questions doivent être basées uniquement sur le contenu fourni. 
-                Chaque question doit être suivie de la réponse correcte. 
-                La réponse doit être structurée comme un dictionnaire Python au format suivant : 
-                [{"question": " ","blanks":[" ",...] ,"answers":[" ",...],"correctanswer": "(la réponse correcte)"}]
-                """)
-        else:
-            raise ValueError("Type de question non pris en charge")
+        # Standardize prompt format
+        prompt = base_prompt[question_type].format(
+            num=num_questions,
+            difficulty=difficulty,
+            content=content
+        )
           # Appeler l'API Groq pour générer les questions
         completion = groq_client.chat.completions.create(
             model="llama3-8b-8192",
@@ -133,7 +117,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             max_tokens=1500,
         )
 
-            # Afficher la réponse complète de l'API pour le débogage
+        # Afficher la réponse complète de l'API pour le débogage
         questions_text = completion.choices[0].message.content.strip()
         # Parse the response to extract the list of questions
         try:
@@ -141,6 +125,8 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             start_index = questions_text.find('[')
             end_index = questions_text.rfind(']') + 1
 
+            if start_index == -1 or end_index == 0:
+                raise ValueError("Invalid response format - no list found")
             # Extract the JSON-like string
             questions_json = questions_text[start_index:end_index]
 
@@ -153,8 +139,12 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             return None
         # Insérer les questions dans MongoDB
         question_id = lastID('quizzes')
+        if not isinstance(question_id, int):
+            raise ValueError(f"Invalid question ID returned by lastID: {question_id}")
         quiz = {
             "id": question_id + 1,
+            "title": title,
+            "generated_by": author,
             "type": question_type,
             "questions": questions,
             "createdAt": datetime.now()
@@ -162,7 +152,8 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         inserted_quiz_id = insert_Quizzes(quiz)
         if isinstance(inserted_quiz_id, ObjectId):
             print(f"Questions générées et insérées avec succès. ID du quiz : {inserted_quiz_id}")
-            return inserted_quiz_id
+            quiz["_id"] = str(inserted_quiz_id)
+            return quiz
         else:
             raise ValueError("Erreur lors de l'insertion du quiz.")
     except Exception as e:

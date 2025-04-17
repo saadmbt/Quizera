@@ -67,11 +67,11 @@ const Home = () => {
       {/* student routes */}
       
         <Route
-          path="/Student"
-          element={
-            <ProtectedRoute allowedRoles={["Student"]}>
-              <StudentDashboardLayout />
-            </ProtectedRoute>
+          path="/student"
+          element={<StudentDashboardLayout />
+            // <ProtectedRoute allowedRoles={["student"]}>
+            //   <StudentDashboardLayout />
+            // </ProtectedRoute>
           }
         >
           <Route index element={<Studentmainpage />} />
@@ -83,7 +83,7 @@ const Home = () => {
                 condition={lessonID != false && quizSettings != false}
                 redirectTo="/Student/upload"
               >
-                <Quiz lessonID={lessonID} settings={quizSettings} />
+                <Quiz  settings={quizSettings} />
               </NotAccessibleRoute>
             }
           />
@@ -94,7 +94,7 @@ const Home = () => {
                 condition={lessonID != false}
                 redirectTo="/Student/upload"
               >
-                <QuizSetup onStartQuiz={onStartQuiz} />
+                <QuizSetup onStartQuiz={onStartQuiz} lessonID={lessonID} />
               </NotAccessibleRoute>
             }
           />

@@ -21,7 +21,7 @@ const GROUPS = [
   { id: 'group3', label: 'Physics 303' }
 ];
 
-export default function QuizSetup({ onStartQuiz }) {
+export default function QuizSetup({ onStartQuiz, lessonID}) {
   const [questionType, setQuestionType] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [questionCount, setQuestionCount] = useState(10);
@@ -35,9 +35,10 @@ export default function QuizSetup({ onStartQuiz }) {
     e.preventDefault();
     setIsLoading(true);
     const quizData = {
+      lesson_id:lessonID,
       type: questionType,
+      number:questionCount,
       difficulty,
-      questionCount,
       sharedWith: isProfessor ? selectedGroup : null
     };
     

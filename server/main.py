@@ -104,6 +104,7 @@ def profile():
 def handle_theuploaded():
     # Check if the request body is text, file, or image
     request_type = check_request_body()
+    
     if request_type is None:
         return jsonify({"error": "Request type could not be determined."}), 400
 
@@ -123,64 +124,36 @@ def handle_theuploaded():
         response = jsonify({'message': 'Lesson uploaded successfully', "lesson_id": str(lesson_objid)})
         return response, 201
     
-    elif request_type == "file":
-        file = request.files['file']
-        filename = secure_filename(file.filename)
-        if file.content_length > MAX_FILE_SIZE:
-            return response,400
-    # Limit file size to 10MB
-    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
-    New_id = lastID("lessons")
-
-    if request_type=="text":
-        # Get the data from the request body
-        lesson_obj={
-            "title":request.form["title"],
-            "id":New_id,
-            "author":"get_jwt_identity()",
-            "content" :request.form['text'],
-            "uploadedAt": datetime.now(timezone.utc).isoformat(),
-        }
-        # Save the text to the database
-        lesson_objid = insert_Lessons(lesson_obj)
-        response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
-        return response, 201
-    
     elif request_type=="file":
-        # Get the file from the request
-
-        file=request.files['file']
-        # Secure the filename
-        filename = secure_filename(file.filename)
-        # Check file size
-        if file.content_length > MAX_FILE_SIZE:
-            return jsonify({"error": "File size exceeds the 10MB limit."}), 400
-        # Save the file to Azure storage
-
         try:
-            # Proccess the file 
+            file = request.files['file']
+            filename = secure_filename(file.filename)
+            
+            # Check file size
+            if file.content_length > MAX_FILE_SIZE:
+                return jsonify({"error": "File size exceeds the 10MB limit."}), 400
+
+            # Process file content
             file_content = file.read()
-            file_extracted_text=file_handler(file_content,filename)
-            print("l317 :",len(file_extracted_text))
-            url = save_to_azure_storage(file_content,filename)
-            print("l 311",url)
-            # Get the data from the request body
-            lesson_obj={
-                "title":request.form["title"],
-                "id":New_id,
-                "author":"get_jwt_identity()",
-                "content" :file_extracted_text,
-                "lesson_save_link":str(url),
+            file_extracted_text = file_handler(file_content, filename)
+            
+            # Reset file pointer and upload
+            file.seek(0)
+            
+            lesson_obj = {
+                "title": request.form["title"],
+                "id": New_id,
+                "author": "get_jwt_identity()",
+                "content": file_extracted_text,
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
             }
-            # Save the dictionary Lesson to the database
+            
             lesson_objid = insert_Lessons(lesson_obj)
-            response =jsonify({'message': 'Lesson uploaded successfully',"lesson_id":str(lesson_objid)})
-            return response, 200
+            return jsonify({
+                "lesson_id": str(lesson_objid)
+            }), 201
         except Exception as e:
-            response = jsonify({"error": "File processing error: " + str(e)})
-
-            return response, 400
+            return jsonify({"error": f"File upload failed: {str(e)}"}), 400
         
     # case if the file is image
     elif request_type=="img":
@@ -192,9 +165,6 @@ def handle_theuploaded():
             filename = secure_filename(image.filename)
             with tempfile.NamedTemporaryFile(delete=False) as temp_file:
                 image.save(temp_file.name)
-
-                # Upload to Azure Blob Storage (if needed)
-                url = save_to_azure_storage(temp_file.name, filename)  # Pass the temporary file path
 
                 # Read image data from the temporary file **after saving**
                 with open(temp_file.name, 'rb') as f:
@@ -209,7 +179,6 @@ def handle_theuploaded():
                 "id":New_id,
                 "author":"get_jwt_identity()",
                 "content" :extracted_text,
-                "lesson_save_link":str(url),
                 "uploadedAt": datetime.now(timezone.utc).isoformat(),
             }
             # Save the dictionary Lesson to the database
@@ -288,7 +257,7 @@ def create_quiz():
     if "error" in str(quiz_result).lower():
         return jsonify({"error": quiz_result}), 400
 
-    return jsonify({"message": "Quiz created successfully", "quiz_id": str(quiz_result)}), 201
+    return jsonify({"quiz": quiz_result}), 201
 #just for show the quiz if needed 
 @app.route('/api/quizzes/<quiz_id>', methods=['GET'])
 # @jwt_required()

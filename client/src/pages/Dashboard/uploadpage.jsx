@@ -69,7 +69,7 @@ export default function Upload({ onComplete }) {
         <UploadTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
         {activeTab === 'file' ? (
-          <FileUpload onFileSelect={setFile} />
+          <FileUpload onFileSelect={setFile } setTitle={setTitle}/>
         ) : (
           <TextUpload value={text} onChange={setText} />
         )}

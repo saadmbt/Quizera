@@ -94,29 +94,66 @@ def refresh_token():
     new_access_token = create_access_token(identity=current_user)
     return str(new_access_token)
 
-# function to save the file or image to the Azure Blob storage and returns the shared link
-def save_to_azure_storage(file, filename):
-    # Load Azure Storage connection string from environment variables
-    connection_string = os.environ.get('AZURE_STORAGE_CONNECTION_STRING')
-    
-    # Create a BlobServiceClient
-    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-    container_name = "mycontainer" 
-    container_client = blob_service_client.get_container_client(container_name)
-    # Create a BlobClient
-    blob_client = container_client.get_blob_client(filename)
-    # Generate the x-ms-date header for accurate timekeeping
-    x_ms_date = get_utc_time_string()
-    # Upload the file to Azure Blob Storage
+def save_to_azure_storage(file_data, filename):
+    """
+    Upload file to Azure Blob Storage
+    Args:
+        file_data: Either a file object or file path
+        filename: Name to save the file as
+    Returns:
+        str: URL of uploaded file or error dict
+    """
     try:
-        blob_client.upload_blob(file, overwrite=True,headers={"x-ms-date": x_ms_date})
-        print(f"File {filename} uploaded to Azure Blob Storage.")
-        
-        # Generate the URL for the uploaded file
+        # Load Azure Storage connection string
+        connection_string = os.environ.get('AZURE_STORAGE_CONNECTION_STRING')
+        if not connection_string:
+            raise ValueError("Azure storage connection string not found")
+
+        # Create clients
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        container_name = "mycontainer"
+        container_client = blob_service_client.get_container_client(container_name)
+        blob_client = container_client.get_blob_client(filename)
+
+        # Determine content type
+        content_type = None
+        if filename.endswith('.pdf'):
+            content_type = 'application/pdf'
+        elif filename.endswith(('.png', '.jpg', '.jpeg')):
+            content_type = 'image/' + filename.split('.')[-1]
+        elif filename.endswith('.docx'):
+            content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        else:
+            content_type = 'application/octet-stream'
+
+        # Handle different input types
+        if isinstance(file_data, str):  # File path
+            with open(file_data, 'rb') as file:
+                blob_client.upload_blob(
+                    file,
+                    overwrite=True,
+                    content_type=content_type
+                )
+        else:  # File object or bytes
+            if hasattr(file_data, 'read'):  # File-like object
+                blob_client.upload_blob(
+                    file_data.read(),
+                    overwrite=True,
+                    content_type=content_type
+                )
+            else:  # Bytes
+                blob_client.upload_blob(
+                    file_data,
+                    overwrite=True,
+                    content_type=content_type
+                )
+
+        # Generate URL
         blob_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/{filename}"
         return blob_url
+
     except Exception as e:
-        print(f"Error uploading file: {e}")
+        print(f"Error uploading to Azure: {str(e)}")
         return {"error": str(e)}
 
 def get_utc_time_string():
