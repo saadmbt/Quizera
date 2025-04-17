@@ -47,7 +47,7 @@ export default function QuizSetup({ onStartQuiz }) {
         navigate('/professor/upload/quizpreview', { state: { quizData }});
       } else {
         onStartQuiz(quizData);
-        navigate('/quiz');
+        navigate('/Student/quiz');
       }
     } finally {
       setIsLoading(false);

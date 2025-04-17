@@ -5,6 +5,7 @@ import {jwtDecode} from "jwt-decode";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { AuthContext } from "./AuthContext";
 import { useContext } from "react";
+import getJWT from "../../services/authService";
 
 export const GoogleAuthButton = () => {
   const navigate = useNavigate();
@@ -36,9 +37,7 @@ export const GoogleAuthButton = () => {
       console.log("User data:", userData);
       getJWT(uid);
       
-      // Check if there's a redirect path in the location state
-      const from = location.state?.from || `/${userData.role}`;
-      navigate(from);
+      navigate( `/${userData.role}`);
     } else {
       await setDoc(doc(db, "users", uid), {
         email: credential.email,

@@ -61,7 +61,7 @@ const JoinGroup = () => {
       );
       
       toast.success('Successfully joined group');
-      navigate('/dashboard');
+      navigate(`/Student/groups/1`);
     } catch (error) {
       console.error('Join error:', error);
       toast.error(error.response?.data?.error || 'Failed to join group');

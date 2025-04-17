@@ -67,9 +67,9 @@ const Home = () => {
       {/* student routes */}
       
         <Route
-          path="/student"
+          path="/Student"
           element={
-            <ProtectedRoute allowedRoles={["student"]}>
+            <ProtectedRoute allowedRoles={["Student"]}>
               <StudentDashboardLayout />
             </ProtectedRoute>
           }
