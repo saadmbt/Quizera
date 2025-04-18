@@ -61,6 +61,13 @@ const JoinGroup = () => {
 
   const handleJoinGroup = async () => {
     try {
+      if (!user || !user.uid) {
+        console.log('User not authenticated, redirecting to login');
+        localStorage.setItem('redirectAfterLogin', `/student/join-group/${token}`);
+        navigate('/auth/login');
+        return;
+      }
+
       const response = await axios.post(
         'https://prepgenius-backend.vercel.app/api/groups/join',
         { 
@@ -75,15 +82,10 @@ const JoinGroup = () => {
       );
       
       toast.success('Successfully joined group');
-      navigate('/Student/groups/1');
+      navigate('/Student/groups');  // Remove the /1 to go to the main groups page
     } catch (error) {
       console.error('Join error:', error);
-      if (error.response?.status === 401) {
-        localStorage.setItem('redirectAfterLogin', `/student/join-group/${token}`);
-        navigate('/auth/login');
-      } else {
-        toast.error(error.response?.data?.error || 'Failed to join group');
-      }
+      toast.error(error.response?.data?.error || 'Failed to join group');
     }
   };
 
