@@ -55,12 +55,14 @@ const Home = () => {
       <Route path="/auth" element={<AuthLayout />}>
         {renderRoutes(AuthRoutes)}
       </Route>
-      <Route path="/professor" element={
-            <ProtectedRoute allowedRoles={["professor"]}>
+      <Route path="/professor" 
+      element={<DashboardLayout />
+      //       <ProtectedRoute allowedRoles={["professor"]}>
 
-              <DashboardLayout />
-            </ProtectedRoute>
-          }>
+      //         
+      //       </ProtectedRoute>
+   }
+          >
           <Route path="upload" element={<ProfUpload onComplete={onComplete}/>}/>
         {renderRoutes(ProfessorRoutes)}
       </Route>

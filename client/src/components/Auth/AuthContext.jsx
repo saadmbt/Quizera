@@ -8,6 +8,7 @@ export const AuthContext = createContext();
 // Create a context provider
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // The connected user state
+  const isAuthenticated = !!user; // Determine if the user is authenticated
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -31,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

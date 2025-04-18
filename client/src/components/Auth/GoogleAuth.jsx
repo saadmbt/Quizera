@@ -37,7 +37,14 @@ export const GoogleAuthButton = () => {
       console.log("User data:", userData);
       getJWT(uid);
       
-      navigate( `/${userData.role}`);
+      // After setting the user, check for redirect path
+      const redirect = localStorage.getItem('redirectAfterLogin');
+      if (redirect) {
+        localStorage.removeItem('redirectAfterLogin');
+        navigate(redirect);
+      } else {
+        navigate(`/${userData.role}`);
+      }
     } else {
       await setDoc(doc(db, "users", uid), {
         email: credential.email,
