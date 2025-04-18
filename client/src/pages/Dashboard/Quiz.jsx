@@ -171,16 +171,20 @@ export default function Quiz({ settings={lesson_id:"68011808688b19fef9bf2d5a",ty
       setError('Failed to start timer');
     }
   }, [currentQuestion]);
-  if(quiz){
-    setQuizResult({
-      title: quiz.title,
-      date: quiz.createdAt,
-      score: quiz.score,
-      timeSpent: timer,
-      type: quiz.type,
-      questions:[]
-    })
-  }
+  // Remove direct state update in render to prevent infinite re-renders
+  // Instead, use useEffect to update QuizResult when quiz or timer changes
+  useEffect(() => {
+    if (quiz) {
+      setQuizResult({
+        title: quiz.title,
+        date: quiz.createdAt,
+        score: quiz.score,
+        timeSpent: timer,
+        type: quiz.type,
+        questions: []
+      });
+    }
+  }, []);
   const handleAnswer = (selectedAnswer) => {
     
     try {
@@ -198,11 +202,16 @@ export default function Quiz({ settings={lesson_id:"68011808688b19fef9bf2d5a",ty
 
       const questionRes = {
         id: question.id,
-        selectedAnswer,
+        question: question.question,
+        options: quiz.type === 'fill-blank' ? question?.answers : question?.options,
+        correctAnswer: question.correctanswer,
+        userAnswer:selectedAnswer,
         isCorrect,
-        time: timeSpent
+        time: timeSpent,
+        explanation: question.explanation,
       }
-      setQuizResult({...QuizResult, questions:[...QuizResult.questions, {}]})
+
+      setQuizResult({...QuizResult, questions:[...QuizResult.questions, questionRes]})
 
       if (currentQuestion < quiz.questions.length-1) {
         setCurrentQuestion(prev => prev + 1);
@@ -227,13 +236,14 @@ export default function Quiz({ settings={lesson_id:"68011808688b19fef9bf2d5a",ty
   if (showVideos) {
     return <Videos keywords={keywords} onBack={() => setShowVideos(false)} />;
   }
-  if (showQuestions) {
-    return <QuestionReview  onBack={() => setshowQuestions(false)} />;
+  if (showQuestions && QuizResult.questions) {
+    return <QuestionReview answers={QuizResult.questions} onBack={() => setshowQuestions(false)} />;
   }
 
   if (quizComplete) {
     return (
       <QuizComplete
+        quizResult={QuizResult}
         score={score}
         totalQuestions={quiz && quiz.questions ? quiz.questions.length : 0}
         answers={answers}
