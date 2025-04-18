@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/dashboard/Sidebar';
+import { Toaster } from 'react-hot-toast';
 
 const StudentDashboardLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -21,6 +22,8 @@ const StudentDashboardLayout = () => {
                 {/* Main Content */}
                 <Outlet context={{ toggleSidebar }} />
             </div>
+             {/* Toaster for Notifications */}
+            <Toaster position="top-right" />
         </div>
     );
 };

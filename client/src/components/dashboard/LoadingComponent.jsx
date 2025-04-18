@@ -1,21 +1,28 @@
 import { useState, useEffect } from 'react';
-
+import toast from 'react-hot-toast';
 export default function LoadingComponent() {
   const [progress, setProgress] = useState(0);
-
+  const [TimeEnd, setTimeEnd] = useState(false);
   // Simulate progress for demo purposes
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
+          setTimeout(()=>{
+            setTimeEnd(true);
+            toast.error('Time is up! Please try again.');
+          },100)
+          
           return 100;
         }
         return prev + 1;
       });
     }, 100);
     
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval)
+    };
   }, []);
 
   return (
@@ -43,6 +50,15 @@ export default function LoadingComponent() {
             </div>
           </div>
         </div>
+        {/*  */}
+        {TimeEnd && (
+          <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-8"
+          onClick={() => window.location.href = '/student/upload'}
+          >
+           try again
+          </button>
+        )}
       </div>
     </div>
   );

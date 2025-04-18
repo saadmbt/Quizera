@@ -15,7 +15,7 @@ export default function QuizComplete({ score, totalQuestions, answers,onShowFlas
     ,onShowVideos, onshowQuestions}) {
   const scorePercentage = Math.round((score / totalQuestions) * 100);
   const isLowScore = scorePercentage < 70;
-  const incorrectanswers = answers.filter(answer => !answer.isCorrect).length;
+  const incorrectanswers =totalQuestions - score;
   const navigate = useNavigate();
   return (
     <div className="max-w-2xl mx-auto p-6">

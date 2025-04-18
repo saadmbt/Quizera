@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ChevronRight, Brain, Target, HelpCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -27,6 +27,7 @@ export default function QuizSetup({ onStartQuiz, lessonID}) {
   const [questionCount, setQuestionCount] = useState(10);
   const [selectedGroup, setSelectedGroup] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
   const navigate = useNavigate();
   const location = useLocation();
   const isProfessor = location.pathname.includes('professor');
@@ -44,11 +45,11 @@ export default function QuizSetup({ onStartQuiz, lessonID}) {
     
     try {
       if (isProfessor) {
-        await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 800)); 
         navigate('/professor/upload/quizpreview', { state: { quizData }});
       } else {
         onStartQuiz(quizData);
-        navigate('/Student/quiz');
+        navigate('/student/quiz');
       }
     } finally {
       setIsLoading(false);
