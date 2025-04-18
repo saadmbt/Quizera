@@ -99,10 +99,6 @@ def insert_Quizzes(Quiz_data):
     try:
         collection=db["quizzes"]
         quiz=Quiz_data
-        existing_quiz = collection.find_one({'id': quiz["id"]})
-        if existing_quiz:
-            return "error : quiz already exist"
-        # Quiz_data formt :{"questinId":,"questions":,"type":,"createdAt":,"updatedAt":}
         result=collection.insert_one(quiz)
         return result.inserted_id
     except PyMongoError as e :

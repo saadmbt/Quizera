@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId
 from functionsDB import (Fetch_Lesson,insert_Quizzes,lastID)
-from prompts_config import base_prompt
+from prompts_config import base_prompt ,flashcards_prompt
 # Load environment variables from .env file
 load_dotenv()
 mongodb_url=os.environ.get("MONGO_URL")  
@@ -71,6 +71,75 @@ def suggest_yt_videos(keywords):
             })
 
     return video_suggestions
+#  generation of flashcards based on the lesson content from the db using groq
+def generate_flashcards(lesson_id):
+    try:
+        lesson_id = ObjectId(lesson_id)
+        # Fetch the lesson from the database
+        lesson = Fetch_Lesson(lesson_id)
+        if not lesson:
+            raise ValueError("Lesson not found")
+        # Extract lesson content
+        content = lesson['content']
+        title = lesson['title']
+        if not title:
+            title = "Lesson Title"
+        if not content:
+            raise ValueError("Lesson content is empty")
+        if len(content) > 20000:
+            content = content[:12000]
+        # Generate flashcards using Groq API
+        prompt = flashcards_prompt.format(content=content)
+        # Appeler l'API Groq pour générer les questions
+
+        completion = groq_client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": "You are an expert flashcard generator."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1500,
+        )
+
+        # Afficher la réponse complète de l'API pour le débogage
+        Flashcards_text = completion.choices[0].message.content.strip()
+        # Parse the response to extract the list of Flashcards
+        try:
+            # Find the start and end of the JSON-like structure
+            start_index = Flashcards_text.find('[')
+            end_index = Flashcards_text.rfind(']') + 1
+
+            if start_index == -1 or end_index == 0:
+                raise ValueError("Invalid response format - no list found")
+            # Extract the JSON-like string
+            Flashcards_json = Flashcards_text[start_index:end_index]
+
+            # Parse the JSON-like string into a Python list of dictionaries
+            Flashcards = eval(Flashcards_json)
+            print(Flashcards)
+
+        except Exception as e:
+            print(f"Error parsing the response: {e}")
+            return None
+        # Insert flashcards into the database
+        flashcard = {
+            "title": title,
+            "generated_by": lesson['author'],
+            "questions": Flashcards,
+            "createdAt": datetime.now(),
+        }
+        inserted_flashcard_id = insert_Quizzes(flashcard)
+        if isinstance(inserted_flashcard_id, ObjectId):
+            print(f"Flashcards generated and inserted successfully. Flashcard ID: {str(inserted_flashcard_id)}")
+            flashcard["_id"] = str(inserted_flashcard_id)
+            return flashcard
+        else:
+            raise ValueError("Error inserting flashcards.")
+    except Exception as e:
+        print(f"Error generating flashcards: {e}")
+        return None
+
 
 # MongoDB collections for lessons and quizzes
 lessons_collection = db["lessons"]
@@ -109,7 +178,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             difficulty=difficulty,
             content=content
         )
-          # Appeler l'API Groq pour générer les questions
+        # Appeler l'API Groq pour générer les questions
         completion = groq_client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[

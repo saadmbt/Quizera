@@ -269,7 +269,16 @@ def fetch_quiz(quiz_id):
         return jsonify({"error": str(quiz)}), 404
 
     return jsonify(quiz), 200
-"""yet"""
+# flashcards and youtube suggestions endpoints
+@app.route('/api/flashcards/<lesson_id>', methods=['GET'])
+# @jwt_required()
+def get_flashcards(lesson_id):
+    try:
+        lesson_obj_id = ObjectId(lesson_id)
+    except Exception as e:
+        return jsonify({"error": "Invalid lesson_id"}), 400
+    # Fetch the lesson from the database
+        
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/<quiz_id>', methods=['GET'])
 # @jwt_required()
@@ -298,22 +307,8 @@ def create_quiz_results():
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
-    quiz_id = data["quiz_id"]
-    user_id = data["user_id"]
-    score = data["score"]
-    attempt_date = data["attempt_date"]
-    if not attempt_date:
-        attempt_date = datetime.now(timezone.utc).isoformat()
-    if not quiz_id or not user_id or not score:
-        return jsonify({"error": "Missing required parameters"}), 400
-    # function to create the quiz and insert it to the database and return the quiz id
-    quiz_result = {
-        "quiz_id": quiz_id,
-        "user_id": user_id,
-        "score": score,
-        "attempt_date": attempt_date,
-        "updatedAt": datetime.now(timezone.utc).isoformat()
-    }
+    quiz_result = data['result']
+    quiz_result["generated_by"]="get_jwt_identity()"
     # Insert the quiz result into the database
     quiz_result_id = Insert_Quiz_Results(quiz_result)
     if "error" in str(quiz_result_id).lower():
