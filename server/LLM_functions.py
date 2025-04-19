@@ -20,12 +20,21 @@ groq_client = Groq(
 )
 
 # take text and transform it to array of keywords for youtube video suggesting
-def generate_keywords(text):
+def generate_keywords(lesson_id):
+    lesson = Fetch_Lesson(lesson_id)
+    if not lesson:
+        raise ValueError("Lesson content is empty")
+    text = lesson['content']
+    if not text:
+        raise ValueError("Lesson content is empty")
+    if len(text) > 20000:
+        text = text[:9000]
+    # Generate keywords using Groq API
     try:
         completion = groq_client.chat.completions.create(
                     model="llama3-8b-8192",
                     messages=[
-                        {"role": "system", "content": "Given the following text, extract the most 3 relevant sentences or title that can be used to generate YouTube suggested videos. The response should only include the extracted sentence or title without any additional context or explanation or list formatting."},
+                        {"role": "system", "content": "Given the following text, extract the most 3 relevant sentences or title that can be used to generate YouTube suggested videos. The response should only include the extracted sentence or title without any additional context or explanation ,and the return must be a list formatting."},
                         {"role": "user","content":text} 
                     ],
                     temperature=1,
@@ -34,12 +43,14 @@ def generate_keywords(text):
         # Extract the content from the response 
         keywords = completion.choices[0].message.content.strip()
         # Convert the keywords string into a list 
-        resulat=[keyword.strip() for keyword in keywords.split(',')] if keywords else []
+        resulat=[keyword.strip() for keyword in keywords.split(',')] if keywords else None
+        if not resulat:
+            raise ValueError("No keywords generated")
         return (resulat)
     except Exception as e:
         return f"An error occurred while generating keywords: {e}"
     
-def suggest_yt_videos(keywords):
+def generate_youtube_suggestions(keywords):
     """
     Suggest YouTube videos based on the provided keywords.
     
@@ -58,7 +69,7 @@ def suggest_yt_videos(keywords):
         request = youtube.search().list(
             q=keyword,
             part="snippet",
-            maxResults=5,
+            maxResults=8,
             type="video"
         )
         response = request.execute()
@@ -67,6 +78,9 @@ def suggest_yt_videos(keywords):
             video_suggestions.append({
                 "title": item['snippet']['title'],
                 "video_id": item['id']['videoId'],
+                "channel_title": item['snippet']['channelTitle'],
+                "thumbnail": item['snippet']['thumbnails']['default']['url'],
+                "timestamp": item['snippet']['publishedAt'],
                 "url": f"https://www.youtube.com/watch?v={item['id']['videoId']}"
             })
 
@@ -122,20 +136,7 @@ def generate_flashcards(lesson_id):
         except Exception as e:
             print(f"Error parsing the response: {e}")
             return None
-        # Insert flashcards into the database
-        flashcard = {
-            "title": title,
-            "generated_by": lesson['author'],
-            "questions": Flashcards,
-            "createdAt": datetime.now(),
-        }
-        inserted_flashcard_id = insert_Quizzes(flashcard)
-        if isinstance(inserted_flashcard_id, ObjectId):
-            print(f"Flashcards generated and inserted successfully. Flashcard ID: {str(inserted_flashcard_id)}")
-            flashcard["_id"] = str(inserted_flashcard_id)
-            return flashcard
-        else:
-            raise ValueError("Error inserting flashcards.")
+        return Flashcards
     except Exception as e:
         print(f"Error generating flashcards: {e}")
         return None

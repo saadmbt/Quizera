@@ -11,7 +11,7 @@ from functionsDB import (
     fetch_all_lessons_by_user, Fetch_Quizzes,
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
     insert_group, add_student_to_group, get_group_by_code,
-    get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id
+    get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -20,7 +20,7 @@ from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import credentials, auth
 import tempfile
-from LLM_functions import generate_and_insert_questions 
+from LLM_functions import generate_and_insert_questions,generate_flashcards,generate_youtube_suggestions,generate_keywords
 from flask_cors import CORS
 import json
 
@@ -270,15 +270,50 @@ def fetch_quiz(quiz_id):
 
     return jsonify(quiz), 200
 # flashcards and youtube suggestions endpoints
-@app.route('/api/flashcards/<lesson_id>', methods=['GET'])
+
+@app.route('/api/flashcards/<lesson_id>/<quiz_ress_id>', methods=['GET'])
 # @jwt_required()
-def get_flashcards(lesson_id):
+def generate_flashcards(lesson_id, quiz_ress_id):
     try:
         lesson_obj_id = ObjectId(lesson_id)
+        quiz_res_id = ObjectId(quiz_ress_id)
+
+        flashcards =generate_flashcards(lesson_obj_id)
+        if flashcards is None:
+            return jsonify({"error": "Error generating flashcards"}), 400
+        # Insert the flashcard into the database
+        inserted_flashcard_id = Update_Quiz_Results(quiz_res_id,flashcards,"flashcards")
+        if isinstance(inserted_flashcard_id, ObjectId):
+            return jsonify({"flashcards":flashcards})
+        else:
+            raise ValueError("Error inserting flashcards.")
     except Exception as e:
         return jsonify({"error": "Invalid lesson_id"}), 400
-    # Fetch the lesson from the database
-        
+
+@app.route('/api/youtube/<lesson_id>/<quiz_ress_id>', methods=['GET'])
+# @jwt_required()
+def generate_yt_suggestions(lesson_id, quiz_ress_id):
+    """Generate YouTube suggestions for a given lesson ID and quiz result ID."""
+    try:
+        lesson_obj_id = ObjectId(lesson_id)
+        quiz_res_id = ObjectId(quiz_ress_id)
+        # Generate keywords using the lesson ID
+        keywords=generate_keywords(lesson_obj_id)
+        if keywords is None:
+            return jsonify({"error": "Error generating keywords"}), 400
+        # Generate YouTube suggestions
+        youtube_suggestions = generate_youtube_suggestions(keywords)
+        if youtube_suggestions is None:
+            return jsonify({"error": "Error generating YouTube suggestions"}), 400
+        # Insert the YouTube suggestions into the database
+        inserted_youtube_suggestions_id = Update_Quiz_Results(quiz_res_id,youtube_suggestions,"youtube")
+        if isinstance(inserted_youtube_suggestions_id, ObjectId):
+            return jsonify({"youtube_suggestions":youtube_suggestions})
+        else:
+            raise ValueError("Error inserting YouTube suggestions.")
+    except Exception as e:
+        return jsonify({"error": "Invalid lesson_id"}), 400
+    
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/<quiz_id>', methods=['GET'])
 # @jwt_required()
