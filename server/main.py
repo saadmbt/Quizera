@@ -273,11 +273,11 @@ def fetch_quiz(quiz_id):
 
 @app.route('/api/flashcards/<lesson_id>/<quiz_ress_id>', methods=['GET'])
 # @jwt_required()
-def generate_flashcards(lesson_id, quiz_ress_id):
+def generatee_flashcards(lesson_id, quiz_ress_id):
     try:
         lesson_obj_id = ObjectId(lesson_id)
         quiz_res_id = ObjectId(quiz_ress_id)
-
+        print(lesson_obj_id,quiz_res_id)
         flashcards =generate_flashcards(lesson_obj_id)
         if flashcards is None:
             return jsonify({"error": "Error generating flashcards"}), 400
@@ -288,12 +288,12 @@ def generate_flashcards(lesson_id, quiz_ress_id):
         else:
             raise ValueError("Error inserting flashcards.")
     except Exception as e:
-        return jsonify({"error": "Invalid lesson_id"}), 400
+        return jsonify({"error": str(e)}), 400
 
 @app.route('/api/youtube/<lesson_id>/<quiz_ress_id>', methods=['GET'])
 # @jwt_required()
 def generate_yt_suggestions(lesson_id, quiz_ress_id):
-    """Generate YouTube suggestions for a given lesson ID and quiz result ID."""
+    """ Generate YouTube suggestions for a given lesson ID and quiz result ID. """
     try:
         lesson_obj_id = ObjectId(lesson_id)
         quiz_res_id = ObjectId(quiz_ress_id)
@@ -312,7 +312,7 @@ def generate_yt_suggestions(lesson_id, quiz_ress_id):
         else:
             raise ValueError("Error inserting YouTube suggestions.")
     except Exception as e:
-        return jsonify({"error": "Invalid lesson_id"}), 400
+        return jsonify({"error": str(e)}), 400
     
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/<quiz_id>', methods=['GET'])

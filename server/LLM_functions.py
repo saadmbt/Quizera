@@ -2,6 +2,7 @@ import googleapiclient
 from groq import Groq
 from dotenv import load_dotenv
 import os
+import json
 from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId
@@ -85,62 +86,6 @@ def generate_youtube_suggestions(keywords):
             })
 
     return video_suggestions
-#  generation of flashcards based on the lesson content from the db using groq
-def generate_flashcards(lesson_id):
-    try:
-        lesson_id = ObjectId(lesson_id)
-        # Fetch the lesson from the database
-        lesson = Fetch_Lesson(lesson_id)
-        if not lesson:
-            raise ValueError("Lesson not found")
-        # Extract lesson content
-        content = lesson['content']
-        title = lesson['title']
-        if not title:
-            title = "Lesson Title"
-        if not content:
-            raise ValueError("Lesson content is empty")
-        if len(content) > 20000:
-            content = content[:12000]
-        # Generate flashcards using Groq API
-        prompt = flashcards_prompt.format(content=content)
-        # Appeler l'API Groq pour générer les questions
-
-        completion = groq_client.chat.completions.create(
-            model="llama3-8b-8192",
-            messages=[
-                {"role": "system", "content": "You are an expert flashcard generator."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=1500,
-        )
-
-        # Afficher la réponse complète de l'API pour le débogage
-        Flashcards_text = completion.choices[0].message.content.strip()
-        # Parse the response to extract the list of Flashcards
-        try:
-            # Find the start and end of the JSON-like structure
-            start_index = Flashcards_text.find('[')
-            end_index = Flashcards_text.rfind(']') + 1
-
-            if start_index == -1 or end_index == 0:
-                raise ValueError("Invalid response format - no list found")
-            # Extract the JSON-like string
-            Flashcards_json = Flashcards_text[start_index:end_index]
-
-            # Parse the JSON-like string into a Python list of dictionaries
-            Flashcards = eval(Flashcards_json)
-            print(Flashcards)
-
-        except Exception as e:
-            print(f"Error parsing the response: {e}")
-            return None
-        return Flashcards
-    except Exception as e:
-        print(f"Error generating flashcards: {e}")
-        return None
-
 
 # MongoDB collections for lessons and quizzes
 lessons_collection = db["lessons"]
@@ -231,4 +176,56 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             raise ValueError("Erreur lors de l'insertion du quiz.")
     except Exception as e:
         print(f"Erreur lors de la génération des questions : {e}")
+        return None
+
+def generate_flashcards(lesson_id):
+    """
+    Fetches a lesson by lesson_id,
+    sends it to the Groq API to generate flashcards based on the flashcards_prompt,
+    parses the result as a list, and returns it.
+    """
+    try:
+        if not isinstance(lesson_id, ObjectId):
+            lesson_id = ObjectId(lesson_id)
+        lesson = Fetch_Lesson(lesson_id)
+        if not lesson:
+            raise ValueError("Lesson not found")
+        content = lesson.get('content', '')
+        if not content:
+            raise ValueError("Lesson content is empty")
+        # Extract first 10000 characters
+        content_excerpt = content[:10000]
+        # Format prompt with content excerpt
+        prompt = flashcards_prompt.format(content=content_excerpt)
+        # Call Groq API
+        completion = groq_client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": "You are an expert flashcard generator."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1500,
+        )
+        response_text = completion.choices[0].message.content.strip()
+        print(response_text)
+        # Extract JSON list from response
+        start_index = response_text.find('[')
+        end_index = response_text.rfind(']') + 1
+        if start_index == -1 or end_index == 0:
+            raise ValueError("Invalid response format - no list found")
+        json_str = response_text[start_index:end_index]
+        flashcards = json.loads(json_str)
+        print(flashcards)
+        # Validate flashcards structure
+        if not isinstance(flashcards, list):
+            raise ValueError("Flashcards data is not a list")
+        for card in flashcards:
+            if not isinstance(card, dict):
+                raise ValueError("Each flashcard must be a dictionary")
+            if 'front' not in card or 'back' not in card:
+                raise ValueError("Flashcard missing 'front' or 'back' keys")
+        return flashcards
+    except Exception as e:
+        print(f"Error generating flashcards from lesson: {e}")
         return None
