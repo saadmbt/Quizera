@@ -13,7 +13,7 @@ mongodb_name=os.environ.get("MONGO_DB")
 # Connect to MongoDB
 client = MongoClient(mongodb_url)
 db = client[mongodb_name]
-groups_collection = db['groups']
+groups_collection = db["groups"]
 user = db["users"]
 
 # get the last id in any collection 
@@ -133,16 +133,16 @@ def Update_Quiz_Results(Quiz_res_id, data,type):
         # Update the quiz result with the flashcards array
         if type=="youtube":
             result = collection.update_one(
-                {"_id": Quiz_res_id},
+                {"_id": ObjectId(Quiz_res_id)},
                 {"$set": {"youtube": data}}
             )
         else:
             result = collection.update_one(
-                {"_id": Quiz_res_id},
+                {"_id": ObjectId(Quiz_res_id)},
                 {"$set": {"flashcards": data}}
             )
         if result.modified_count > 0:
-            return result.upserted_id
+            return ObjectId(Quiz_res_id)
         else:
             return None
     except PyMongoError as e:

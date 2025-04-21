@@ -29,11 +29,11 @@ CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DEL
 
 # Load credentials from environment variables
 load_dotenv()
-# Load the service account key from the environment variable
-service_account_key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
-# Initialize Firebase Admin
-cred = credentials.Certificate(service_account_key) 
-firebase_admin.initialize_app(cred)
+# # Load the service account key from the environment variable
+# service_account_key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
+# # Initialize Firebase Admin
+# cred = credentials.Certificate(service_account_key) 
+# firebase_admin.initialize_app(cred)
 
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_TOKEN_SECRET')
@@ -297,15 +297,19 @@ def generate_yt_suggestions(lesson_id, quiz_ress_id):
     try:
         lesson_obj_id = ObjectId(lesson_id)
         quiz_res_id = ObjectId(quiz_ress_id)
+
         # Generate keywords using the lesson ID
-        keywords=generate_keywords(lesson_obj_id)
-        if keywords is None:
-            return jsonify({"error": "Error generating keywords"}), 400
+        keywords = generate_keywords(lesson_obj_id)
+        if keywords is None or isinstance(keywords, str):
+            return jsonify({"error": f"Error generating keywords: {keywords}"}), 400
+        
         # Generate YouTube suggestions
         youtube_suggestions = generate_youtube_suggestions(keywords)
-        if youtube_suggestions is None:
-            return jsonify({"error": "Error generating YouTube suggestions"}), 400
-        # Insert the YouTube suggestions into the database
+        if youtube_suggestions is None or isinstance(youtube_suggestions, (list, dict)):
+            return jsonify({"error": f"Error generating YouTube suggestions: {youtube_suggestions}"}), 400
+        print(youtube_suggestions)
+        
+        # Insert the YouTube suggestions into the database 
         inserted_youtube_suggestions_id = Update_Quiz_Results(quiz_res_id,youtube_suggestions,"youtube")
         if isinstance(inserted_youtube_suggestions_id, ObjectId):
             return jsonify({"youtube_suggestions":youtube_suggestions})
@@ -582,4 +586,4 @@ def hello_world():
     return "Hello, World!"
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

@@ -1,3 +1,20 @@
+keywords_prompt="""
+    You are a content strategist. Based on the following text, identify the **5 most important educational concepts or topics** that would make compelling YouTube video suggestions.
+
+    Your task:
+    - Extract exactly 5 suggestions as **YouTube video title ideas**
+    - Each suggestion must be **5-10 words long**
+    - Titles must be **clear, concise, and instructional**
+    - Focus only on **educational or tutorial-style content**
+    - Use natural phrasing that sounds like actual YouTube videos
+    - Do **not** include any explanations or extra text
+    - Output the result as a **valid JSON list of strings**
+    - Return **only** the list, with nothing before or after
+
+    Format:
+    ["Title 1", "Title 2", "Title 3", "Title 4", "Title 5"]
+
+"""
 flashcards_prompt = """
     You are an expert flashcard generator. Based on the following content, generate 10 flashcards.
     Content: {content}
@@ -9,12 +26,7 @@ flashcards_prompt = """
     - Ensure that the questions vary in difficulty and cover different aspects of the content.
     Output Format:
     Return a valid Python list of dictionaries as shown below:
-    [
-        {
-            "front": "Flashcard question",
-            "back": "Flashcard answer",
-        }
-    ]
+    [{{"front": "Flashcard question","back": "Flashcard answer",}}]
 """
 
 base_prompt = {
