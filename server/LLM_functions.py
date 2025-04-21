@@ -241,7 +241,6 @@ def generate_flashcards(lesson_id):
             max_tokens=1500,
         )
         response_text = completion.choices[0].message.content.strip()
-        print(response_text)
         # Extract JSON list from response
         start_index = response_text.find('[')
         end_index = response_text.rfind(']') + 1
@@ -249,7 +248,7 @@ def generate_flashcards(lesson_id):
             raise ValueError("Invalid response format - no list found")
         json_str = response_text[start_index:end_index]
         flashcards = json.loads(json_str)
-        print(flashcards)
+        print(len(flashcards))
         # Validate flashcards structure
         if not isinstance(flashcards, list):
             raise ValueError("Flashcards data is not a list")

@@ -305,7 +305,7 @@ def generate_yt_suggestions(lesson_id, quiz_ress_id):
         
         # Generate YouTube suggestions
         youtube_suggestions = generate_youtube_suggestions(keywords)
-        if youtube_suggestions is None or isinstance(youtube_suggestions, (list, dict)):
+        if youtube_suggestions is None or not isinstance(youtube_suggestions, (list, dict)):
             return jsonify({"error": f"Error generating YouTube suggestions: {youtube_suggestions}"}), 400
         print(youtube_suggestions)
         
