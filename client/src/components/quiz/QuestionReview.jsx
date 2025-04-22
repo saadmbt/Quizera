@@ -1,56 +1,7 @@
 import { ArrowLeft, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 import React, { useState } from 'react'
-const answers = [
-    {
-      question: "What is the capital of France?",
-      selectedAnswer: "Paris",
-      correctAnswer: "Paris",
-      isCorrect: true,
-      time: 4,
-      explanation: "Paris is the capital and most populous city of France, with an estimated population of 2.1 million residents."
-    },
-    {
-      question: "Which planet is known as the Red Planet?",
-      selectedAnswer: "Venus",
-      correctAnswer: "Mars",
-      isCorrect: false,
-      time: 6,
-      explanation: "Mars is called the Red Planet because of the reddish appearance given by iron oxide (rust) on its surface."
-    },
-    {
-      question: "What is 7 × 8?",
-      selectedAnswer: "56",
-      correctAnswer: "56",
-      isCorrect: true,
-      time: 3,
-      explanation: "Multiplying 7 by 8 equals 56."
-    },
-    {
-      question: "Who wrote 'Romeo and Juliet'?",
-      selectedAnswer: "William Shakespeare",
-      correctAnswer: "William Shakespeare",
-      isCorrect: true,
-      time: 2,
-      explanation: "William Shakespeare wrote the tragedy 'Romeo and Juliet' around 1595."
-    },
-    {
-      question: "Which element has the chemical symbol 'O'?",
-      selectedAnswer: "Gold",
-      correctAnswer: "Oxygen",
-      isCorrect: false,
-      time: 5,
-      explanation: "Oxygen has the chemical symbol 'O'. Gold's chemical symbol is 'Au'."
-    },
-    {
-      question: "What is the largest mammal on Earth?",
-      selectedAnswer: "Blue Whale",
-      correctAnswer: "Blue Whale",
-      isCorrect: true,
-      time: 4,
-      explanation: "The Blue Whale is the largest animal known to have ever existed, reaching lengths of up to 30 meters."
-    }
-  ];
-function QuestionReview({onBack}) {
+
+function QuestionReview({answers,onBack}) {
     const [showAll, setShowAll] = useState(false);
     const [expandedExplanations, setExpandedExplanations] = useState([]);
 
@@ -62,7 +13,7 @@ function QuestionReview({onBack}) {
     );
   };
   return (
-    <div>
+    <div className="max-w-4xl mx-auto p-6">
         <div className="mb-6 flex items-center justify-between">
                 <button
                 onClick={onBack}
@@ -105,7 +56,7 @@ function QuestionReview({onBack}) {
                         <div>
                         <p className="text-gray-700">
                             <span className="font-medium">Your answer: </span> 
-                            {answer.selectedAnswer}
+                            {answer.userAnswer}
                         </p>
                         {!answer.isCorrect && answer.correctAnswer && (
                             <p className="text-gray-700 mt-1">

@@ -1,3 +1,34 @@
+keywords_prompt="""
+    You are a content strategist. Based on the following text, identify the **5 most important educational concepts or topics** that would make compelling YouTube video suggestions.
+
+    Your task:
+    - Extract exactly 5 suggestions as **YouTube video title ideas**
+    - Each suggestion must be **5-10 words long**
+    - Titles must be **clear, concise, and instructional**
+    - Focus only on **educational or tutorial-style content**
+    - Use natural phrasing that sounds like actual YouTube videos
+    - Do **not** include any explanations or extra text
+    - Output the result as a **valid JSON list of strings**
+    - Return **only** the list, with nothing before or after
+
+    Format:
+    ["Title 1", "Title 2", "Title 3", "Title 4", "Title 5"]
+
+"""
+flashcards_prompt = """
+    You are an expert flashcard generator. Based on the following content, generate 10 flashcards.
+    Content: {content}
+    Guidelines:
+    - Each flashcard should contain a question and an answer.
+    - The question should be clear and concise, directly related to the content.
+    - The answer should provide a complete and accurate response to the question.
+    - Use the same language as the content.
+    - Ensure that the questions vary in difficulty and cover different aspects of the content.
+    Output Format:
+    Return a valid Python list of dictionaries as shown below:
+    [{{"front": "Flashcard question","back": "Flashcard answer",}}]
+"""
+
 base_prompt = {
     "multiple-choice": """
         You are an expert question generator. Based on the following content, generate {num} {difficulty} **multiple-choice questions**.Content:{content}
@@ -50,6 +81,6 @@ base_prompt = {
         - Use the same language as the content.
         Output Format:
         Return a valid Python list of dictionaries in the format below:
-        [{{"question": "This is a sentence with ___ to be filled.","blanks": ["___"],"answers": ["Correct term or phrase","fasle answers",...],"correctanswer": "Correct term or phrase","explanation": "Explain why this is the correct answer."}}]
+        [{{"question": "This is a sentence with ___ to be filled.","blanks": ["___"],"answers": ["Correct term or phrase","fasle answers",...],"correctanswer": "Correct term or phrase","explanation": "Brief explanation of why the answer is correct."}}]
     """
 }

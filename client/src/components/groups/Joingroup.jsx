@@ -82,7 +82,7 @@ const JoinGroup = () => {
       );
       
       toast.success('Successfully joined group');
-      navigate('/Student/groups');  // Remove the /1 to go to the main groups page
+      navigate('/Student/groups');  
     } catch (error) {
       console.error('Join error:', error);
       toast.error(error.response?.data?.error || 'Failed to join group');

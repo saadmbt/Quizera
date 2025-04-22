@@ -64,3 +64,21 @@ export const generateQuiz = async (quizsetup) => {
       throw error;
     }
 }
+// save the quiz result to the database 
+export const saveQuizResult = async (result) => {
+  try {
+    const response = await axios.post("https://prepgenius-backend.vercel.app/api/quiz_results/insert",{result}, {
+        headers: {
+          'Content-Type': 'application/json',
+          // "Authorization": `Bearer ${token}`
+        },
+      });
+    // Log the response for debugging
+    console.log('Quiz result saved:', response.data);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Error saving quiz result:", error);
+    throw error;
+  }
+}

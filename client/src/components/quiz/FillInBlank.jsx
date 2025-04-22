@@ -9,11 +9,9 @@ import { GripHorizontal } from 'lucide-react';
 // }
 
 export default function FillInBlank({ question, answers, blanks, onAnswer }) {
-  // console.log(question);
-  // console.log(answers);
-  // console.log(blanks);
   const [draggedItem, setDraggedItem] = useState(null);
   const [filledBlanks, setFilledBlanks] = useState(new Array(blanks.length).fill(''));
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const handleDragStart = (e, answer) => {
     setDraggedItem(answer);
@@ -36,16 +34,31 @@ export default function FillInBlank({ question, answers, blanks, onAnswer }) {
 
   const handleDrop = (e, index) => {
     e.preventDefault();
-    e.currentTarget.classList.remove('bg-blue-100', 'dark:bg-blue-900/20');
+    e.currentTarget.classList.remove('bg-blue-100');
     
     if (draggedItem) {
       const newFilledBlanks = [...filledBlanks];
       newFilledBlanks[index] = draggedItem;
       setFilledBlanks(newFilledBlanks);
 
-      if (newFilledBlanks.every(blank => blank !== '')) {
-        onAnswer(newFilledBlanks.join(','));
+      // Check if all blanks are filled and unique
+      if (newFilledBlanks.every(blank => blank !== '') && 
+          new Set(newFilledBlanks).size === newFilledBlanks.length) {
+        setIsCompleted(true);
+        // if all blanks are filled and unique, call the onAnswer function
+
       }
+    }
+  };
+
+  const handleNext = () => {
+    if (isCompleted) {
+      // Call the onAnswer function with the filled blanks
+      console.log(filledBlanks.join(','))
+      onAnswer(filledBlanks.join(','));
+      // Reset the state for next question
+      setFilledBlanks(new Array(blanks.length).fill(''));
+      setIsCompleted(false);
     }
   };
 
@@ -74,12 +87,24 @@ export default function FillInBlank({ question, answers, blanks, onAnswer }) {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, index)}
-            className="p-4 border-2 border-dashed border-gray-300  rounded-lg min-h-[3rem] flex items-center justify-center"
+            className="p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[3rem] flex items-center justify-center"
           >
             {filledBlanks[index] || 'Drop answer here'}
           </div>
         ))}
       </div>
+
+      <button
+        onClick={handleNext}
+        disabled={!isCompleted}
+        className={`mt-4 px-6 py-2 rounded-lg ${
+          isCompleted 
+            ? 'bg-blue-500 text-white hover:bg-blue-600' 
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+        }`}
+      >
+        Next
+      </button>
     </div>
   );
 }

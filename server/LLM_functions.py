@@ -1,31 +1,53 @@
-import googleapiclient
-from groq import Groq
+import googleapiclient.discovery 
+from  groq import Groq
 from dotenv import load_dotenv
 import os
+import json
 from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId
 from functionsDB import (Fetch_Lesson,insert_Quizzes,lastID)
-from prompts_config import base_prompt
+from prompts_config import base_prompt ,flashcards_prompt,keywords_prompt
 # Load environment variables from .env file
 load_dotenv()
 mongodb_url=os.environ.get("MONGO_URL")  
 mongodb_name=os.environ.get("MONGO_DB")
+
 # Connect to MongoDB
 client = MongoClient(mongodb_url)
 db = client[mongodb_name]
+
+# MongoDB collections for lessons and quizzes
+lessons_collection = db["lessons"]
+quizzes_collection = db["quizzes"]
+
 
 groq_client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),  
 )
 
 # take text and transform it to array of keywords for youtube video suggesting
-def generate_keywords(text):
+def generate_keywords(lesson_id):
+    lesson = Fetch_Lesson(lesson_id)
+    # check if the lesson has  error string "error"
+    if isinstance(lesson, str) and "error" in lesson.lower():
+        raise ValueError("Lesson content is empty :" + lesson)
+    if not lesson  :
+        raise ValueError("Lesson content is empty")
+    
+    text = lesson["content"]
+    if not text:
+        raise ValueError("Lesson content is empty")
+    if len(text) > 20000:
+        text = text[:9000]
+    
+    # Generate keywords using Groq API
+
     try:
         completion = groq_client.chat.completions.create(
                     model="llama3-8b-8192",
                     messages=[
-                        {"role": "system", "content": "Given the following text, extract the most 3 relevant sentences or title that can be used to generate YouTube suggested videos. The response should only include the extracted sentence or title without any additional context or explanation or list formatting."},
+                        {"role": "system", "content": keywords_prompt},
                         {"role": "user","content":text} 
                     ],
                     temperature=1,
@@ -33,13 +55,38 @@ def generate_keywords(text):
                 
         # Extract the content from the response 
         keywords = completion.choices[0].message.content.strip()
-        # Convert the keywords string into a list 
-        resulat=[keyword.strip() for keyword in keywords.split(',')] if keywords else []
-        return (resulat)
+        try:
+            # Clean and validate response
+            keywords = keywords.strip()
+            
+            # Find the JSON array in the response
+            start_index = keywords.find('[')
+            end_index = keywords.rfind(']') + 1
+            
+            if start_index == -1 or end_index <= 0:
+                raise ValueError("No valid JSON array found in response")
+            
+            # Extract and parse JSON
+            keywords_json = keywords[start_index:end_index]
+            result = json.loads(keywords_json)
+            
+            # Validate result
+            if not isinstance(result, list):
+                raise ValueError("Response is not a list")
+            if not all(isinstance(item, str) for item in result):
+                raise ValueError("Not all items in response are strings")
+            
+            return result
+
+        except json.JSONDecodeError as e:
+            return f"JSON parsing error: {e}"
+        except Exception as e:
+            return f"Error processing keywords: {e}"
+
     except Exception as e:
-        return f"An error occurred while generating keywords: {e}"
+        return f"API error: {e}"
     
-def suggest_yt_videos(keywords):
+def generate_youtube_suggestions(keywords):
     """
     Suggest YouTube videos based on the provided keywords.
     
@@ -50,6 +97,9 @@ def suggest_yt_videos(keywords):
         list: A list of YouTube video suggestions.
     """
     api_key = os.environ.get('YOUTUBE_API_KEY')
+    if not api_key:
+        raise ValueError("YOUTUBE_API_KEY environment variable is not set or is empty")
+    # Build the YouTube API client
     youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=api_key)
     
     video_suggestions = []
@@ -58,23 +108,22 @@ def suggest_yt_videos(keywords):
         request = youtube.search().list(
             q=keyword,
             part="snippet",
-            maxResults=5,
+            maxResults=2,
             type="video"
         )
         response = request.execute()
-        
         for item in response['items']:
             video_suggestions.append({
                 "title": item['snippet']['title'],
                 "video_id": item['id']['videoId'],
+                "channel_title": item['snippet']['channelTitle'],
+                "thumbnail": item['snippet']['thumbnails']['default']['url'],
+                "timestamp": item['snippet']['publishedAt'],
                 "url": f"https://www.youtube.com/watch?v={item['id']['videoId']}"
             })
-
+    print(video_suggestions)    
     return video_suggestions
 
-# MongoDB collections for lessons and quizzes
-lessons_collection = db["lessons"]
-quizzes_collection = db["quizzes"]
 
 def generate_and_insert_questions(lesson_id, question_type, num_questions, difficulty):
     """Reads a lesson from MongoDB, generates questions using the Groq API,
@@ -109,7 +158,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             difficulty=difficulty,
             content=content
         )
-          # Appeler l'API Groq pour générer les questions
+        # Appeler l'API Groq pour générer les questions
         completion = groq_client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[
@@ -134,7 +183,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             questions_json = questions_text[start_index:end_index]
 
             # Parse the JSON-like string into a Python list of dictionaries
-            questions = eval(questions_json)
+            questions = json.loads(questions_json)
             print(questions)
 
         except Exception as e:
@@ -161,4 +210,54 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             raise ValueError("Erreur lors de l'insertion du quiz.")
     except Exception as e:
         print(f"Erreur lors de la génération des questions : {e}")
+        return None
+
+def generate_flashcards(lesson_id):
+    """
+    Fetches a lesson by lesson_id,
+    sends it to the Groq API to generate flashcards based on the flashcards_prompt,
+    parses the result as a list, and returns it.
+    """
+    try:
+        lesson_id = ObjectId(lesson_id)
+        lesson = Fetch_Lesson(lesson_id)
+        if not lesson:
+            raise ValueError("Lesson not found")
+        content = lesson.get('content')
+        if not content:
+            raise ValueError("Lesson content is empty")
+        # Extract first 10000 characters
+        content_excerpt = content[:10000]
+        # Format prompt with content excerpt
+        prompt = flashcards_prompt.format(content=content_excerpt)
+        # Call Groq API
+        completion = groq_client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": "You are an expert flashcard generator."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1500,
+        )
+        response_text = completion.choices[0].message.content.strip()
+        # Extract JSON list from response
+        start_index = response_text.find('[')
+        end_index = response_text.rfind(']') + 1
+        if start_index == -1 or end_index == 0:
+            raise ValueError("Invalid response format - no list found")
+        json_str = response_text[start_index:end_index]
+        flashcards = json.loads(json_str)
+        print(len(flashcards))
+        # Validate flashcards structure
+        if not isinstance(flashcards, list):
+            raise ValueError("Flashcards data is not a list")
+        for card in flashcards:
+            if not isinstance(card, dict):
+                raise ValueError("Each flashcard must be a dictionary")
+            if 'front' not in card or 'back' not in card:
+                raise ValueError("Flashcard missing 'front' or 'back' keys")
+        return flashcards
+    except Exception as e:
+        print(f"Error generating flashcards from lesson: {e}")
         return None

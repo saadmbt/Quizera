@@ -11,7 +11,7 @@ from functionsDB import (
     fetch_all_lessons_by_user, Fetch_Quizzes,
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
     insert_group, add_student_to_group, get_group_by_code,
-    get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id
+    get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -20,7 +20,7 @@ from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import credentials, auth
 import tempfile
-from LLM_functions import generate_and_insert_questions 
+from LLM_functions import generate_and_insert_questions,generate_flashcards,generate_youtube_suggestions,generate_keywords
 from flask_cors import CORS
 import json
 
@@ -29,11 +29,11 @@ CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DEL
 
 # Load credentials from environment variables
 load_dotenv()
-# Load the service account key from the environment variable
-service_account_key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
-# Initialize Firebase Admin
-cred = credentials.Certificate(service_account_key) 
-firebase_admin.initialize_app(cred)
+# # Load the service account key from the environment variable
+# service_account_key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
+# # Initialize Firebase Admin
+# cred = credentials.Certificate(service_account_key) 
+# firebase_admin.initialize_app(cred)
 
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_TOKEN_SECRET')
@@ -269,7 +269,55 @@ def fetch_quiz(quiz_id):
         return jsonify({"error": str(quiz)}), 404
 
     return jsonify(quiz), 200
-"""yet"""
+# flashcards and youtube suggestions endpoints
+
+@app.route('/api/flashcards/<lesson_id>/<quiz_ress_id>', methods=['GET'])
+# @jwt_required()
+def generatee_flashcards(lesson_id, quiz_ress_id):
+    try:
+        lesson_obj_id = ObjectId(lesson_id)
+        quiz_res_id = ObjectId(quiz_ress_id)
+        print(lesson_obj_id,quiz_res_id)
+        flashcards =generate_flashcards(lesson_obj_id)
+        if flashcards is None:
+            return jsonify({"error": "Error generating flashcards"}), 400
+        # Insert the flashcard into the database
+        inserted_flashcard_id = Update_Quiz_Results(quiz_res_id,flashcards,"flashcards")
+        if isinstance(inserted_flashcard_id, ObjectId):
+            return jsonify({"flashcards":flashcards})
+        else:
+            raise ValueError("Error inserting flashcards.")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/api/youtube/<lesson_id>/<quiz_ress_id>', methods=['GET'])
+# @jwt_required()
+def generate_yt_suggestions(lesson_id, quiz_ress_id):
+    """ Generate YouTube suggestions for a given lesson ID and quiz result ID. """
+    try:
+        lesson_obj_id = ObjectId(lesson_id)
+        quiz_res_id = ObjectId(quiz_ress_id)
+
+        # Generate keywords using the lesson ID
+        keywords = generate_keywords(lesson_obj_id)
+        if keywords is None or isinstance(keywords, str):
+            return jsonify({"error": f"Error generating keywords: {keywords}"}), 400
+        
+        # Generate YouTube suggestions
+        youtube_suggestions = generate_youtube_suggestions(keywords)
+        if youtube_suggestions is None or not isinstance(youtube_suggestions, (list, dict)):
+            return jsonify({"error": f"Error generating YouTube suggestions: {youtube_suggestions}"}), 400
+        print(youtube_suggestions)
+        
+        # Insert the YouTube suggestions into the database 
+        inserted_youtube_suggestions_id = Update_Quiz_Results(quiz_res_id,youtube_suggestions,"youtube")
+        if isinstance(inserted_youtube_suggestions_id, ObjectId):
+            return jsonify({"youtube_suggestions":youtube_suggestions})
+        else:
+            raise ValueError("Error inserting YouTube suggestions.")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/<quiz_id>', methods=['GET'])
 # @jwt_required()
@@ -298,22 +346,8 @@ def create_quiz_results():
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
-    quiz_id = data["quiz_id"]
-    user_id = data["user_id"]
-    score = data["score"]
-    attempt_date = data["attempt_date"]
-    if not attempt_date:
-        attempt_date = datetime.now(timezone.utc).isoformat()
-    if not quiz_id or not user_id or not score:
-        return jsonify({"error": "Missing required parameters"}), 400
-    # function to create the quiz and insert it to the database and return the quiz id
-    quiz_result = {
-        "quiz_id": quiz_id,
-        "user_id": user_id,
-        "score": score,
-        "attempt_date": attempt_date,
-        "updatedAt": datetime.now(timezone.utc).isoformat()
-    }
+    quiz_result = data['result']
+    quiz_result["generated_by"]="get_jwt_identity()"
     # Insert the quiz result into the database
     quiz_result_id = Insert_Quiz_Results(quiz_result)
     if "error" in str(quiz_result_id).lower():
@@ -552,4 +586,4 @@ def hello_world():
     return "Hello, World!"
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

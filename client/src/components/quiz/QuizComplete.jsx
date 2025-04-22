@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArrowLeft, BarChart, Brain, ChevronRight, Share, Share2, Youtube } from 'lucide-react';
 import ScoreSummary from '../dashboard/ScoreSummary';
 import { useNavigate } from 'react-router-dom';
-
+import toast from 'react-hot-toast';
+import {saveQuizResult} from '../../services/StudentService';
 //  Props {
 //   score: number;
 //   totalQuestions: number;
@@ -11,12 +12,50 @@ import { useNavigate } from 'react-router-dom';
 //   onShowVideos: () => function;
 // }
 
-export default function QuizComplete({ score, totalQuestions, answers,onShowFlashcards
+export default function QuizComplete({ quizResult, score, totalQuestions, answers,onShowFlashcards
     ,onShowVideos, onshowQuestions}) {
   const scorePercentage = Math.round((score / totalQuestions) * 100);
   const isLowScore = scorePercentage < 70;
-  const incorrectanswers = answers.filter(answer => !answer.isCorrect).length;
+  const incorrectanswers =totalQuestions - score;
   const navigate = useNavigate();
+  // const onShareQuiz = () => {
+  //   useEffect(() => {
+  //     if (isLowScore) {
+  //       // Show recommendations for improvement
+  //       console.log('Recommendations for improvement shown');
+  //     }
+  //     }, [isLowScore]);
+  // }
+    useEffect(() => {
+      // Save quiz result to the backend
+      saveQuizResult(quizResult).then(() => {
+      console.log('Quiz result saved successfully');
+      }).catch((error) => {
+      console.error('Error saving quiz result:', error);
+      });
+
+      }, [quizResult]);
+
+    // // Share quiz result 
+    // const quizLink = `https://example.com/quiz/${quizResult.id}`;
+    // const shareText = `I scored ${scorePercentage}% on the quiz!`;
+    // const shareData = {
+    //   title: 'Quiz Result',
+    //   text: shareText,
+    //   url: quizLink
+    //   };  
+    
+    
+    // Copy the quiz link to clipboard
+    // navigator.clipboard.writeText(quizLink)
+    //   .then(() => {
+    //     toast.success('Quiz link copied to clipboard');
+    //   })
+    //   .catch(err => {
+    //     toast.error('Failed to copy quiz link');
+    //     console.error('Failed to copy quiz link: ', err);
+    //   });
+    
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg p-6 space-y-8">

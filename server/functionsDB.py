@@ -13,7 +13,7 @@ mongodb_name=os.environ.get("MONGO_DB")
 # Connect to MongoDB
 client = MongoClient(mongodb_url)
 db = client[mongodb_name]
-groups_collection = db['groups']
+groups_collection = db["groups"]
 user = db["users"]
 
 # get the last id in any collection 
@@ -99,10 +99,6 @@ def insert_Quizzes(Quiz_data):
     try:
         collection=db["quizzes"]
         quiz=Quiz_data
-        existing_quiz = collection.find_one({'id': quiz["id"]})
-        if existing_quiz:
-            return "error : quiz already exist"
-        # Quiz_data formt :{"questinId":,"questions":,"type":,"createdAt":,"updatedAt":}
         result=collection.insert_one(quiz)
         return result.inserted_id
     except PyMongoError as e :
@@ -124,15 +120,34 @@ def Insert_Quiz_Results(Quiz_res):
     try:
         collection=db["quizzResult"]
         quizzResult=Quiz_res
-        existing_quiz = collection.find_one({'id': quizzResult["id"]})
-        if existing_quiz:
-            return "error : quizResult already exist"
         #Quiz_res formt should be like : {"userId":,"quizId":,"score":,"attemptDate":,"updatedAt":}
         result=collection.insert_one(quizzResult)
         return result.inserted_id
     except PyMongoError as e:
         return f"Error: inserting quiz result {str(e)}"
-
+    
+# update quiz result with flashcards and youtube videos array  
+def Update_Quiz_Results(Quiz_res_id, data,type):
+    try:
+        collection=db["quizzResult"]
+        # Update the quiz result with the flashcards array
+        if type=="youtube":
+            result = collection.update_one(
+                {"_id": ObjectId(Quiz_res_id)},
+                {"$set": {"youtube": data}}
+            )
+        else:
+            result = collection.update_one(
+                {"_id": ObjectId(Quiz_res_id)},
+                {"$set": {"flashcards": data}}
+            )
+        if result.modified_count > 0:
+            return ObjectId(Quiz_res_id)
+        else:
+            return None
+    except PyMongoError as e:
+        return f"Error updating quiz result: {str(e)}"
+    
 def Fetch_Quiz_Results(Quiz_res_id):
     try :
         collection=db["quizzResult"]
@@ -143,6 +158,17 @@ def Fetch_Quiz_Results(Quiz_res_id):
             return quiz_res
     except PyMongoError as e :
         return f"Error fetching quiz result :{str(e)}" 
+# fetch all quiz results for a specific user
+def Fetch_Quiz_Results_by_user(user_id):
+    try :
+        collection=db["quizzResult"]
+        quiz_res=list(collection.find({"userId":user_id}))
+        for quiz in quiz_res:
+            quiz["_id"]=str(quiz["_id"])
+        return quiz_res
+    except PyMongoError as e :
+        return f"Error fetching quiz result :{str(e)}"
+    
 def insert_group(group_data):
     """insert a new group"""
     try:
