@@ -456,7 +456,6 @@ def generate_invite_link():
 
 # Join a group
 @app.route('/api/groups/join', methods=['POST'])
-@jwt_required()
 def join_group():
     try:
         data = request.get_json()
