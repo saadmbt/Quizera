@@ -82,3 +82,41 @@ export const saveQuizResult = async (result) => {
     throw error;
   }
 }
+// generate flashcards 
+export const generateFlashcards = async (lesson_id,quiz_ress_id) => {
+  try {
+    const response = await axios.get(`https://prepgenius-backend.vercel.app/api/flashcards/${lesson_id}/${quiz_ress_id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        // "Authorization": `Bearer ${token}`
+      },
+    });
+    // Log the response for debugging
+    console.log('Flashcards generateed:', response.data);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Error generating flashcards:", error);
+    throw error;
+  }
+}
+// fetch the videos from the backend
+
+export const fetchVideos = async (lesson_id,quiz_ress_id)  => {
+  try {
+    const response = await axios.get(`https://prepgenius-backend.vercel.app/api/youtube/${lesson_id}/${quiz_ress_id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        // "Authorization": `Bearer ${token}`
+      },
+    });
+    // Log the response for debugging
+    console.log('Videos fetched:', response.data);
+    return response.data;
+
+  }
+  catch (error) {
+    console.error("Error fetching videos:", error);
+    throw error;
+  }
+}

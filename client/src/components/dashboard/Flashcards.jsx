@@ -5,13 +5,7 @@ import { Layers, BookOpen, ArrowLeft } from 'lucide-react';
 //   onBack: () => function;
 // }
 
-export default function Flashcards({onBack }) {
-  // Mock flashcards based on keywords
-  const flashcards = [
-    { front: "What is the capital of France?", back: "Paris" },
-    { front: "Which planet is known as the Red Planet?", back: "Mars" },
-    { front: "What is the largest ocean on Earth?", back: "Pacific Ocean" },
-  ];
+export default function Flashcards({flashcards =[],onBack }) {
 
   const [currentCard, setCurrentCard] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -26,6 +20,27 @@ export default function Flashcards({onBack }) {
     setCurrentCard((prev) => (prev - 1 + flashcards.length) % flashcards.length);
   };
 
+   // If flashcards array is empty, show message
+   if (!flashcards.length) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <button
+          onClick={onBack}
+          className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Back to Results
+        </button>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center">
+          <h2 className="text-xl font-medium text-yellow-800 mb-2">No Flashcards Available</h2>
+          <p className="text-yellow-700">
+            It seems there are no flashcards generated yet. Try creating some new ones or check back later.
+          </p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6 flex items-center justify-between">

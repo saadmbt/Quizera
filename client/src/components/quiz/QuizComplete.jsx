@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, BarChart, Brain, ChevronRight, Share, Share2, Youtube } from 'lucide-react';
 import ScoreSummary from '../dashboard/ScoreSummary';
 import { useNavigate } from 'react-router-dom';
@@ -12,29 +12,41 @@ import {saveQuizResult} from '../../services/StudentService';
 //   onShowVideos: () => function;
 // }
 
-export default function QuizComplete({ quizResult, score, totalQuestions, answers,onShowFlashcards
-    ,onShowVideos, onshowQuestions}) {
+export default function QuizComplete({ quizResult, score, totalQuestions,onShowFlashcards
+    ,onShowVideos, onshowQuestions ,getquiz_resualt_id}) {
+
+  const [quiz_res_id,setquiz_res_id]=useState(null)
+
   const scorePercentage = Math.round((score / totalQuestions) * 100);
   const isLowScore = scorePercentage < 70;
   const incorrectanswers =totalQuestions - score;
   const navigate = useNavigate();
+  // add a varible in localstorage to check if the quiz result is saved  or not
+  const isResultSavedIn = JSON.parse(localStorage.getItem('isResultSaved'));
+  console.log(isResultSavedIn)
   // const onShareQuiz = () => {
-  //   useEffect(() => {
-  //     if (isLowScore) {
-  //       // Show recommendations for improvement
-  //       console.log('Recommendations for improvement shown');
-  //     }
-  //     }, [isLowScore]);
-  // }
     useEffect(() => {
-      // Save quiz result to the backend
-      saveQuizResult(quizResult).then(() => {
-      console.log('Quiz result saved successfully');
-      }).catch((error) => {
-      console.error('Error saving quiz result:', error);
-      });
+      if (isLowScore && quiz_res_id) {        
+        console.log('Recommendations for improvement shown');
+        // Show recommendations for improvement
+        getquiz_resualt_id(quiz_res_id)
+        
+      }
+      }, [quiz_res_id]);
 
-      }, [quizResult]);
+    useEffect(() => {
+      if (!isResultSavedIn && quizResult) {
+        saveQuizResult(quizResult)
+          .then((response) => {
+            setquiz_res_id(response.quiz_result_id);
+            localStorage.setItem('isResultSaved',true)
+            console.log('Quiz result saved successfully');
+          })
+          .catch((error) => {
+            console.error('Error saving quiz result:', error);
+          });
+      }
+    }, [isResultSavedIn, quizResult]); 
 
     // // Share quiz result 
     // const quizLink = `https://example.com/quiz/${quizResult.id}`;
@@ -98,7 +110,7 @@ export default function QuizComplete({ quizResult, score, totalQuestions, answer
         <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
         <div className="text-sm text-gray-600">Average Time per Question</div>
         <div className="text-2xl font-semibold text-blue-600">
-          {Math.round(answers.reduce((acc, curr) => acc + curr.time, 0) / answers.length)} seconds
+          {(quizResult.timeSpent / quizResult.questions.length)} seconds
         </div>
         </div>
       </div>
@@ -110,7 +122,7 @@ export default function QuizComplete({ quizResult, score, totalQuestions, answer
         onClick={onshowQuestions}
         >
           <span className="text-medium text-blue-600">
-            {answers.length} questions 
+            {quizResult.questions.length} questions 
           </span>
           <ChevronRight className="h-5 w-5 text-blue-600" />
         </div>
@@ -158,7 +170,10 @@ export default function QuizComplete({ quizResult, score, totalQuestions, answer
           </button>
         </div>
           <button
-            onClick={()=>navigate('/Student')}
+            onClick={()=>{
+              localStorage.setItem('isResultSaved',false)
+              navigate('/Student')
+            }}
             className="flex items-center w-full justify-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-500 text-gray-500 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
           >
             <ArrowLeft className="h-5 w-5" />
