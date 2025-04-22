@@ -429,7 +429,7 @@ def join_group():
         if not data or 'token' not in data:
             return jsonify({"error": "Missing token"}), 400
 
-        student_uid = get_jwt_identity()
+        student_uid =data['uid']
         token = data['token']
         
         try:
