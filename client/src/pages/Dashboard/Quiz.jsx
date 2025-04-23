@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import axios from "axios";
 import MultipleChoice from "../../components/quiz/MultipleChoice";
 import FillInBlank from "../../components/quiz/FillInBlank";
 import QuizProgress from "../../components/quiz/QuizProgress";
@@ -9,8 +10,9 @@ import QuestionReview from "../../components/quiz/QuestionReview";
 import LoadingComponent from "../../components/dashboard/LoadingComponent";
 import useQuizLogic from "../../hooks/useQuizLogic";
 import { generateQuiz } from "../../services/StudentService";
+import { useParams } from "react-router-dom";
 
-export default function Quiz({settings}) {
+export default function Quiz({settings, params}) {
   const {
     quiz,
     currentQuestion,
@@ -35,13 +37,27 @@ export default function Quiz({settings}) {
     handleAnswer,
   } = useQuizLogic(settings);
       // generate the Quiz by calling the generateQuiz function from the StudentService
+  const { Quiz_id } = useParams();
+  const quizId = params ? Quiz_id : "";
   useEffect(() => {
     const getQuiz = async () => {
       try {
         setIsLoading(true);
-        const quiz = await generateQuiz(settings);
-        console.log('Quiz:', quiz.quiz);
-        setQuiz(quiz.quiz);
+        if(params){
+          const response = await axios.get(`https://prepgenius-backend.vercel.app/api/quizzes/${Quiz_id}`);
+          console.log('Quiz:', response.data);
+          const quizData = response.data;
+          // Randomize questions once here
+          quizData.questions = [...quizData.questions].sort(() => 0.5 - Math.random());
+          setQuiz(quizData);
+        }else{
+          const quiz = await generateQuiz(settings);
+          const quizData = quiz.quiz;
+          // Randomize questions once here
+          quizData.questions = [...quizData.questions].sort(() => 0.5 - Math.random());
+          setQuiz(quizData);
+        }
+
         } catch (error) {
           setError(error);
         }finally{
@@ -50,7 +66,7 @@ export default function Quiz({settings}) {
       };
       getQuiz();
   }
-  , [settings]);
+  , [params,settings]);
 
   if (isLoading || !quiz || !quiz.questions) {
     return <LoadingComponent />;

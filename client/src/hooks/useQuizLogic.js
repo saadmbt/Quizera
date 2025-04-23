@@ -26,14 +26,15 @@ export default function useQuizLogic(settings) {
   useEffect(() => {
     if (quiz) {
       setQuizResult({
-        lesson_id: settings.lesson_id,
+        lesson_id: settings?.lesson_id || quiz.lesson_id ,
+        quiz_id: quiz._id,
         title: quiz.title,
         date: quiz.createdAt,
         type: quiz.type,
         questions: [],
       });
     }
-  }, [quiz, settings.lesson_id]);
+  }, [quiz]);
 
   // Timer effect
   useEffect(() => {
@@ -122,8 +123,8 @@ export default function useQuizLogic(settings) {
       if (hasCalledApis) return; // Skip if already called
       setHasCalledApis(true);
       Promise.all([
-        generateFlashcards(settings.lesson_id, quiz_res_id),
-        fetchVideos(settings.lesson_id, quiz_res_id),
+        generateFlashcards((settings?.lesson_id || quiz.lesson_id), quiz_res_id),
+        fetchVideos((settings?.lesson_id || quiz.lesson_id), quiz_res_id),
       ])
         .then(([flashcardsResponse, videosResponse]) => {
           if (flashcardsResponse && flashcardsResponse.flashcards) {
@@ -137,7 +138,7 @@ export default function useQuizLogic(settings) {
           console.error("Error fetching flashcards or videos:", error);
         });
     },
-    [settings.lesson_id, hasCalledApis]
+    [(settings?.lesson_id || quiz.lesson_id) , hasCalledApis]
   );
 
   return {

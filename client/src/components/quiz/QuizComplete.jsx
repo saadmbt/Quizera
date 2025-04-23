@@ -48,25 +48,21 @@ export default function QuizComplete({ quizResult, score, totalQuestions,onShowF
       }
     }, [isResultSavedIn, quizResult]); 
 
-    // // Share quiz result 
-    // const quizLink = `https://example.com/quiz/${quizResult.id}`;
-    // const shareText = `I scored ${scorePercentage}% on the quiz!`;
-    // const shareData = {
-    //   title: 'Quiz Result',
-    //   text: shareText,
-    //   url: quizLink
-    //   };  
+    // Function to handle sharing the quiz link
+    const onShareQuiz = () => {
+      const quizLink = `http://localhost:5173/JoinQuiz/${quizResult.quiz_id}`;
+      
+      // Copy the quiz link to clipboard
+    navigator.clipboard.writeText(quizLink)
+      .then(() => {
+        toast.success('Quiz link copied to clipboard');
+      })
+      .catch(err => {
+        toast.error('Failed to copy quiz link');
+        console.error('Failed to copy quiz link: ', err);
+      });
+    }
     
-    
-    // Copy the quiz link to clipboard
-    // navigator.clipboard.writeText(quizLink)
-    //   .then(() => {
-    //     toast.success('Quiz link copied to clipboard');
-    //   })
-    //   .catch(err => {
-    //     toast.error('Failed to copy quiz link');
-    //     console.error('Failed to copy quiz link: ', err);
-    //   });
     
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -100,7 +96,7 @@ export default function QuizComplete({ quizResult, score, totalQuestions,onShowF
             <h3 className="font-semibold">Performance Breakdown</h3>
           </div>
           {/* share quiz button to copy quiz link */}
-          <button className="btn btn-primary py-1 hover:transition-all duration-300 transform hover:scale-105 " onClick={onShowFlashcards}>
+          <button className="btn btn-primary py-1 hover:transition-all duration-300 transform hover:scale-105 " onClick={onShareQuiz}>
             <Share2 className="h-5 w-5 text-white mr-2 " />
             Share Quiz
           </button>

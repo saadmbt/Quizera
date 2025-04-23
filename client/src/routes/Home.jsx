@@ -25,6 +25,7 @@ import ProfUpload from "../components/dashbord prof/Upload";
 import Groupspage from "../pages/Dashboard/Groupspage";
 import GroupDetailspage from "../pages/Dashboard/GroupDetailspage";
 import ProtectedRoute from "./ProtectedRoute";
+import JoinQuiz from "../pages/Dashboard/JoinQuiz";
 
 const renderRoutes = (routes) => {
   return routes.map((route, i) => (
@@ -49,12 +50,18 @@ const Home = () => {
   };
   return (
     <Routes>
+
+      {/* Public routes */}
       <Route path="/" element={<MainLayout />}>
         {renderRoutes(PublicRoutes)}
       </Route>
+
+      {/* Auth routes */}
       <Route path="/auth" element={<AuthLayout />}>
         {renderRoutes(AuthRoutes)}
       </Route>
+
+      {/* professor routes */}
       <Route path="/professor" 
       element={<DashboardLayout />
       //       <ProtectedRoute allowedRoles={["professor"]}>
@@ -66,8 +73,8 @@ const Home = () => {
           <Route path="upload" element={<ProfUpload onComplete={onComplete}/>}/>
         {renderRoutes(ProfessorRoutes)}
       </Route>
+
       {/* student routes */}
-      
         <Route
           path="/student"
           element={<StudentDashboardLayout />
@@ -83,9 +90,9 @@ const Home = () => {
             element={
               <NotAccessibleRoute
                 condition={lessonID != false && quizSettings != false}
-                redirectTo="/Student/upload"
+                redirectTo="/student/upload"
               >
-                <Quiz  settings={quizSettings} />
+                <Quiz  settings={quizSettings} params={false}/>
               </NotAccessibleRoute>
             }
           />
@@ -94,12 +101,13 @@ const Home = () => {
             element={
               <NotAccessibleRoute
                 condition={lessonID != false}
-                redirectTo="/Student/upload"
+                redirectTo="/student/upload"
               >
                 <QuizSetup onStartQuiz={onStartQuiz} lessonID={lessonID} />
               </NotAccessibleRoute>
             }
           />
+          <Route path="quiz/:Quiz_id" element={<Quiz settings={{}} params={true} />} />
           <Route path="quizzes" element={<Quizzespage headerSet />} />
           <Route path="quizzes/:id" element={<QuizDetailspage />} />
           <Route path="flashcards" element={<FlashcardsSection />} />
@@ -110,7 +118,9 @@ const Home = () => {
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<NotFoundpage />} />
         </Route>
-      
+        
+        <Route path="/JoinQuiz/:Quiz_id" element={<JoinQuiz />} />
+          
       {/* Not Found page */}
       <Route path="*" element={<NotFoundpage />} />
     </Routes>

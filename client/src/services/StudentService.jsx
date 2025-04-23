@@ -120,3 +120,21 @@ export const fetchVideos = async (lesson_id,quiz_ress_id)  => {
     throw error;
   }
 }
+// get quiz by _id 
+export const getQuizById = async (quiz_id) => {
+  try {
+    const response = await axios.get(`https://prepgenius-backend.vercel.app/api/quizzes/${quiz_id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        // "Authorization": `Bearer ${token}`
+      },
+    });
+    // Log the response for debugging
+    console.log('Quiz fetched:', response.data);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Error fetching quiz:", error);
+    throw error;
+  }
+}
