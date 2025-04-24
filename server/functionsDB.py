@@ -199,7 +199,7 @@ def Fetch_Quiz_Results_by_user(user_id):
 def Fetch_Flashcards_by_user(user_id):
     try:
         collection=db["quizzResult"]
-        flashcards= list(collection.find({"generated_by":user_id},{"flashcards":1,"title":1}))
+        flashcards= list(collection.find({"generated_by":user_id ,"flashcards": {"$exists": True, "$ne": []}},{"flashcards":1,"title":1}))
         
         for flashcard in flashcards:
             flashcard["_id"]=str(flashcard["_id"])
