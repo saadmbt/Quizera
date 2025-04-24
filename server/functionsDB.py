@@ -206,7 +206,18 @@ def Fetch_Flashcards_by_user(user_id):
         return flashcards
     except PyMongoError as e:
         return f"Error fetching flashcards: {str(e)}"
-
+# get single flashcard by result id
+def Fetch_Flashcard_by_id(Quiz_res_id):
+    try:
+        collection=db["quizzResult"]
+        flashcard=collection.find_one({"_id": ObjectId(Quiz_res_id)},{"flashcards":1})
+        if flashcard is None:
+            return "error : flashcard not found"
+        else :
+            flashcard["_id"]=str(flashcard["_id"])
+            return flashcard
+    except PyMongoError as e:
+        return f"Error fetching flashcard: {str(e)}"
 
 def insert_group(group_data):
     """insert a new group"""

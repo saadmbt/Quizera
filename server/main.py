@@ -12,7 +12,7 @@ from functionsDB import (
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
     insert_group, add_student_to_group, get_group_by_code,
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
-    Fetch_quizzes_by_user,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user
+    Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -308,7 +308,32 @@ def fetch_all_flashcards(user_id):
         return jsonify(flashcards), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+# get flashcards  by quiz Result id
+@app.route('/api/flashcards/get/<quiz_result_id>', methods=['GET'])
+# @jwt_required()
+def fetch_flashcard(quiz_result_id):
+    """Fetches the flashcard for a given quiz result ID.
+    This endpoint requires a valid JWT token to access.
+    Args:
+        quiz_result_id (objectId): The ID of the quiz result to fetch.
+    Returns:
+        Response: A JSON response containing the flashcard if found, 
+                    or an error message if the flashcard is not found or an error occurs.
+                    The response status code is 200 for success and 404 for errors.
+    """
+    try:
+        quiz_result_id = ObjectId(quiz_result_id)
+        flashcard = Fetch_Flashcard_by_id(quiz_result_id)
+        if flashcard is None:
+            return jsonify({"error": "Flashcard not found"}), 404
+        if isinstance(flashcard, str) and "error" in flashcard.lower():
+            return jsonify({"error": str(flashcard)}), 404
 
+        return jsonify(flashcard), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+# Generate YouTube suggestions
 @app.route('/api/youtube/<lesson_id>/<quiz_ress_id>', methods=['GET'])
 # @jwt_required()
 def generate_yt_suggestions(lesson_id, quiz_ress_id):
