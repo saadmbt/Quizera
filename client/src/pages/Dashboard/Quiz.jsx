@@ -36,7 +36,7 @@ export default function Quiz({settings, params}) {
     getQuizResult,
     handleAnswer,
   } = useQuizLogic(settings);
-      // generate the Quiz by calling the generateQuiz function from the StudentService
+   // generate the Quiz by calling the generateQuiz function from the StudentService
   const { Quiz_id } = useParams();
   const quizId = params ? Quiz_id : "";
   useEffect(() => {

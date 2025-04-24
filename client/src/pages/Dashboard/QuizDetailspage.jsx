@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, XCircle, Clock, Calendar, Award, Brain, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Clock, Calendar, Award, Brain, AlertCircle, Youtube } from 'lucide-react';
 import ScoreSummary from '../../components/dashboard/ScoreSummary';
+import { getQuizResultById } from '../../services/StudentService';
+import Flashcards from '../../components/dashboard/Flashcards';
+import Videos from '../../components/dashboard/Videos';
 
 // Enhanced mock data with detailed question information
 const QUIZ_DETAILS = {
@@ -42,8 +45,28 @@ const QUIZ_DETAILS = {
 };
 
 function QuizDetailspage() {
+   const [quiz,setquiz]=useState({})
+   const [loading,setloading]=useState({})
+   const [showFlashcards,setShowFlashcards]=useState(false)
+   const [showVideos,setShowVideos]=useState(false)
+
     const { id } = useParams();
-    const quiz = QUIZ_DETAILS[Number(id)];
+    const fetchQuiz = useCallback(async () => {
+      try{
+        setloading(true);
+        const history = await getQuizResultById(id);
+        setquiz(history);
+      }catch (error) {
+        console.error("Error fetching quiz history:", error);
+      } finally {
+        setloading(false);
+      }
+
+    }, [id]);
+
+    useEffect(() => {
+      fetchQuiz();
+    }, []); 
     if (!quiz) {
         return (
           <div className="max-w-4xl mx-auto p-6">
@@ -62,7 +85,25 @@ function QuizDetailspage() {
           </div>
         );
       }
-    
+      if (loading) return (
+        <div className="flex justify-center items-center min-h-[80vh]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      );
+    if (showFlashcards) {
+      return (
+        <Flashcards
+          flashcards={quiz.flashcards}
+          onBack={() => setShowFlashcards(false)}
+        />
+      );
+  }
+
+  if (showVideos) {
+    return (
+      <Videos videos={quiz.youtube} onBack={() => setShowVideos(false)} />
+    );
+  }
     const correctAnswers = quiz.questions.filter(q => q.isCorrect).length
     const quizLength = quiz.questions.length;
     const incorrectAnswers = quizLength- correctAnswers
@@ -121,7 +162,7 @@ function QuizDetailspage() {
         <div className="space-y-6">
             <h2 className="text-xl font-semibold ">Questions & Answers</h2>
             {quiz.questions.map((question, index) => (
-            <div key={question.id} className="bg-white  rounded-xl p-6 shadow-lg">
+            <div key={index} className="bg-white  rounded-xl p-6 shadow-lg">
                 <div className="flex items-start justify-between">
                 <div className="flex-1">
                     <h3 className="text-lg font-medium  mb-4">
@@ -167,7 +208,24 @@ function QuizDetailspage() {
                 </div>
             </div>
             ))}
-      </div>
+          </div>
+          {/* add the flashcards and youtube button */}
+          <div className="grid grid-cols-2 gap-4">
+          <button
+            onClick={() => setShowFlashcards(true)}
+            className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-blue-500 text-blue-500 hover:bg-blue-50 transition-all duration-300 transform hover:scale-105"
+          >
+            <Brain className="h-5 w-5" />
+            Study Flashcards
+          </button>
+          <button
+            onClick={() => setShowVideos(true)}
+            className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-red-500 text-red-500 hover:bg-red-50 transition-all duration-300 transform hover:scale-105"
+          >
+            <Youtube className="h-5 w-5" />
+            Watch Videos
+          </button>
+        </div>
   </div>
   )
 }

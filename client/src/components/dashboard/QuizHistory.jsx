@@ -1,63 +1,45 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Calendar, Clock, Award, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getQuizResults } from '../../services/StudentService';
 
-const QUIZ_HISTORY = [
-  {
-    id: 1,
-    title: 'Geography Quiz',
-    date: '2024-03-15',
-    score: 85,
-    timeSpent: '12:30',
-    questionsCount: 10,
-    category: 'Geography'
-  },
-  {
-    id: 2,
-    title: 'World Capitals',
-    date: '2024-03-14',
-    score: 92,
-    timeSpent: '15:45',
-    questionsCount: 15,
-    category: 'Geography'
-  },
-  {
-    id: 3,
-    title: 'Solar System Quiz',
-    date: '2024-03-13',
-    score: 78,
-    timeSpent: '10:15',
-    questionsCount: 8,
-    category: 'Science'
-  },
-  {
-    id: 4,
-    title: 'Ancient History',
-    date: '2024-03-12',
-    score: 88,
-    timeSpent: '20:00',
-    questionsCount: 12,
-    category: 'History'
-  },
-  {
-    id: 5,
-    title: 'Mathematics Basic',
-    date: '2024-03-11',
-    score: 95,
-    timeSpent: '18:30',
-    questionsCount: 10,
-    category: 'Mathematics'
-  }
-];
 
 function QuizHistory(props) {
-  const quizzes = props.limit ? QUIZ_HISTORY.slice(0, props.limit) : QUIZ_HISTORY
+  // Simulating fetching quiz history from an API
+   const [quizHistory, setQuizHistory] = useState([]);
+   const [loading, setloading] = useState(false);
+
+  // const { userId } = useContext(AuthContext);
+   const userId = "saad"; // Replace with actual user ID from context or props
+    const fetchQuizHistory = useCallback(async () => {
+      try{
+        setloading(true);
+        const history = await getQuizResults(userId);
+        setQuizHistory(history);
+      }catch (error) {
+        console.error("Error fetching quiz history:", error);
+      } finally {
+        setloading(false);
+      }
+
+    }, [userId]);
+
+    useEffect(() => {
+      fetchQuizHistory();
+    }, []); 
+
+  if (loading) return (
+    <div className="flex justify-center items-center min-h-[80vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+    </div>
+  );
+  const quizzes = props.limit ? quizHistory.slice(0, props.limit) : quizHistory
 
   return (
     <div className="space-y-4 mb-8 px-4 md:px-0">
-      {quizzes.map((quiz) => (
+      {quizzes.map((quiz,i) => (
         <div
-          key={quiz.id}
+          key={i}
           className="bg-white  rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
         >
           <div className="flex items-center justify-between">
@@ -70,7 +52,7 @@ function QuizHistory(props) {
                 </span>
                 <span className="flex items-center">
                   <Clock className="h-4 w-4 mr-1" />
-                  {quiz.timeSpent}
+                  {quiz.timeSpent} s
                 </span>
                 <span className="flex items-center">
                   <Award className="h-4 w-4 mr-1" />
@@ -85,10 +67,10 @@ function QuizHistory(props) {
                   quiz.score >= 70 ? 'bg-blue-100 text-blue-800  ' :
                   'bg-orange-100 text-orange-800  '}
               `}>
-                {quiz.questionsCount} Questions
+                {quiz.questions.length} Questions
               </div>
               <Link
-                to={`/Student/quizzes/${quiz.id}`}
+                to={`/Student/quizzes/${quiz._id}`}
                 className="p-2 hover:bg-gray-100  rounded-full transition-colors"
               >
                 <ChevronRight className="h-5 w-5 text-gray-400" />
