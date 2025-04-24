@@ -367,7 +367,7 @@ def fetch_quiz_results(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 # get quiz results by quiz Result id
-@app.route('/api/quiz_results/<quiz_result_id>', methods=['GET'])
+@app.route('/api/quiz_results/get/<quiz_result_id>', methods=['GET'])
 # @jwt_required()
 def fetch_quiz_result(quiz_result_id):
     """Fetches the quiz result for a given quiz result ID.
