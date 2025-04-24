@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { auth } from "../../firebase-config"; // Make sure firebase-config is correctly configured
+import { auth } from "../../firebase-config"; 
 import { onAuthStateChanged } from "firebase/auth";
 
 // Create a context
@@ -7,7 +7,7 @@ export const AuthContext = createContext();
 
 // Create a context provider
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // The connected user state
+  const [user, setUser] = useState(null); 
   const isAuthenticated = !!user; // Determine if the user is authenticated
 
   useEffect(() => {

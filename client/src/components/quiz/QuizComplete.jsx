@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, BarChart, Brain, ChevronRight, Share, Share2, Youtube } from 'lucide-react';
 import ScoreSummary from '../dashboard/ScoreSummary';
 import { useNavigate } from 'react-router-dom';
@@ -12,49 +12,57 @@ import {saveQuizResult} from '../../services/StudentService';
 //   onShowVideos: () => function;
 // }
 
-export default function QuizComplete({ quizResult, score, totalQuestions, answers,onShowFlashcards
-    ,onShowVideos, onshowQuestions}) {
+export default function QuizComplete({ quizResult, score, totalQuestions,onShowFlashcards
+    ,onShowVideos, onshowQuestions ,getquiz_resualt_id}) {
+
+  const [quiz_res_id,setquiz_res_id]=useState(null)
+
   const scorePercentage = Math.round((score / totalQuestions) * 100);
   const isLowScore = scorePercentage < 70;
   const incorrectanswers =totalQuestions - score;
   const navigate = useNavigate();
+  // add a varible in localstorage to check if the quiz result is saved  or not
+  const isResultSavedIn = JSON.parse(localStorage.getItem('isResultSaved'));
+  console.log(isResultSavedIn)
   // const onShareQuiz = () => {
-  //   useEffect(() => {
-  //     if (isLowScore) {
-  //       // Show recommendations for improvement
-  //       console.log('Recommendations for improvement shown');
-  //     }
-  //     }, [isLowScore]);
-  // }
     useEffect(() => {
-      // Save quiz result to the backend
-      saveQuizResult(quizResult).then(() => {
-      console.log('Quiz result saved successfully');
-      }).catch((error) => {
-      console.error('Error saving quiz result:', error);
+      if (isLowScore && quiz_res_id) {        
+        console.log('Recommendations for improvement shown');
+        // Show recommendations for improvement
+        getquiz_resualt_id(quiz_res_id)
+        
+      }
+      }, [quiz_res_id]);
+
+    useEffect(() => {
+      if (!isResultSavedIn && quizResult) {
+        saveQuizResult(quizResult)
+          .then((response) => {
+            setquiz_res_id(response.quiz_result_id);
+            localStorage.setItem('isResultSaved',true)
+            console.log('Quiz result saved successfully');
+          })
+          .catch((error) => {
+            console.error('Error saving quiz result:', error);
+          });
+      }
+    }, [isResultSavedIn, quizResult]); 
+
+    // Function to handle sharing the quiz link
+    const onShareQuiz = () => {
+      const quizLink = `http://localhost:5173/JoinQuiz/${quizResult.quiz_id}`;
+      
+      // Copy the quiz link to clipboard
+    navigator.clipboard.writeText(quizLink)
+      .then(() => {
+        toast.success('Quiz link copied to clipboard');
+      })
+      .catch(err => {
+        toast.error('Failed to copy quiz link');
+        console.error('Failed to copy quiz link: ', err);
       });
-
-      }, [quizResult]);
-
-    // // Share quiz result 
-    // const quizLink = `https://example.com/quiz/${quizResult.id}`;
-    // const shareText = `I scored ${scorePercentage}% on the quiz!`;
-    // const shareData = {
-    //   title: 'Quiz Result',
-    //   text: shareText,
-    //   url: quizLink
-    //   };  
+    }
     
-    
-    // Copy the quiz link to clipboard
-    // navigator.clipboard.writeText(quizLink)
-    //   .then(() => {
-    //     toast.success('Quiz link copied to clipboard');
-    //   })
-    //   .catch(err => {
-    //     toast.error('Failed to copy quiz link');
-    //     console.error('Failed to copy quiz link: ', err);
-    //   });
     
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -88,7 +96,7 @@ export default function QuizComplete({ quizResult, score, totalQuestions, answer
             <h3 className="font-semibold">Performance Breakdown</h3>
           </div>
           {/* share quiz button to copy quiz link */}
-          <button className="btn btn-primary py-1 hover:transition-all duration-300 transform hover:scale-105 " onClick={onShowFlashcards}>
+          <button className="btn btn-primary py-1 hover:transition-all duration-300 transform hover:scale-105 " onClick={onShareQuiz}>
             <Share2 className="h-5 w-5 text-white mr-2 " />
             Share Quiz
           </button>
@@ -98,7 +106,7 @@ export default function QuizComplete({ quizResult, score, totalQuestions, answer
         <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
         <div className="text-sm text-gray-600">Average Time per Question</div>
         <div className="text-2xl font-semibold text-blue-600">
-          {Math.round(answers.reduce((acc, curr) => acc + curr.time, 0) / answers.length)} seconds
+          {(quizResult.timeSpent / quizResult.questions.length)} seconds
         </div>
         </div>
       </div>
@@ -110,7 +118,7 @@ export default function QuizComplete({ quizResult, score, totalQuestions, answer
         onClick={onshowQuestions}
         >
           <span className="text-medium text-blue-600">
-            {answers.length} questions 
+            {quizResult.questions.length} questions 
           </span>
           <ChevronRight className="h-5 w-5 text-blue-600" />
         </div>
@@ -158,7 +166,10 @@ export default function QuizComplete({ quizResult, score, totalQuestions, answer
           </button>
         </div>
           <button
-            onClick={()=>navigate('/Student')}
+            onClick={()=>{
+              localStorage.setItem('isResultSaved',false)
+              navigate('/Student')
+            }}
             className="flex items-center w-full justify-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-500 text-gray-500 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
           >
             <ArrowLeft className="h-5 w-5" />

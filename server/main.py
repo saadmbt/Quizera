@@ -11,7 +11,8 @@ from functionsDB import (
     fetch_all_lessons_by_user, Fetch_Quizzes,
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
     insert_group, add_student_to_group, get_group_by_code,
-    get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,update_group_info
+    get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
+    Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -30,10 +31,10 @@ CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DEL
 # Load credentials from environment variables
 load_dotenv()
 # # Load the service account key from the environment variable
-# service_account_key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
+service_account_key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
 # # Initialize Firebase Admin
-# cred = credentials.Certificate(service_account_key) 
-# firebase_admin.initialize_app(cred)
+cred = credentials.Certificate(service_account_key) 
+firebase_admin.initialize_app(cred)
 
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_TOKEN_SECRET')
@@ -269,8 +270,8 @@ def fetch_quiz(quiz_id):
         return jsonify({"error": str(quiz)}), 404
 
     return jsonify(quiz), 200
-# flashcards and youtube suggestions endpoints
 
+# flashcards and youtube suggestions endpoints
 @app.route('/api/flashcards/<lesson_id>/<quiz_ress_id>', methods=['GET'])
 # @jwt_required()
 def generatee_flashcards(lesson_id, quiz_ress_id):
@@ -289,7 +290,50 @@ def generatee_flashcards(lesson_id, quiz_ress_id):
             raise ValueError("Error inserting flashcards.")
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+# fetch  All geneareted Flashcards by user
+@app.route('/api/flashcards/Fetch_All/<user_id>', methods=['GET'])
+# @jwt_required()
+def fetch_all_flashcards(user_id):
+    """ Fetch all flashcards for a given user ID."""
+    try:
+        user_id = str(user_id)
+        flashcards = Fetch_Flashcards_by_user(user_id)
+        
+        if isinstance(flashcards, str) and "error" in flashcards.lower():
+            return jsonify({"error": str(flashcards)}), 500
+        
+        if flashcards is None or len(flashcards) == 0:
+            return jsonify({"error": "No flashcards found"}), 404
+        return jsonify(flashcards), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+# get flashcards  by quiz Result id
+@app.route('/api/flashcards/get/<quiz_result_id>', methods=['GET'])
+# @jwt_required()
+def fetch_flashcard(quiz_result_id):
+    """Fetches the flashcard for a given quiz result ID.
+    This endpoint requires a valid JWT token to access.
+    Args:
+        quiz_result_id (objectId): The ID of the quiz result to fetch.
+    Returns:
+        Response: A JSON response containing the flashcard if found, 
+                    or an error message if the flashcard is not found or an error occurs.
+                    The response status code is 200 for success and 404 for errors.
+    """
+    try:
+        quiz_result_id = ObjectId(quiz_result_id)
+        flashcard = Fetch_Flashcard_by_id(quiz_result_id)
+        if flashcard is None:
+            return jsonify({"error": "Flashcard not found"}), 404
+        if isinstance(flashcard, str) and "error" in flashcard.lower():
+            return jsonify({"error": str(flashcard)}), 404
 
+        return jsonify(flashcard), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+# Generate YouTube suggestions
 @app.route('/api/youtube/<lesson_id>/<quiz_ress_id>', methods=['GET'])
 # @jwt_required()
 def generate_yt_suggestions(lesson_id, quiz_ress_id):
@@ -319,26 +363,58 @@ def generate_yt_suggestions(lesson_id, quiz_ress_id):
         return jsonify({"error": str(e)}), 400
     
 # Quiz Results Management Endpoints
-@app.route('/api/quiz_results/<quiz_id>', methods=['GET'])
+@app.route('/api/quiz_results/<user_id>', methods=['GET'])
 # @jwt_required()
-def fetch_quiz_results(quiz_id):
+def fetch_quiz_results(user_id):
     """Fetches the quiz results for a given quiz ID.
     This endpoint requires a valid JWT token to access.
     Args:
-        quiz_id (str): The ID of the quiz for which results are to be fetched.
+        user_id (objectId): The ID of the user for which generate the quizzes.
     Returns:
-        Response: A JSON response containing the quiz results if found, 
+    Response: A JSON response containing the quiz results if found, 
                 or an error message if the quiz results are not found or an error occurs.
                 The response status code is 200 for success and 404 for errors.
     """
-    quiz_results = Fetch_Quiz_Results(ObjectId(quiz_id))
-    if quiz_results is None:
-        return jsonify({"error": "Quiz results not found"}), 404
-    if isinstance(quiz_results, str) and "error" in quiz_results.lower():
-        return jsonify({"error": str(quiz_results)}), 404
-    
-    return jsonify(quiz_results), 200
+    try:
+        # change this later to ObjectId 
+        user_id = str(user_id)
+        quiz_results = Fetch_Quiz_Results_by_user(user_id)
+        if quiz_results is None:
+            return jsonify({"error": "Quiz results not found"}), 404
+        if isinstance(quiz_results, str) and "error" in quiz_results.lower():
+            return jsonify({"error": str(quiz_results)}), 404
 
+        
+        if quiz_results is None or len(quiz_results) == 0:
+            return jsonify({"error": "No quiz_results found"}), 404
+        
+        return jsonify(quiz_results), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+# get quiz results by quiz Result id
+@app.route('/api/quiz_results/get/<quiz_result_id>', methods=['GET'])
+# @jwt_required()
+def fetch_quiz_result(quiz_result_id):
+    """Fetches the quiz result for a given quiz result ID.
+    This endpoint requires a valid JWT token to access.
+    Args:
+        quiz_result_id (objectId): The ID of the quiz result to fetch.
+    Returns:
+        Response: A JSON response containing the quiz result if found, 
+                    or an error message if the quiz result is not found or an error occurs.
+                    The response status code is 200 for success and 404 for errors.
+    """
+    try:
+        quiz_result_id = ObjectId(quiz_result_id)
+        quiz_result = Fetch_Quiz_Results(quiz_result_id)
+        if quiz_result is None:
+            return jsonify({"error": "Quiz result not found"}), 404
+        if isinstance(quiz_result, str) and "error" in quiz_result.lower():
+            return jsonify({"error": str(quiz_result)}), 404
+
+        return jsonify(quiz_result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/insert', methods=['POST'])
 # @jwt_required()
@@ -354,8 +430,9 @@ def create_quiz_results():
         return jsonify({"error": str(quiz_result_id)}), 500
     
     return jsonify({"message": "Quiz result created successfully", "quiz_result_id": str(quiz_result_id)}), 201
+
 #groups management
-# 1. Fetch Groups for a Professor (GET /api/groups/<ProfId>)
+# Fetch Groups for a Professor (GET /api/groups/<ProfId>)
 @app.route('/api/groups/<ProfId>', methods=['GET'])
 # @jwt_required()
 def get_groups(ProfId):
@@ -604,4 +681,4 @@ def hello_world():
     return "Hello, World!"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

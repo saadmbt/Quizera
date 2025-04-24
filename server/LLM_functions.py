@@ -194,8 +194,9 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         if not isinstance(question_id, int):
             raise ValueError(f"Invalid question ID returned by lastID: {question_id}")
         quiz = {
-            "id": question_id + 1,
+            "id": question_id ,
             "title": title,
+            "lesson_id": lesson_id,
             "generated_by": author,
             "type": question_type,
             "questions": questions,
