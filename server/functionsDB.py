@@ -304,3 +304,26 @@ def get_professor_by_id(profid):
     except Exception as e:
         print(f"Error in get_professor_by_id: {str(e)}")
         return f"Error fetching professor: {str(e)}"
+
+def update_group_info(group_id, update_data):
+    try:
+        if not ObjectId.is_valid(group_id):
+            return {"success": False, "error": "Invalid group_id format"}
+        obj_id = ObjectId(group_id)
+        update_fields = {}
+        if "group_name" in update_data:
+            update_fields["group_name"] = update_data["group_name"]
+        if "description" in update_data:
+            update_fields["description"] = update_data["description"]
+        if not update_fields:
+            return {"success": False, "error": "No valid fields to update"}
+        result = groups_collection.update_one(
+            {"_id": obj_id},
+            {"$set": update_fields}
+        )
+        if result.modified_count > 0:
+            return {"success": True, "message": "Group updated successfully"}
+        else:
+            return {"success": False, "error": "No changes made or group not found"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}

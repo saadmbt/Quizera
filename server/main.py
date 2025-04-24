@@ -11,7 +11,7 @@ from functionsDB import (
     fetch_all_lessons_by_user, Fetch_Quizzes,
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
     insert_group, add_student_to_group, get_group_by_code,
-    get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results
+    get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,update_group_info
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -388,6 +388,25 @@ def create_group():
             "success": False,
             "error": str(e)
         }), 500
+
+# 7. Update Group Info (PUT /api/groups/<group_id>)
+@app.route('/api/groups/<group_id>', methods=['PUT'])
+def update_group(group_id):
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+
+        # Call function to update group info in DB
+        result = update_group_info(group_id, data)
+
+        if result.get("success"):
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 400
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 # 4. Get a Group by Group ID and Professor ID (GET /api/groups/<group_id>/<prof_id>)
 @app.route('/api/groups/<group_id>/<prof_id>', methods=['GET'])
