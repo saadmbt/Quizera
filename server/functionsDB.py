@@ -112,10 +112,26 @@ def Fetch_Quizzes(Quiz_id):
             return "error : Quiz not found"
         else :
             quiz["_id"]=str(quiz["_id"])
+            quiz["lesson_id"]=str(quiz["lesson_id"])
             return quiz
     except PyMongoError as e :
         return f"Error : fetching quiz {str(e)}"
-
+    
+# get all the quizzes genereated by a user
+def Fetch_quizzes_by_user(user_id):
+    try:
+        collection=db["quizzes"]
+        quiz=collection.find_one({"generated_by": user_id})
+        if quiz is None:
+            return "error : Quiz not found"
+        else :
+            quiz["_id"]=str(quiz["_id"])
+            quiz["lesson_id"]=str(quiz["lesson_id"])
+            return quiz
+    except PyMongoError as e :
+        return f"Error : fetching quiz {str(e)}"
+    
+# insert quiz result
 def Insert_Quiz_Results(Quiz_res):
     try:
         collection=db["quizzResult"]
@@ -155,20 +171,40 @@ def Fetch_Quiz_Results(Quiz_res_id):
         if quiz_res is None:
             return f"error : Quiz result not found "
         else :
+            quiz_res["_id"]=str(quiz_res["_id"])
+            quiz_res["generated_by"]=str(quiz_res["generated_by"])
             return quiz_res
     except PyMongoError as e :
         return f"Error fetching quiz result :{str(e)}" 
+    
 # fetch all quiz results for a specific user
 def Fetch_Quiz_Results_by_user(user_id):
     try :
         collection=db["quizzResult"]
-        quiz_res=list(collection.find({"userId":user_id}))
+        quiz_res=list(collection.find({"generated_by":user_id}))
         for quiz in quiz_res:
             quiz["_id"]=str(quiz["_id"])
+            quiz["generated_by"]=str(quiz["generated_by"])
+            quiz["quiz_id"]=str(quiz["quiz_id"])
+            quiz["lesson_id"]=str(quiz["lesson_id"])
+
         return quiz_res
     except PyMongoError as e :
         return f"Error fetching quiz result :{str(e)}"
     
+# get all the flashcards by a user
+def Fetch_Flashcards_by_user(user_id):
+    try:
+        collection=db["quizzResult"]
+        flashcards= list(collection.find({"generated_by":user_id},{"flashcards":1,"title":1}))
+        
+        for flashcard in flashcards:
+            flashcard["_id"]=str(flashcard["_id"])
+        return flashcards
+    except PyMongoError as e:
+        return f"Error fetching flashcards: {str(e)}"
+
+
 def insert_group(group_data):
     """insert a new group"""
     try:
