@@ -2,10 +2,10 @@ import React from 'react';
 import { Book, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-function FlashcardDeck({ id, title, description, cardCount }) {
+function FlashcardDeck({ deck }) {
     const navigate = useNavigate();
     const handleStudy = () => {
-        navigate(`/Student/flashcards/study/${id}`);
+        navigate(`/Student/flashcards/study/${deck._id}`);
     };
 
     return (
@@ -13,13 +13,13 @@ function FlashcardDeck({ id, title, description, cardCount }) {
             <div className="flex flex-col h-full p-6">
                 {/* Title and Description */}
                 <div className="flex-grow">
-                    <h3 className="text-xl font-semibold mb-2">{title}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{description}</p>
+                    <h3 className="text-xl font-semibold mb-2">{deck.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4">{deck?.description || '' }</p>
 
                     {/* Stats */}
                     <div className="flex items-center text-sm text-gray-500 mb-6">
                         <Book className="w-4 h-4 mr-1" />
-                        <span>{cardCount} cards</span>
+                        <span>{deck.flashcards?.length} cards</span>
                     </div>
                 </div>
 

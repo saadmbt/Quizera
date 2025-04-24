@@ -1,57 +1,38 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Library, Plus, Sidebar } from 'lucide-react';
 import FlashcardDeck from './flashcarddeck';
 import { useOutletContext } from 'react-router-dom';
+import { getFlashcards } from '../../services/StudentService';
 
-const DECKS = [
-  {
-    id: 1,
-    title: 'Essential Spanish Phrases',
-    description: 'Common expressions and vocabulary for daily conversations',
-    cardCount: 50,
-    category: 'Language',
-    color: 'blue',
-    progress: 75
-  },
-  {
-    id: 2,
-    title: 'World History: Ancient Civilizations',
-    description: 'Key events and figures from ancient civilizations',
-    cardCount: 30,
-    category: 'History',
-    color: 'purple',
-    progress: 45
-  },
-  {
-    id: 3,
-    title: 'Calculus Fundamentals',
-    description: 'Basic concepts and formulas in calculus',
-    cardCount: 40,
-    category: 'Mathematics',
-    color: 'green',
-    progress: 60
-  },
-  {
-    id: 4,
-    title: 'Physics: Quantum Mechanics',
-    description: 'Introduction to quantum physics principles',
-    cardCount: 25,
-    category: 'Science',
-    color: 'orange',
-    progress: 30
-  },
-  {
-    id: 5,
-    title: 'Japanese Kanji',
-    description: 'Essential kanji characters for beginners',
-    cardCount: 100,
-    category: 'Language',
-    color: 'pink',
-    progress: 20
-  }
-];
 
 function FlashcardsSection({ limit }) {
+   const [DECKS, setDECKS] = useState([]);
+   const [loading, setloading] = useState(false);
+
+  // const { userId } = useContext(AuthContext);
+   const userId = "saad"; // Replace with actual user ID from context or props
+    const fetchflashcards = useCallback(async () => {
+      try{
+        setloading(true);
+        const history = await getFlashcards(userId);
+        setDECKS(history);
+      }catch (error) {
+        console.error("Error fetching Flashcards:", error);
+      } finally {
+        setloading(false);
+      }
+
+    }, [userId]);
+
+    useEffect(() => {
+      fetchflashcards();
+    }, []); 
+
+  if (loading) return (
+    <div className="flex justify-center items-center min-h-[80vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+    </div>
+  );
   const displayedDecks = limit ? DECKS.slice(0, limit) : DECKS
   const { toggleSidebar } = useOutletContext();
   return (
@@ -84,10 +65,10 @@ function FlashcardsSection({ limit }) {
 
       {/* Decks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayedDecks.map(deck => (
+        {displayedDecks.map((deck,i) => (
           <FlashcardDeck
-            key={deck.id}
-            {...deck}
+            key={i}
+            deck={deck}
           />
         ))}
       </div>

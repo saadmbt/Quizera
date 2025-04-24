@@ -1,37 +1,40 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
 
-// Mock flashcard data
-const FLASHCARD_DECKS = {
-  1: {
-    id: 1,
-    title: 'Essential Spanish Phrases',
-    cards: [
-      { id: 1, front: '¡Hola!', back: 'Hello!' },
-      { id: 2, front: '¿Cómo estás?', back: 'How are you?' },
-      { id: 3, front: 'Gracias', back: 'Thank you' },
-      { id: 4, front: 'Por favor', back: 'Please' },
-      { id: 5, front: 'De nada', back: 'You\'re welcome' }
-    ]
-  },
-  2: {
-    id: 2,
-    title: 'World History: Ancient Civilizations',
-    cards: [
-      { id: 1, front: 'Who built the pyramids?', back: 'Ancient Egyptians' },
-      { id: 2, front: 'What was the capital of the Roman Empire?', back: 'Rome' },
-      { id: 3, front: 'Who was the first Emperor of China?', back: 'Qin Shi Huang' }
-    ]
-  }
-};
+import { getFlashcardById } from '../../services/StudentService';
+
+
 
 export default function FlashcardStudy() {
   const { id } = useParams();
-  const deck = FLASHCARD_DECKS[Number(id)];
+  const [deck,setdeck] = useState([])
+
   const [currentCard, setCurrentCard] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [loading,setloading]=useState(true)
 
+    const fetchflashcard = useCallback(async () => {
+      try{
+        setloading(true);
+        const flashcard = await getFlashcardById(id);
+        setdeck(flashcard);
+      }catch (error) {
+        console.error("Error fetching flashcard :", error);
+      } finally {
+        setloading(false);
+      }
+
+    }, [id]);
+
+    useEffect(() => {
+      fetchflashcard();
+    }, []); 
+    if (loading) return (
+      <div className="flex justify-center items-center min-h-[80vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
   if (!deck) {
     return (
       <div className="max-w-4xl mx-auto p-6">
@@ -52,12 +55,12 @@ export default function FlashcardStudy() {
 
   const handleNext = () => {
     setIsFlipped(false);
-    setCurrentCard((prev) => (prev + 1) % deck.cards.length);
+    setCurrentCard((prev) => (prev + 1) % deck.flashcards?.length);
   };
 
   const handlePrevious = () => {
     setIsFlipped(false);
-    setCurrentCard((prev) => (prev - 1 + deck.cards.length) % deck.cards.length);
+    setCurrentCard((prev) => (prev - 1 + deck.flashcards?.length) % deck.flashcards?.length);
   };
 
   const handleFlip = () => {
@@ -83,12 +86,12 @@ export default function FlashcardStudy() {
       <div className="mb-8">
         <div className="flex justify-between text-sm text-gray-600 mb-2">
           <span>Progress</span>
-          <span>{currentCard + 1} of {deck.cards.length}</span>
+          <span>{currentCard + 1} of {deck.flashcards?.length}</span>
         </div>
         <div className="h-2 bg-gray-200 rounded-full">
           <div
             className="h-full bg-blue-500 rounded-full transition-all duration-300"
-            style={{ width: `${((currentCard + 1) / deck.cards.length) * 100}%` }}
+            style={{ width: `${((currentCard + 1) / deck.flashcards?.length) * 100}%` }}
           />
         </div>
         <p className="text-lg text-gray-600 mt-4 font-bold">Tap the card to discover the answer</p>
@@ -113,7 +116,7 @@ export default function FlashcardStudy() {
             ${isFlipped ? 'hidden' : 'block'}
             backface -hidden
           `}>
-            <p className="text-2xl font-medium">{deck.cards[currentCard].front}</p>
+            <p className="text-2xl font-medium">{deck.flashcards[currentCard].front}</p>
           </div>
 
           {/* Back */}
@@ -124,7 +127,7 @@ export default function FlashcardStudy() {
             ${isFlipped ? 'block' : 'hidden'}
             backface-hidden rotate-y-180
           `}>
-            <p className="text-2xl font-medium">{deck.cards[currentCard].back}</p>
+            <p className="text-2xl font-medium">{deck.flashcards[currentCard].back}</p>
           </div>
         </div>
       </div>

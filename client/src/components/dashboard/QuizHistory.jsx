@@ -5,7 +5,7 @@ import { getQuizResults } from '../../services/StudentService';
 
 
 function QuizHistory(props) {
-  // Simulating fetching quiz history from an API
+  
    const [quizHistory, setQuizHistory] = useState([]);
    const [loading, setloading] = useState(false);
 

@@ -6,43 +6,6 @@ import { getQuizResultById } from '../../services/StudentService';
 import Flashcards from '../../components/dashboard/Flashcards';
 import Videos from '../../components/dashboard/Videos';
 
-// Enhanced mock data with detailed question information
-const QUIZ_DETAILS = {
-  1: {
-    id: 1,
-    title: 'Geography Quiz',
-    date: '2024-03-15',
-    score: 85,
-    timeSpent: '12:30',
-    type: 'multiple-choice',
-    questions: [
-      {
-        id: 1,
-        question: 'What is the capital of France?',
-        options: ['London', 'Berlin', 'Paris', 'Madrid'],
-        correctAnswer: 'Paris',
-        userAnswer: 'Paris',
-        isCorrect: true
-      },
-      {
-        id: 2,
-        question: 'Which is the largest continent?',
-        options: ['Africa', 'Europe', 'Asia', 'North America'],
-        correctAnswer: 'Asia',
-        userAnswer: 'Africa',
-        isCorrect: false
-      },
-      {
-        id: 3,
-        question: 'What is the longest river in the world?',
-        options: ['Amazon', 'Nile', 'Mississippi', 'Yangtze'],
-        correctAnswer: 'Nile',
-        userAnswer: 'Nile',
-        isCorrect: true
-      }
-    ]
-  }
-};
 
 function QuizDetailspage() {
    const [quiz,setquiz]=useState({})
