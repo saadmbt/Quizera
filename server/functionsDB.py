@@ -173,6 +173,9 @@ def Fetch_Quiz_Results(Quiz_res_id):
         else :
             quiz_res["_id"]=str(quiz_res["_id"])
             quiz_res["generated_by"]=str(quiz_res["generated_by"])
+            quiz_res["quiz_id"]=str(quiz_res["quiz_id"])
+            quiz_res["lesson_id"]=str(quiz_res["lesson_id"])
+            
             return quiz_res
     except PyMongoError as e :
         return f"Error fetching quiz result :{str(e)}" 

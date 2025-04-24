@@ -366,7 +366,30 @@ def fetch_quiz_results(user_id):
         return jsonify(quiz_results), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+# get quiz results by quiz Result id
+@app.route('/api/quiz_results/<quiz_result_id>', methods=['GET'])
+# @jwt_required()
+def fetch_quiz_result(quiz_result_id):
+    """Fetches the quiz result for a given quiz result ID.
+    This endpoint requires a valid JWT token to access.
+    Args:
+        quiz_result_id (objectId): The ID of the quiz result to fetch.
+    Returns:
+        Response: A JSON response containing the quiz result if found, 
+                    or an error message if the quiz result is not found or an error occurs.
+                    The response status code is 200 for success and 404 for errors.
+    """
+    try:
+        quiz_result_id = ObjectId(quiz_result_id)
+        quiz_result = Fetch_Quiz_Results(quiz_result_id)
+        if quiz_result is None:
+            return jsonify({"error": "Quiz result not found"}), 404
+        if isinstance(quiz_result, str) and "error" in quiz_result.lower():
+            return jsonify({"error": str(quiz_result)}), 404
 
+        return jsonify(quiz_result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/insert', methods=['POST'])
 # @jwt_required()
