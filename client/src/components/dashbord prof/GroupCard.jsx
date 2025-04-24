@@ -1,7 +1,8 @@
 import React from 'react';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
 
-const GroupCard = ({ name, count }) => {
+const GroupCard = ({ name, count, groupId }) => {
   return (
     <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
 
@@ -14,12 +15,18 @@ const GroupCard = ({ name, count }) => {
           </div>
         </div>
         <div className="space-x-2">
-          <button className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded">
-            Study
-          </button>
-          <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded">
+          <Link
+            to={`/professor/group/${groupId}`}
+            className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
+          >
+            View
+          </Link>
+          <Link
+            to={`/professor/group/${groupId}/edit`}
+            className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded"
+          >
             Edit
-          </button>
+          </Link>
         </div>
       </div>
     </div>

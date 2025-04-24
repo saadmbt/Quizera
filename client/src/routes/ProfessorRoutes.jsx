@@ -6,6 +6,7 @@ import QuizzesProf from '../components/ProfQuizzes/QuizzesProf';
 import ProfQuizzdp from '../components/ProfQuizzes/ProfQuizzdp';
 import QuizSetup from '../pages/Dashboard/QuizSetup';
 import QuizPreview from '../components/dashbord prof/QuizPreview';
+import GroupEditpage from '../pages/Dashboard/GroupEditpage';
 
 const ProfessorRoutes = [
   {
@@ -15,6 +16,10 @@ const ProfessorRoutes = [
   {
     path: 'groups',
     element: <Groups />,
+  },
+  {
+    path:'group/:groupid/edit',
+    element:<GroupEditpage/>
   },
   {
     path: 'quizzes',

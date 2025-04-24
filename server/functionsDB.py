@@ -298,7 +298,7 @@ def get_group_by_code(group_id, professor_id):
 def get_professor_groups(professor_uid):
     """Get all groups created by a professor"""
     try:
-        groups = list(groups_collection.find({"professor_uid": professor_uid}))
+        groups = list(groups_collection.find({"prof_id": professor_uid}))
         for group in groups:
             group['_id'] = str(group['_id'])
         return groups

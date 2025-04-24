@@ -71,6 +71,7 @@ export const addStudentToGroup = async (groupId, studentUid) => {
   }
 };
 
+
 // Get a specific group by group ID and professor ID
 export const getGroupById = async (groupId, profId) => {
   try {
@@ -81,6 +82,27 @@ export const getGroupById = async (groupId, profId) => {
   } catch (error) {
     console.error(
       "Error fetching group:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+// Update group info
+export const updateGroup = async (groupId, profId, updateData) => {
+  try {
+    const response = await axios.put(
+      `https://prepgenius-backend.vercel.app/api/groups/${groupId}`, updateData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error updating group:",
       error.response?.data || error.message
     );
     throw error;

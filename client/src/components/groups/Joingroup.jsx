@@ -71,7 +71,7 @@ const JoinGroup = () => {
       const response = await axios.post(
         'https://prepgenius-backend.vercel.app/api/groups/join',
         { 
-          token,
+          token:token,
           uid: user.uid 
         },
         {
@@ -82,7 +82,7 @@ const JoinGroup = () => {
       );
       
       toast.success('Successfully joined group');
-      navigate('/Student/groups');  
+      navigate(`/Student/groups/${response.data.group._id}`);  
     } catch (error) {
       console.error('Join error:', error);
       toast.error(error.response?.data?.error || 'Failed to join group');

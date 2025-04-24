@@ -1,21 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import StatCard from './StatCard';
-import LessonCard from './LessonCard';
 import GroupCard from './GroupCard';
+import { fetchProfessorGroups } from '../../services/ProfServices';
+import { AuthContext } from '../Auth/AuthContext';
 
 const ProfDashboard = () => {
-  const recentLessons = [
-    { title: 'Advanced Grammar', subject: 'English' },
-    { title: 'Business Vocabulary', subject: 'Spanish' },
-    { title: 'Conversation Practice', subject: 'French' },
-  ];
+  const { user } = useContext(AuthContext);
+  const [groups, setGroups] = useState([]);
+  const [stats, setStats] = useState({
+    activeGroups: 0,
+    totalStudents: 0,
+    averageScore: 0,
+  });
 
-  const groups = [
-    { name: 'Essential Phrases', count: '50 students' },
-    { name: 'Grammar Rules', count: '30 students' },
-    { name: 'Vocabulary', count: '100 students' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return;
+      try {
+        const groupsData = await fetchProfessorGroups(user);
+        console.log('Groups data fetched in ProfDashboard:', groupsData);
+        setGroups(groupsData);
+
+        // Calculate stats from groupsData
+        const activeGroups = groupsData.length;
+        const totalStudents = groupsData.reduce((acc, group) => {
+          // Sum the length of students array if present
+          return acc + (group.students ? group.students.length : 0);
+        }, 0);
+        // For averageScore, assuming groupsData has averageScore property or calculate accordingly
+        const averageScore = groupsData.length > 0
+          ? groupsData.reduce((acc, group) => acc + (group.averageScore || 0), 0) / groupsData.length
+          : 0;
+
+        setStats({
+          activeGroups,
+          totalStudents,
+          averageScore: parseFloat(averageScore.toFixed(1)),
+        });
+      } catch (error) {
+        console.error('Error fetching professor groups:', error);
+      }
+    };
+
+    fetchData();
+  }, [user]);
 
   return (
     <div className="p-8">
@@ -34,47 +63,34 @@ const ProfDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard
           title="Active Groups"
-          value="25"
+          value={stats.activeGroups}
           color="blue"
-          percentage={75}
+          percentage={stats.activeGroups > 0 ? 100 : 0}
         />
         <StatCard
           title="Total Students"
-          value="92"
+          value={stats.totalStudents}
           color="green"
-          percentage={92}
+          percentage={stats.totalStudents > 0 ? 100 : 0}
         />
         <StatCard
           title="Average Score"
-          value="7.8"
+          value={stats.averageScore}
           color="yellow"
-          percentage={78}
+          percentage={stats.averageScore * 10}
         />
-      </div>
-
-      {/* Recent Lessons */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Recent Lessons</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recentLessons.map((lesson, index) => (
-            <LessonCard
-              key={index}
-              title={lesson.title}
-              subject={lesson.subject}
-            />
-          ))}
-        </div>
       </div>
 
       {/* Groups */}
       <div>
         <h2 className="text-xl font-bold mb-4">Your Groups</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {groups.map((group, index) => (
+          {groups.map((group) => (
             <GroupCard
-              key={index}
-              name={group.name}
-              count={group.count}
+              key={group._id}
+              name={group.group_name || group.name}
+              count={`${group.students ? group.students.length : 0} students`}
+              groupId={group._id}
             />
           ))}
         </div>
