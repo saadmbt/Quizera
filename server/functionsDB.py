@@ -287,7 +287,7 @@ def get_group_by_code(group_id, professor_id):
     try:
         group = groups_collection.find_one({
             "_id": ObjectId(group_id),
-            "professor_uid": professor_id
+            "prof_id": professor_id
         })
         if group:
             group['_id'] = str(group['_id'])
