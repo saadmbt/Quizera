@@ -12,7 +12,7 @@ from functionsDB import (
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
     insert_group, add_student_to_group, get_group_by_code,
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
-    Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info
+    Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -517,6 +517,17 @@ def get_student_groups_route(student_uid):
     if not groups:
         return jsonify({"error": "No groups found for this student"}), 404
     return jsonify(groups), 200
+
+# 8. Get Group by Group UID (GET /api/groups/get/<group_uid>)
+@app.route('/api/groups/get/<group_uid>', methods=['GET'])
+# @jwt_required()
+def get_group_uid(group_uid):
+    group = get_group_by_id(group_uid)
+    if isinstance(group, str) and "error" in group.lower():
+        return jsonify({"error": str(group)}), 500
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+    return jsonify(group), 200
 
 # Generate invitation link
 @app.route('/api/generate-invite-link', methods=['POST'])
