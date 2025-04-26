@@ -379,3 +379,75 @@ def update_group_info(group_id, update_data):
             return {"success": False, "error": "No changes made or group not found"}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+# Insert a quiz assignment document
+def insert_quiz_assignment(assignment_data):
+    try:
+        collection = db["quiz_assignments"]
+        # Validate and convert ObjectId fields
+        quiz_id = assignment_data.get("quizId")
+        group_ids = assignment_data.get("groupIds", [])
+        assigned_by = assignment_data.get("assignedBy")
+        assigned_at = assignment_data.get("assignedAt")
+        due_date = assignment_data.get("dueDate")
+
+        if not quiz_id or not group_ids or not assigned_by or not assigned_at:
+            return {"error": "Missing required fields"}
+
+        # Convert to ObjectId if strings
+        if isinstance(quiz_id, str):
+            quiz_id = ObjectId(quiz_id)
+        group_ids_obj = []
+        for gid in group_ids:
+            if isinstance(gid, str):
+                group_ids_obj.append(ObjectId(gid))
+            else:
+                group_ids_obj.append(gid)
+        if isinstance(assigned_by, str):
+            assigned_by = ObjectId(assigned_by)
+
+        # Parse dates if strings
+        if isinstance(assigned_at, str):
+            assigned_at = datetime.fromisoformat(assigned_at)
+        if due_date and isinstance(due_date, str):
+            due_date = datetime.fromisoformat(due_date)
+
+        doc = {
+            "quizId": quiz_id,
+            "groupIds": group_ids_obj,
+            "assignedBy": assigned_by,
+            "assignedAt": assigned_at,
+            "dueDate": due_date,
+            "startTime": assignment_data.get("startTime")  # Add startTime field
+        }
+        result = collection.insert_one(doc)
+        return str(result.inserted_id)
+    except Exception as e:
+        return {"error": f"Error inserting quiz assignment: {str(e)}"}
+
+# New function to get group IDs with quiz assignments for a student
+def get_quiz_assignment_group_ids_for_student(student_uid):
+    try:
+        # Find groups the student belongs to
+        groups = list(groups_collection.find({"students.uid": student_uid}, {"_id": 1}))
+        group_ids = [group["_id"] for group in groups]
+
+        if not group_ids:
+            return []
+
+        # Find quiz assignments for these groups
+        collection = db["quiz_assignments"]
+        assignments = collection.find({"groupIds": {"$in": group_ids}}, {"groupIds": 1})
+
+        # Collect unique group IDs that have quiz assignments
+        assigned_group_ids = set()
+        for assignment in assignments:
+            for gid in assignment.get("groupIds", []):
+                assigned_group_ids.add(gid)
+
+        # Convert ObjectId to string for consistency
+        assigned_group_ids_str = [str(gid) for gid in assigned_group_ids]
+
+        return assigned_group_ids_str
+    except Exception as e:
+        return {"error": f"Error fetching quiz assignment group IDs: {str(e)}"}

@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { fetchProfessorGroups, assignQuizToGroups } from '../../services/ProfServices.jsx';
+import { generateQuiz } from '../../services/StudentService.jsx';
 import { ChevronRight, Brain, Target, HelpCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { AuthContext } from '../../components/Auth/AuthContext.jsx';
 
 const QUESTION_TYPES = [
   { id: 'multiple-choice', label: 'Multiple Choice', icon: Brain },
@@ -15,42 +18,90 @@ const DIFFICULTY_LEVELS = [
   { id: 'advanced', label: 'Advanced' }
 ];
 
-const GROUPS = [
-  { id: 'group1', label: 'Computer Science 101' },
-  { id: 'group2', label: 'Mathematics 202' },
-  { id: 'group3', label: 'Physics 303' }
-];
-
-export default function QuizSetup({ onStartQuiz, lessonID}) {
+export default function QuizSetup({ onStartQuiz, lessonID }) {
+  const [groups, setGroups] = useState([]);
+  const [groupsLoading, setGroupsLoading] = useState(false);
+  const [groupsError, setGroupsError] = useState(null);
   const [questionType, setQuestionType] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [questionCount, setQuestionCount] = useState(10);
   const [selectedGroup, setSelectedGroup] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [quizStartTime, setQuizStartTime] = useState(''); // New state for quiz start time
   const [isLoading, setIsLoading] = useState(false);
-  
+  const { user } = useContext(AuthContext);
+
   const navigate = useNavigate();
   const location = useLocation();
   const isProfessor = location.pathname.includes('professor');
 
+  useEffect(() => {
+    if (isProfessor) {
+      const fetchGroups = async () => {
+        setGroupsLoading(true);
+        setGroupsError(null);
+        try {
+          const fetchedGroups = await fetchProfessorGroups(user);
+          setGroups(fetchedGroups);
+        } catch (error) {
+          setGroupsError('Failed to load groups');
+        } finally {
+          setGroupsLoading(false);
+        }
+      };
+      fetchGroups();
+    }
+  }, [isProfessor, user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const quizData = {
-      lesson_id:lessonID,
+    const quizSetupData = {
+      lesson_id: lessonID,
       type: questionType,
-      number:questionCount,
+      number: questionCount,
       difficulty,
-      sharedWith: isProfessor ? selectedGroup : null
     };
-    
+
     try {
       if (isProfessor) {
-        await new Promise(resolve => setTimeout(resolve, 800)); 
-        navigate('/professor/upload/quizpreview', { state: { quizData }});
+        // Generate the quiz first
+        const quizResponse = await generateQuiz(quizSetupData);
+        if (!quizResponse || !quizResponse.quiz) {
+          throw new Error('Quiz generation failed');
+        }
+        const quizId = quizResponse.quiz._id || quizResponse.quiz.id || quizResponse.quiz;
+
+        // Assign quiz to selected group(s)
+        if (!selectedGroup) {
+          throw new Error('No group selected for quiz assignment');
+        }
+        if (!quizStartTime) {
+          throw new Error('Quiz start time is required');
+        }
+        const assignedBy = user ? user.uid : 'current_professor_uid';
+        const assignedAt = new Date().toISOString();
+        const groupIds = [selectedGroup];
+        const dueDateISO = dueDate ? new Date(dueDate).toISOString() : null;
+        const quizStartTimeISO = new Date(quizStartTime).toISOString();
+
+        await assignQuizToGroups({
+          quizId,
+          groupIds,
+          assignedBy,
+          assignedAt,
+          dueDate: dueDateISO,
+          startTime: quizStartTimeISO, // Include start time in assignment data
+        });
+
+        navigate('/professor/upload/quizpreview', { state: { quizData: quizSetupData, quizId } });
       } else {
-        onStartQuiz(quizData);
+        onStartQuiz(quizSetupData);
         navigate('/student/quiz');
       }
+    } catch (error) {
+      console.error('Error during quiz creation and assignment:', error);
+      // Optionally, set error state here to show error message in UI
     } finally {
       setIsLoading(false);
     }
@@ -59,19 +110,20 @@ export default function QuizSetup({ onStartQuiz, lessonID}) {
   const progress = [
     !!questionType,
     !!difficulty,
-    isProfessor ? !!selectedGroup : true
+    isProfessor ? !!selectedGroup : true,
+    isProfessor ? !!quizStartTime : true, // Include start time in progress for professor
   ].filter(Boolean).length;
 
-  const totalSteps = isProfessor ? 3 : 2;
+  const totalSteps = isProfessor ? 4 : 2;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto p-6 space-y-8"
     >
       <div className="text-center">
-        <motion.h1 
+        <motion.h1
           initial={{ scale: 0.9 }}
           animate={{ scale: 1 }}
           className="text-3xl font-bold text-gray-900 mb-3"
@@ -79,8 +131,8 @@ export default function QuizSetup({ onStartQuiz, lessonID}) {
           {isProfessor ? 'Create Quiz' : 'Start Your Quiz'}
         </motion.h1>
         <p className="text-gray-600 text-lg">
-          {isProfessor 
-            ? 'Design a quiz and share it with your students' 
+          {isProfessor
+            ? 'Design a quiz and share it with your students'
             : 'Customize your quiz experience'}
         </p>
 
@@ -116,17 +168,14 @@ export default function QuizSetup({ onStartQuiz, lessonID}) {
                   whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setQuestionType(id)}
-                  className={`
-                    p-6 rounded-lg border-2 transition-all
-                    ${questionType === id
-                      ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
-                      : 'border-gray-200 hover:border-blue-300'
-                    }
-                  `}
+                  className={
+                    "p-6 rounded-lg border-2 transition-all " +
+                    (questionType === id
+                      ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
+                      : "border-gray-200 hover:border-blue-300")
+                  }
                 >
-                  <Icon className={`h-10 w-10 mb-3 mx-auto ${
-                    questionType === id ? 'text-blue-500' : 'text-gray-400'
-                  }`} />
+                  <Icon className={"h-10 w-10 mb-3 mx-auto " + (questionType === id ? "text-blue-500" : "text-gray-400")} />
                   <div className="text-base font-medium text-center">{label}</div>
                 </motion.button>
               ))}
@@ -146,13 +195,12 @@ export default function QuizSetup({ onStartQuiz, lessonID}) {
                   whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setDifficulty(id)}
-                  className={`
-                    py-3 px-6 rounded-lg text-base font-medium transition-all
-                    ${difficulty === id
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }
-                  `}
+                  className={
+                    "py-3 px-6 rounded-lg text-base font-medium transition-all " +
+                    (difficulty === id
+                      ? "bg-blue-500 text-white shadow-md"
+                      : "bg-gray-50 text-gray-700 hover:bg-gray-100")
+                  }
                 >
                   {label}
                 </motion.button>
@@ -184,32 +232,52 @@ export default function QuizSetup({ onStartQuiz, lessonID}) {
             </div>
           </div>
 
+          {/* Quiz Start Time Input */}
+          {isProfessor && (
+            <div className="space-y-4">
+              <label htmlFor="quizStartTime" className="block text-lg font-medium text-gray-900">
+                Quiz Start Time
+              </label>
+              <input
+                id="quizStartTime"
+                type="datetime-local"
+                value={quizStartTime}
+                onChange={(e) => setQuizStartTime(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-2"
+                required
+              />
+            </div>
+          )}
+
           {/* Group Selection (only for professors) */}
           {isProfessor && (
             <div className="space-y-4">
               <label className="block text-lg font-medium text-gray-900 mb-4">
                 Share with Group
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {GROUPS.map(({ id, label }) => (
-                  <motion.button
-                    key={id}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="button"
-                    onClick={() => setSelectedGroup(id)}
-                    className={`
-                      p-4 rounded-lg border-2 transition-all text-left
-                      ${selectedGroup === id
-                        ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
-                        : 'border-gray-200 hover:border-blue-300'
+              {groupsLoading && <p>Loading groups...</p>}
+              {groupsError && <p className="text-red-500">{groupsError}</p>}
+              {!groupsLoading && !groupsError && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {groups.map(({ _id, group_name }) => (
+                    <motion.button
+                      key={_id}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="button"
+                      onClick={() => setSelectedGroup(_id)}
+                      className={
+                        "p-4 rounded-lg border-2 transition-all text-left " +
+                        (selectedGroup === _id
+                          ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
+                          : "border-gray-200 hover:border-blue-300")
                       }
-                    `}
-                  >
-                    <div className="text-base font-medium">{label}</div>
-                  </motion.button>
-                ))}
-              </div>
+                    >
+                      <div className="text-base font-medium">{group_name}</div>
+                    </motion.button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -218,15 +286,13 @@ export default function QuizSetup({ onStartQuiz, lessonID}) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            disabled={!questionType || !difficulty || (isProfessor && !selectedGroup) || isLoading}
-            className={`
-              w-full flex items-center justify-center py-4 px-6
-              rounded-lg text-base font-medium transition-all
-              ${!questionType || !difficulty || (isProfessor && !selectedGroup) || isLoading
-                ? 'bg-gray-300 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg'
-              }
-            `}
+            disabled={!questionType || !difficulty || (isProfessor && (!selectedGroup || !quizStartTime)) || isLoading}
+            className={
+              "w-full flex items-center justify-center py-4 px-6 rounded-lg text-base font-medium transition-all " +
+              (!questionType || !difficulty || (isProfessor && (!selectedGroup || !quizStartTime)) || isLoading
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 text-white shadow-lg")
+            }
           >
             {isLoading ? (
               <div className="flex items-center">

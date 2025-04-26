@@ -12,7 +12,8 @@ from functionsDB import (
     Insert_Quiz_Results, Fetch_Quiz_Results, lastID,
     insert_group, add_student_to_group, get_group_by_code,
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
-    Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id
+    Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id,
+    insert_quiz_assignment,get_quiz_assignment_group_ids_for_student
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -516,7 +517,19 @@ def get_student_groups_route(student_uid):
         return jsonify({"error": str(groups)}), 500
     if not groups:
         return jsonify({"error": "No groups found for this student"}), 404
-    return jsonify(groups), 200
+
+    # Fetch groups with quiz assignments for the student
+    assigned_group_ids = get_quiz_assignment_group_ids_for_student(student_uid)
+    if isinstance(assigned_group_ids, dict) and "error" in assigned_group_ids:
+        return jsonify({"error": assigned_group_ids["error"]}), 500
+
+    # Sort groups: groups with quiz assignments first
+    def group_sort_key(group):
+        return 0 if group['_id'] in assigned_group_ids else 1
+
+    sorted_groups = sorted(groups, key=group_sort_key)
+
+    return jsonify(sorted_groups), 200
 
 # 8. Get Group by Group UID (GET /api/groups/get/<group_uid>)
 @app.route('/api/groups/get/<group_uid>', methods=['GET'])
@@ -599,6 +612,29 @@ def join_group():
             
     except Exception as e:
         return jsonify({"error": f"Failed to join group: {str(e)}"}), 500
+# Insert a quiz assignment (POST /api/quiz-assignments)
+@app.route('/api/quiz-assignments', methods=['POST'])
+# @jwt_required()
+def create_quiz_assignment():
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    quiz_id = data.get("quizId")
+    group_ids = data.get("groupIds")
+    assigned_by = data.get("assignedBy")
+    assigned_at = data.get("assignedAt")
+    due_date = data.get("dueDate")
+
+    if not quiz_id or not group_ids or not assigned_by or not assigned_at:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    result = insert_quiz_assignment(data)
+    if isinstance(result, dict) and "error" in result:
+        return jsonify({"error": result["error"]}), 500
+
+    return jsonify({"message": "Quiz assignment created successfully", "assignment_id": result}), 201
+
 
 # Validate invitation token
 @app.route('/api/validate-invite-token', methods=['POST'])

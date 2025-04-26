@@ -1,11 +1,11 @@
 import axios from "axios";
 
-// Fetch groups for a professor
+// Fetch groups for a professor using the correct endpoint
 export const fetchProfessorGroups = async (user) => {
   try {
     console.log('Fetching groups for professor:', user.uid); // Debug log
     const response = await axios.get(
-      `https://prepgenius-backend.vercel.app/api/groups/${user.uid}`
+      `https://prepgenius-backend.vercel.app/api/professor-groups/${user.uid}`
     );
     console.log('Groups fetched successfully:', response.data); // Debug log
     return response.data;
@@ -14,6 +14,7 @@ export const fetchProfessorGroups = async (user) => {
     throw error;
   }
 };
+
 
 // Fetch groups for a student
 export const fetchStudentGroups = async (studentUid) => {
@@ -189,6 +190,31 @@ export const previewQuiz = async (quizId) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching quiz preview:', error);
+    throw error;
+  }
+};
+
+// Assign quiz to groups (quizz assignment)
+export const assignQuizToGroups = async ({ quizId, groupIds, assignedBy, assignedAt, dueDate }) => {
+  try {
+    const response = await axios.post(
+      'https://prepgenius-backend.vercel.app/api/quiz-assignments',
+      {
+        quizId,
+        groupIds,
+        assignedBy,
+        assignedAt,
+        dueDate
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error assigning quiz to groups:', error.response?.data || error.message);
     throw error;
   }
 };
