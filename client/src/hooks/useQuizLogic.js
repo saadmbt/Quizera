@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { fetchVideos, generateFlashcards } from "../services/StudentService";
 
-export default function useQuizLogic(settings) {
+export default function useQuizLogic(settings,params) {
   const [quiz, setQuiz] = useState({})
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [ListFlashcards, setListFlashcards] = useState([]);
@@ -20,13 +20,13 @@ export default function useQuizLogic(settings) {
   // variable in localstorage to check if the quiz result is saved  or not
   const isResultSavedIn = JSON.parse(localStorage.getItem('isResultSaved'));
   const isResultSaverdIn = isResultSavedIn ? " " : localStorage.setItem('isResultSaved',false);
-
+  Lesson__id = params ? quiz?.lesson_id : settings?.lesson_id;
 
   // Initialize QuizResult on quiz load
   useEffect(() => {
     if (quiz) {
       setQuizResult({
-        lesson_id: settings?.lesson_id || quiz.lesson_id ,
+        lesson_id: Lesson__id , 
         quiz_id: quiz._id,
         title: quiz.title,
         date: quiz.createdAt,
@@ -123,8 +123,8 @@ export default function useQuizLogic(settings) {
       if (hasCalledApis) return; // Skip if already called
       setHasCalledApis(true);
       Promise.all([
-        generateFlashcards((settings?.lesson_id || quiz.lesson_id), quiz_res_id),
-        fetchVideos((settings?.lesson_id || quiz.lesson_id), quiz_res_id),
+        generateFlashcards(Lesson__id, quiz_res_id),
+        fetchVideos(Lesson__id, quiz_res_id),
       ])
         .then(([flashcardsResponse, videosResponse]) => {
           if (flashcardsResponse && flashcardsResponse.flashcards) {
@@ -138,7 +138,7 @@ export default function useQuizLogic(settings) {
           console.error("Error fetching flashcards or videos:", error);
         });
     },
-    [(settings?.lesson_id || quiz.lesson_id) , hasCalledApis]
+    [Lesson__id,hasCalledApis]
   );
 
   return {

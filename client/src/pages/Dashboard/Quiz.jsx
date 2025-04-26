@@ -35,7 +35,7 @@ export default function Quiz({settings, params}) {
     setshowQuestions,
     getQuizResult,
     handleAnswer,
-  } = useQuizLogic(settings);
+  } = useQuizLogic(settings,params);
    // generate the Quiz by calling the generateQuiz function from the StudentService
   const { Quiz_id } = useParams();
   const quizId = params ? Quiz_id : "";

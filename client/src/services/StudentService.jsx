@@ -211,3 +211,21 @@ export const getQuizResultById = async (result_id) => {
     throw error;
   }
 }
+// get group info by group_id 
+export const getGroupInfo = async (group_id) => {
+  try {
+    const response = await axios.get(`https://prepgenius-backend.vercel.app/api/groups/get/${group_id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        // "Authorization": `Bearer ${token}`
+      },
+    });
+    // Log the response for debugging
+    console.log('Group info fetched:', response.data);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Error fetching group info:", error);
+    throw error;
+  }
+}

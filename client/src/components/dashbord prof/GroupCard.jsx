@@ -1,32 +1,39 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../Auth/AuthContext';
 
 const GroupCard = ({ name, count, groupId }) => {
+    const { user } = useContext(AuthContext);
+  
   return (
-    <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-
-      <div className="flex items-center justify-between">
+    <div className="bg-white min-h-[150px] rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200 transform hover:-translate-y-1">
+      <div className="flex items-center justify-between space-x-4 py-4 gap-3"> 
         <div>
-          <h3 className="font-semibold">{name}</h3>
-          <div className="flex items-center mt-2 text-gray-600">
-            <UserGroupIcon className="w-4 h-4 mr-1" />
-            <span className="text-sm">{count}</span>
+          <h3 className="text-lg font-bold text-gray-800 hover:text-blue-600 transition-colors">
+            {name}
+          </h3>
+          <div className="flex items-center mt-3 text-gray-600">
+            <UserGroupIcon className="w-5 h-5 mr-2 text-blue-500" />
+            <span className="text-sm font-medium">{count} members</span>
           </div>
         </div>
-        <div className="space-x-2">
+        <div className="space-x-3">
           <Link
-            to={`/professor/group/${groupId}`}
-            className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
+            to={`/${user.role}/groups/${groupId}`}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
           >
             View
           </Link>
-          <Link
+          {user.role === 'professor' && (
+            <Link
             to={`/professor/group/${groupId}/edit`}
-            className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200"
           >
             Edit
           </Link>
+          )}
+          
         </div>
       </div>
     </div>

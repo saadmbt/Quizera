@@ -1,52 +1,40 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, Clock, Award, Brain, Users } from 'lucide-react';
 import QuestionReview from '../../components/quiz/QuestionReview';
-const  groups=[
-    {
-        id: 1,
-        title: "Group 1",
-        description: "This is group 1",
-        createdOn: "2025-03-05",
-        profdetails: {
-            name: "John Doe",
-            designation: "Professor",
-            },
-        members: 5,
-        quizzes: [
-            {
-                id: 1,
-                title: "Quiz 1",
-                description: "This is quiz 1",
-                createdOn: "2025-03-05",
-                completed: true,
-            },
-            {
-                id: 2,
-                title: "Quiz 2",
-                description: "This is quiz 2",
-                createdOn: "2025-03-05",
-                completed: true,
-            },
-            {
-                id: 3,
-                title: "Quiz 3",
-                description: "This is quiz 3",
-                createdOn: "2025-03-05",
-                completed: false,
-            },
+import { getGroupInfo } from '../../services/StudentService';
 
-        ],
-    },
-]
 
 function GroupDetailspage() {
-    const { id } = useParams();
-    const group = groups.find(g => g.id === parseInt(id));
+    const [group, setGroup] = useState({});
+    const [loading, setloading] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    
+    const { id } = useParams();
+    const fetchGroup = useCallback(async () => {
+      try{
+        setloading(true);
+        const info = await getGroupInfo(id);
+        setGroup(info);
+      }catch (error) {
+        console.error("Error fetching Group info:", error);
+      } finally {
+        setloading(false);
+      }
+
+    }, [id]);
+
+    useEffect(() => {
+      fetchGroup();
+    }, []); 
     if (showResults) {
         return <QuestionReview onBack={() => setShowResults(false)} />;
     }
+    if (loading) return (
+        <div className="flex justify-center items-center min-h-[80vh]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      );
     return (
         <div className="max-w-4xl mx-auto p-6 space-y-8">
             {/* Header */}
@@ -68,20 +56,30 @@ function GroupDetailspage() {
 
             {/* Group Information Card */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
+                {/* group name and description */}
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="bg-gray-200 px-4 py-2 rounded-full">
+                        {group?.title?.[0] || 'G'}
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-semibold text-gray-800">{group?.group_name}</h2>
+                        <p className="text-sm text-gray-500">{group?.description}</p>
+                    </div>
+                </div>
                 {/* Group Stats */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
                     <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
                         <Calendar className="h-6 w-6 text-blue-500" />
                         <div>
                             <p className="text-sm font-medium text-gray-500">Creation Date</p>
-                            <p className="text-lg font-semibold text-gray-900">{group?.createdOn}</p>
+                            <p className="text-lg font-semibold text-gray-900">{group?.created_at}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
                         <Users className="h-6 w-6 text-green-500" />
                         <div>
                             <p className="text-sm font-medium text-gray-500">Members</p>
-                            <p className="text-lg font-semibold text-gray-900">{group?.members}</p>
+                            <p className="text-lg font-semibold text-gray-900">{group?.students?.length || 0}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg">
@@ -101,8 +99,8 @@ function GroupDetailspage() {
                             {group?.profdetails?.name?.[0] || 'P'}
                         </div>
                         <div>
-                            <p className="font-semibold text-gray-900">{group?.profdetails?.name}</p>
-                            <p className="text-sm text-gray-500">{group?.profdetails?.designation}</p>
+                            <p className="font-semibold text-gray-900">{group?.prof_name}</p>
+                            <p className="text-sm text-gray-500">Professor</p>
                         </div>
                     </div>
                 </div>
@@ -117,7 +115,6 @@ function GroupDetailspage() {
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h4 className="text-lg font-semibold text-gray-800">{quiz.title}</h4>
-                                        <p className="mt-1 text-gray-600">{quiz.description}</p>
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-sm ${
                                         quiz.completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
@@ -126,7 +123,7 @@ function GroupDetailspage() {
                                     </span>
                                 </div>
                                 <div className="mt-2 text-sm text-gray-500">
-                                    Created on: {quiz.createdOn}
+                                    Created on: {quiz.created_at}
                                 </div>
                                 {/* action buttons  */}
                                 <div>
