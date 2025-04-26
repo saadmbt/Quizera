@@ -68,10 +68,11 @@ const Groups = () => {
       const newGroup = {
         name: groupData.name,
         description: groupData.description,
-        prof_id: user.uid
+        prof_id: user.uid,
+        prof_name: user.username,
       };
       
-      const result = await createGroup(newGroup, user);
+      const result = await createGroup(newGroup);
       
       // Add the new group to the local state with correct structure
       const formattedGroup = {
@@ -79,6 +80,7 @@ const Groups = () => {
         group_name: groupData.name,
         description: groupData.description,
         prof_id: user.uid,
+        prof_name: user.username,
         students: []
       };
       
