@@ -72,7 +72,8 @@ function GroupDetailspage() {
                         <Calendar className="h-6 w-6 text-blue-500" />
                         <div>
                             <p className="text-sm font-medium text-gray-500">Creation Date</p>
-                            <p className="text-lg font-semibold text-gray-900">{group?.created_at}</p>
+                            {/* change date format */}
+                            <p className="text-lg font-semibold text-gray-900">{new Date(group?.created_at).toLocaleDateString()}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg">

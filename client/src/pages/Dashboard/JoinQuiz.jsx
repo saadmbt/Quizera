@@ -82,7 +82,7 @@ const JoinQuiz = () => {
                         <span className="font-semibold pr-2">Created by: </span> {quiz.generated_by}
                     </span>
                    
-                    <span> <span className='pr-3'>•</span><span className="font-semibold pr-2">Created on: </span> {new Date(quiz?.createdAt).toLocaleDateString()}</span>
+                    <span> <span className='pr-3'>•</span><span className="font-semibold pr-2">Created on: </span> { new Date(quiz?.createdAt).toLocaleDateString()}</span>
                 </div>
             </div>
             
