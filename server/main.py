@@ -56,7 +56,8 @@ def login():
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
-    uid = data["uid"]
+    uid = str(data["uid"])
+
     try:
         user = auth.get_user(uid)
         if user is None:
