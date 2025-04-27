@@ -25,8 +25,20 @@ export default function UserRoleSelection() {
       username: username,
       role: role,
     }, { merge: true });
-    // Redirect to the corresponding dashboard based on role
-    navigate(`/${role}`);
+    
+       localStorage.setItem("isNew", true);
+     // Check if there is a redirect path stored in localStorage
+     const redirect = localStorage.getItem("redirectAfterLogin");
+     localStorage.setItem("_us_unr", JSON.stringify(userobj));
+     if (redirect) {
+       // Remove redirect path from localStorage and navigate to it
+       localStorage.removeItem("redirectAfterLogin");
+       navigate(redirect);
+     } else {
+      // Redirect to the corresponding dashboard based on role
+        navigate(`/${role}`);
+     }
+    
   };
 
   return (

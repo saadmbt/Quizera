@@ -24,7 +24,7 @@ const ForgetPassword = () => {
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
-        navigate("/login");
+        navigate("/Auth/login");
       }, 3000); // 3 secondes avant de rediriger
       return () => clearTimeout(timer);
     }

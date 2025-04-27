@@ -68,9 +68,9 @@ export default function Register() {
       } );
       console.log("Successfully added user to Firestore:");
       // generate JWT token and save it to local storage
-        getJWT(user.uid);
-       // Redirect to set username and role page after registration is successful 
-         navigate("/Auth/UserRoleSelection");
+      const token = await getJWT(user.uid);
+      localStorage.setItem("access_token", token);
+      navigate("/Auth/UserRoleSelection");
     } catch (error) {
       handleError(error);
     } finally {

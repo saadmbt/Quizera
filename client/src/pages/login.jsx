@@ -40,15 +40,16 @@ export default function LoginWithFirebase() {
       const userExists = await getDoc(userRef);
 
       if (userExists.exists()) {
+        localStorage.setItem("isNew", false);
         const userData = userExists.data();
         console.log("User data:", userData);
         const userobj={uid:user.uid,username:userData.username,role:userData.role}
         setUser(userobj);
         console.log("User object:", userobj);
         // generate JWT token and save it to local storage
-        const token = getJWT(user.uid);
+        const token = await getJWT(user.uid);
         localStorage.setItem("access_token", token);
-
+        localStorage.setItem("_us_unr", JSON.stringify(userobj));
         // Check if there is a redirect path stored in localStorage
         const redirect = localStorage.getItem('redirectAfterLogin');
         if (redirect) {

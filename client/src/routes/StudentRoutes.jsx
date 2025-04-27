@@ -10,18 +10,7 @@ import Quizzespage from "../pages/Dashboard/Quizzespage";
 import { useNavigate } from "react-router-dom";
 import { StateContext } from "./StudentProvider";
 import JoinGroup from '../components/groups/Joingroup';
-
-export const NotAccessibleRoute = ({ condition, redirectTo, children }) => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!condition) {
-      navigate(redirectTo);
-    }
-  }, [condition, navigate, redirectTo]);
-
-  return condition ? children : null;
-};
+import NotAccessibleRoute from "./NotAccessibleRoute";
 
 // Accept props directly instead of using context
 const StudentRoutes = ({

@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import PublicRoutes from "./PublicRoutes";
 import AuthRoutes from "./AuthRoutes";
 import ProfessorRoutes from "./ProfessorRoutes";
-import { NotAccessibleRoute } from "./StudentRoutes";
 import MainLayout from "../layouts/MainLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
 import StudentDashboardLayout from "../layouts/StudentDashboardLayout";
@@ -22,6 +21,7 @@ import JoinGroup from "../components/groups/Joingroup";
 import Settings from "../components/settings/settings";
 import ProfUpload from "../components/dashbord prof/Upload";
 
+import NotAccessibleRoute from "./NotAccessibleRoute";
 import Groupspage from "../pages/Dashboard/Groupspage";
 import GroupDetailspage from "../pages/Dashboard/GroupDetailspage";
 import ProtectedRoute from "./ProtectedRoute";
@@ -38,6 +38,9 @@ const renderRoutes = (routes) => {
 };
 
 const Home = () => {
+    const token = localStorage.getItem("access_token");
+    const user  = JSON.parse(localStorage.getItem("_us_unr"))
+
   // State for lessonID and quizSettings from useContext
   const [lessonID, setLessonID] = useState(false);
   const [quizSettings, setQuizSettings] = useState(false);
@@ -50,77 +53,86 @@ const Home = () => {
   };
   return (
     <Routes>
-
       {/* Public routes */}
-      <Route path="/" element={<MainLayout />}>
+      <Route path="/" element={(
+        <NotAccessibleRoute condition={!token} redirectTo={`/${user.role}`}>
+          <MainLayout />
+        </NotAccessibleRoute>
+      )}>
         {renderRoutes(PublicRoutes)}
       </Route>
 
       {/* Auth routes */}
-      <Route path="/auth" element={<AuthLayout />}>
+      <Route path="/auth" element={(
+        <NotAccessibleRoute condition={!token} redirectTo={`/${user.role}`}>
+          <AuthLayout />
+        </NotAccessibleRoute>
+      )}>
         {renderRoutes(AuthRoutes)}
       </Route>
 
       {/* professor routes */}
-      <Route path="/professor" 
-      element={<DashboardLayout />
-      //       <ProtectedRoute allowedRoles={["professor"]}>
+      <Route
+        path="/professor"
+        element={
+          <DashboardLayout />
+          //       <ProtectedRoute allowedRoles={["professor"]}>
 
-      //         
-      //       </ProtectedRoute>
-   }
-          >
-          <Route path="upload" element={<ProfUpload onComplete={onComplete}/>}/>
+          //         
+          //       </ProtectedRoute>
+        }
+      >
+        <Route path="upload" element={<ProfUpload onComplete={onComplete} />} />
         {renderRoutes(ProfessorRoutes)}
       </Route>
 
       {/* student routes */}
+      <Route
+        path="/student"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <StudentDashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Studentmainpage />} />
+        <Route path="upload" element={<Upload onComplete={onComplete} />} />
         <Route
-          path="/student"
+          path="quiz"
           element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <StudentDashboardLayout />
-            </ProtectedRoute>
+            <NotAccessibleRoute
+              condition={lessonID !== false && quizSettings !== false}
+              redirectTo="/student/upload"
+            >
+              <Quiz settings={quizSettings} params={false} />
+            </NotAccessibleRoute>
           }
-        >
-          <Route index element={<Studentmainpage />} />
-          <Route path="upload" element={<Upload onComplete={onComplete} />} />
-          <Route
-            path="quiz"
-            element={
-              <NotAccessibleRoute
-                condition={lessonID != false && quizSettings != false}
-                redirectTo="/student/upload"
-              >
-                <Quiz  settings={quizSettings} params={false}/>
-              </NotAccessibleRoute>
-            }
-          />
-          <Route
-            path="upload/quizsetup"
-            element={
-              <NotAccessibleRoute
-                condition={lessonID != false}
-                redirectTo="/student/upload"
-              >
-                <QuizSetup onStartQuiz={onStartQuiz} lessonID={lessonID} />
-              </NotAccessibleRoute>
-            }
-          />
-          <Route path="quiz/:Quiz_id" element={<Quiz settings={{}} params={true} />} />
-          <Route path="quizzes" element={<Quizzespage headerSet />} />
-          <Route path="quizzes/:id" element={<QuizDetailspage />} />
-          <Route path="flashcards" element={<FlashcardsSection />} />
-          <Route path="flashcards/study/:id" element={<FlashcardStudy />} />
-          <Route path="join-group/:token" element={<JoinGroup />} />
-          <Route path="groups" element={<Groupspage />} />
-          <Route path="groups/:id" element={<GroupDetailspage />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="*" element={<NotFoundpage />} />
-        </Route>
-        
-        <Route path="/JoinQuiz/:Quiz_id" element={<JoinQuiz />} />
-          
+        />
+        <Route
+          path="upload/quizsetup"
+          element={
+            <NotAccessibleRoute
+              condition={lessonID !== false}
+              redirectTo="/student/upload"
+            >
+              <QuizSetup onStartQuiz={onStartQuiz} lessonID={lessonID} />
+            </NotAccessibleRoute>
+          }
+        />
+        <Route path="quiz/:Quiz_id" element={<Quiz settings={{}} params={true} />} />
+        <Route path="quizzes" element={<Quizzespage headerSet />} />
+        <Route path="quizzes/:id" element={<QuizDetailspage />} />
+        <Route path="flashcards" element={<FlashcardsSection />} />
+        <Route path="flashcards/study/:id" element={<FlashcardStudy />} />
+        <Route path="join-group/:token" element={<JoinGroup />} />
+        <Route path="groups" element={<Groupspage />} />
+        <Route path="groups/:id" element={<GroupDetailspage />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="*" element={<NotFoundpage />} />
+      </Route>
+
+      <Route path="/JoinQuiz/:Quiz_id" element={<JoinQuiz />} />
+
       {/* Not Found page */}
       <Route path="*" element={<NotFoundpage />} />
     </Routes>

@@ -17,19 +17,51 @@ export default function Upload({ onComplete }) {
    const {toggleSidebar} = useOutletContext();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if ((!file && activeTab === 'file') || (!text && activeTab === 'text') || (activeTab === 'file' && file.size > 10 * 1024 * 1024)) {
+    if  (activeTab === 'file' && file && file.size > 10 * 1024 * 1024) {
         toast.error('File must be less than 10MB.');
         return;
     }
+    if  (activeTab === 'text' && text.length > 10000) {
+        toast.error('Text must be less than 10000 characters.');
+        return;
+    }
+    if(!file && activeTab === 'file'){
+      toast('Please select a file to upload.',{
+        icon: '❗',
+        style: {
+          size: '1rem',
+          fontSize: '1rem', 
+        },
+      });
+      return;
+    }
+    const data = activeTab === 'file' ? (file ? file : null) : (text.trim() ? text : null);
+    // Log or handle data appropriately in production 
+    // logService.log('Data to be uploaded:', data);
 
-    const data = activeTab === 'file' ? file : text
-    console.log('Data:', data);
     setIsUploading(true);
     try {
+      if ((activeTab === 'file' && !file) || (activeTab === 'text' && !text.trim())) {
+        toast('Please select a file or enter valid text to upload.',{
+          icon: '❗❗',
+          style: {
+            size: '1rem',
+            fontSize: '1rem', 
+          },
+        });
+        setIsUploading(false);
+        return;
+      }
       const response = await uploadLesson(data, title, activeTab);
 
-      const LessonID=response.lesson_id;
-      console.log('Lesson uploaded:', response);
+      const LessonID = response && response.lesson_id ? response.lesson_id : null;
+      if (!LessonID) {
+        toast.error('Failed to retrieve Lesson ID. Please try again.');
+        setIsUploading(false);
+        return;
+      }
+      // Log the response in production using a proper logging mechanism if needed
+      // Example: logService.log('Lesson uploaded:', response);
       console.log('Lesson uploaded ID:', LessonID);
       setIsUploading(false);
       onComplete(LessonID);
@@ -39,12 +71,7 @@ export default function Upload({ onComplete }) {
       console.error('Error uploading lesson:', error);
       setIsUploading(false);
     }
-    // Simulate upload delay
-    // setTimeout(() => {
-    //   setIsUploading(false);
-    //   onComplete();
-    // }, 2000);
-    // navigate('/Dashboard/upload/QuizSetup');
+
   };
 
   return (
