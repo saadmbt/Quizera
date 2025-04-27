@@ -27,7 +27,7 @@ from flask_cors import CORS
 import json
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DELETE'], headers=['Content-Type', 'Authorization'])
+CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DELETE'], headers=['Content-Type', 'Authorization'], supports_credentials=True)
 
 # Load credentials from environment variables
 load_dotenv()
