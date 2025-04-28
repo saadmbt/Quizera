@@ -425,7 +425,7 @@ def insert_quiz_assignment(assignment_data):
     except Exception as e:
         return {"error": f"Error inserting quiz assignment: {str(e)}"}
 
-# New function to get group IDs with quiz assignments for a student
+#  get group IDs with quiz assignments for a student
 def get_quiz_assignment_group_ids_for_student(student_uid):
     try:
         # Find groups the student belongs to
@@ -451,3 +451,46 @@ def get_quiz_assignment_group_ids_for_student(student_uid):
         return assigned_group_ids_str
     except Exception as e:
         return {"error": f"Error fetching quiz assignment group IDs: {str(e)}"}
+
+# get quiz_id by groupId from QuizzAssignments collection
+#  Get assignments for a group
+def get_quizzs_Assignments_by_group_id(group_id):
+    try:
+        collection = db["QuizzAssignments"]
+        quizzes_ids = list(collection.find({"groupIds":{"$in":ObjectId(group_id)}}, {"_id":0,"quizId": 1}))
+        return quizzes_ids
+    except Exception as e:
+        return {"error": f"Error fetching quiz ID by group ID: {str(e)}"}
+    
+# get quiz base on list of quiz ids
+def get_quizzes_by_ids(quiz_ids,student_id):
+    """Fetch quizzes by their IDs and check if the student has completed them.
+    Args:
+        quiz_ids (list): List of quiz IDs to fetch.
+        student_id (str): Student ID to check completion status.
+    Returns:
+        list: List of quizzes with their completion status. 
+        [{"_id": "quiz_id", "title": "quiz_title","created_at": date,"isCompleted": True/False}]
+        dict: Error message if any error occurs.
+    """
+    try:
+        collection = db["quizzes"]
+        quizzes = list(collection.find({"_id": {"$in": [ObjectId(qid["quizId"]) for qid in quiz_ids]}}, {"_id": 1, "title": 1,"createdAt": 1}))
+        # Check if quizzes are found
+        if not quizzes:
+            return {"error": "No quizzes found for the provided IDs"}
+        
+        # Check if quiz attempts exist for each quiz
+        for quiz in quizzes:
+            quiz_attempt = db["QuizAttempts"].find_one({"quizId": quiz["_id"], "studentId": student_id})
+            if quiz_attempt:
+                quiz["isCompleted"] = True
+            else:
+                quiz["isCompleted"] = False
+        
+        # Convert ObjectId to string for all quizzes
+        for quiz in quizzes:
+            quiz["_id"] = str(quiz["_id"])
+        return quizzes
+    except Exception as e:
+        return {"error": f"Error fetching quizzes by IDs: {str(e)}"}

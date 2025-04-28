@@ -13,7 +13,7 @@ from functionsDB import (
     insert_group, add_student_to_group, get_group_by_code,
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
     Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id,
-    insert_quiz_assignment,get_quiz_assignment_group_ids_for_student
+    insert_quiz_assignment,get_quiz_assignment_group_ids_for_student,get_quizzs_Assignments_by_group_id,get_quizzes_by_ids
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -689,6 +689,41 @@ def validate_invite_token():
     except Exception as e:
         print(f"General error: {str(e)}")
         return jsonify({"error": "Server error"}), 500
+    
+# group mangement  student side
+# get group assignments by group id
+@app.route('/api/group-assignments/<group_id>', methods=['GET'])
+@jwt_required()
+def get_group_assignments(group_id):
+    """
+    Fetch all quiz assignments for a specific group.
+    
+    Args:
+        group_id (str): The ID of the group to fetch assignments for.
+        
+    Returns:
+        Response: JSON response containing the quiz assignments or an error message.
+    """
+    try:
+        group_obj_id = ObjectId(group_id)
+    except Exception as e:
+        return jsonify({"error": "Invalid group_id"}), 400
+
+    try:
+        student_id= get_jwt_identity()
+        # Fetch all quiz assignments for the specified group
+        list_quizzes_ids = get_quizzs_Assignments_by_group_id(group_obj_id)
+
+        if isinstance(list_quizzes_ids, str) and "error" in list_quizzes_ids.lower():
+            return jsonify({"error": list_quizzes_ids}), 500
+        if not list_quizzes_ids:
+            return jsonify({"error": "No quiz assignments found for this group"}), 404
+        
+        # Fetch quizzes by IDs
+        quizzes = get_quizzes_by_ids(list_quizzes_ids,student_id)
+        return jsonify(quizzes), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
 
 @app.route('/api/refresh_token', methods=['POST'])
 @jwt_required(refresh=True)
