@@ -721,6 +721,11 @@ def get_group_assignments(group_id):
         
         # Fetch quizzes by IDs
         quizzes = get_quizzes_by_ids(list_quizzes_ids,student_id)
+        if isinstance(quizzes, str) and "error" in quizzes.lower():
+            return jsonify({"error": quizzes}), 500
+        if not quizzes:
+            return jsonify({"error": "No quizzes found for the provided IDs"}), 404
+        
         return jsonify(quizzes), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 404

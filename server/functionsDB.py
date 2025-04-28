@@ -482,7 +482,7 @@ def get_quizzes_by_ids(quiz_ids,student_id):
         
         # Check if quiz attempts exist for each quiz
         for quiz in quizzes:
-            quiz_attempt = db["QuizAttempts"].find_one({"quizId": quiz["_id"], "studentId": student_id})
+            quiz_attempt = db["QuizAttempts"].find_one({"quizId": quiz["_id"], "studentId": str(student_id)})
             if quiz_attempt:
                 quiz["isCompleted"] = True
             else:
