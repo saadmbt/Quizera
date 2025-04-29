@@ -3,7 +3,8 @@ from flask_jwt_extended import (
     JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token, get_jwt
 )
 from bson.objectid import ObjectId
-from datetime import datetime, timedelta, timezone
+import datetime
+from datetime import timedelta
 from dotenv import load_dotenv
 import os
 from functionsDB import (
@@ -31,7 +32,7 @@ CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DEL
 
 # Load credentials from environment variables
 load_dotenv()
-# # Load the service account key from the environment variable
+# Load the service account key from the environment variable
 service_account_key = json.loads(os.environ['SERVICE_ACCOUNT_KEY'])
 # # Initialize Firebase Admin
 cred = credentials.Certificate(service_account_key) 
@@ -121,7 +122,7 @@ def handle_theuploaded():
             "id": New_id,
             "author": "get_jwt_identity()",
             "content": request.form['text'],
-            "uploadedAt": datetime.now(timezone.utc).isoformat(),
+            "uploadedAt": datetime.now(datetime.timezone.utc).isoformat(),
         }
         lesson_objid = insert_Lessons(lesson_obj)
         response = jsonify({'message': 'Lesson uploaded successfully', "lesson_id": str(lesson_objid)})
@@ -148,7 +149,7 @@ def handle_theuploaded():
                 "id": New_id,
                 "author": "get_jwt_identity()",
                 "content": file_extracted_text,
-                "uploadedAt": datetime.now(timezone.utc).isoformat(),
+                "uploadedAt": datetime.now(datetime.timezone.utc).isoformat(),
             }
             
             lesson_objid = insert_Lessons(lesson_obj)
@@ -182,7 +183,7 @@ def handle_theuploaded():
                 "id":New_id,
                 "author":"get_jwt_identity()",
                 "content" :extracted_text,
-                "uploadedAt": datetime.now(timezone.utc).isoformat(),
+                "uploadedAt": datetime.now(datetime.timezone.utc).isoformat(),
             }
             # Save the dictionary Lesson to the database
             lesson_objid = insert_Lessons(lesson_obj)
@@ -613,6 +614,7 @@ def join_group():
             
     except Exception as e:
         return jsonify({"error": f"Failed to join group: {str(e)}"}), 500
+    
 # Insert a quiz assignment (POST /api/quiz-assignments)
 @app.route('/api/quiz-assignments', methods=['POST'])
 # @jwt_required()
@@ -711,6 +713,7 @@ def get_group_assignments(group_id):
 
     try:
         student_id= get_jwt_identity()
+
         # Fetch all quiz assignments for the specified group
         list_quizzes_ids = get_quizzs_Assignments_by_group_id(group_obj_id)
 
@@ -737,14 +740,15 @@ def refresh():
     new_access_token = create_access_token(identity=current_user)
     return jsonify({"access_token":new_access_token}), 200
 
+
 @app.after_request
 def refresh_expiring_jwts(response):
     """Refresh the JWT token if it's close to expiring."""
+    try :
     # Refresh if expiring in 20 minutes or less
-    REFRESH_THRESHOLD_MINUTES = 20  
-    try:
+        REFRESH_THRESHOLD_MINUTES = 20  
         exp_timestamp = get_jwt()["exp"]
-        now = datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.timezone.utc)
         target_timestamp = (now + timedelta(minutes=REFRESH_THRESHOLD_MINUTES)).timestamp()
 
         if target_timestamp > exp_timestamp:
@@ -763,7 +767,7 @@ def refresh_expiring_jwts(response):
                 'access_token',
                 new_access_token,
                 # Set the cookie to expire when the token expires
-                expires=datetime.fromtimestamp(exp_timestamp, datetime.timezone.utc)
+                expires=datetime.datetime.fromtimestamp(exp_timestamp, datetime.timezone.utc)
             )
     except Exception as e:
         # Log any exceptions that occur during token refresh

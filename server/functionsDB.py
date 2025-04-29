@@ -456,12 +456,15 @@ def get_quiz_assignment_group_ids_for_student(student_uid):
 #  Get assignments for a group
 def get_quizzs_Assignments_by_group_id(group_id):
     try:
-        collection = db["QuizzAssignments"]
-        quizzes_ids = list(collection.find({"groupIds":{"$in":ObjectId(group_id)}}, {"_id":0,"quizId": 1}))
+        collection = db["QuizzAssignment"]
+        quizzes_ids = list(collection.find({"groupIds":{"$in":[ObjectId(group_id)]}},{"_id":0,"quizId": 1}))
+        # Check if quizzes are found
+        if not quizzes_ids:
+            return "error: No quizzes found for the provided group ID"  
         return quizzes_ids
     except Exception as e:
-        return {"error": f"Error fetching quiz ID by group ID: {str(e)}"}
-    
+        return f"error: Error fetching quiz ID by group ID: {str(e)}"
+   
 # get quiz base on list of quiz ids
 def get_quizzes_by_ids(quiz_ids,student_id):
     """Fetch quizzes by their IDs and check if the student has completed them.
@@ -479,7 +482,7 @@ def get_quizzes_by_ids(quiz_ids,student_id):
         quizzes = list(collection.find({"_id": {"$in": quiz_object_ids}}, {"_id": 1, "title": 1,"createdAt": 1}))
         # Check if quizzes are found
         if not quizzes:
-            return {"error": "No quizzes found for the provided IDs"}
+            return "error: No quizzes found for the provided IDs"
         
         # Check if quiz attempts exist for each quiz
         for quiz in quizzes:
