@@ -39,7 +39,7 @@ firebase_admin.initialize_app(cred)
 
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_TOKEN_SECRET')
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=12)
 jwt = JWTManager(app)
 
 # Replace with your Dropbox access token
@@ -739,30 +739,37 @@ def refresh():
 
 @app.after_request
 def refresh_expiring_jwts(response):
+    """Refresh the JWT token if it's close to expiring."""
+    # Refresh if expiring in 20 minutes or less
+    REFRESH_THRESHOLD_MINUTES = 20  
     try:
         exp_timestamp = get_jwt()["exp"]
-        now = datetime.now(timezone.utc)
-        target_timestamp = (now + timedelta(minutes=20)).timestamp()
-        
+        now = datetime.now(datetime.timezone.utc)
+        target_timestamp = (now + timedelta(minutes=REFRESH_THRESHOLD_MINUTES)).timestamp()
+
         if target_timestamp > exp_timestamp:
-            access_token = create_access_token(identity="get_jwt_identity()")
+            # Create a new access token with the current user's identity
+            new_access_token = create_access_token(identity=get_jwt_identity())
+
+            # Update the response data with the new access token
             data = response.get_json()
-            if isinstance(data, dict):  # Check if the response data is a dictionary
-                data["access_token"] = access_token 
-                import json
-                response.set_data(json.dumps(data))  # Update the response data
-                response.content_type = "application/json"  # Ensure the content type is set to JSON
-                # Set the access token in a cookie
-                response.set_cookie(
-                    'access_token', 
-                    access_token, 
-                    httponly=True,  # Prevent JavaScript access to the cookie
-                    secure=True,    # Use secure cookies (only sent over HTTPS)
-                    samesite='Lax'  # Helps prevent CSRF attacks
-                )
-        return response
-    except (RuntimeError, KeyError):
-        return response
+            if isinstance(data, dict):
+                data["access_token"] = new_access_token
+                response.set_data(json.dumps(data))
+                response.content_type = "application/json"
+
+            # Set the access token in a cookie
+            response.set_cookie(
+                'access_token',
+                new_access_token,
+                # Set the cookie to expire when the token expires
+                expires=datetime.fromtimestamp(exp_timestamp, datetime.timezone.utc)
+            )
+    except Exception as e:
+        # Log any exceptions that occur during token refresh
+        print(f"Error refreshing token: {e}")
+    return response
+
 @app.route('/api/')
 def hello_world():
     print("hi")

@@ -475,7 +475,8 @@ def get_quizzes_by_ids(quiz_ids,student_id):
     """
     try:
         collection = db["quizzes"]
-        quizzes = list(collection.find({"_id": {"$in": [ObjectId(qid["quizId"]) for qid in quiz_ids]}}, {"_id": 1, "title": 1,"createdAt": 1}))
+        quiz_object_ids = [ObjectId(qid.get("quizId")) for qid in quiz_ids if isinstance(qid, dict)]
+        quizzes = list(collection.find({"_id": {"$in": quiz_object_ids}}, {"_id": 1, "title": 1,"createdAt": 1}))
         # Check if quizzes are found
         if not quizzes:
             return {"error": "No quizzes found for the provided IDs"}
