@@ -775,8 +775,14 @@ def refresh():
 @app.after_request
 def refresh_expiring_jwts(response):
     """Refresh the JWT token if it's close to expiring."""
-    try :
-    # Refresh if expiring in 20 minutes or less
+    try:
+        from flask_jwt_extended import verify_jwt_in_request
+        try:
+            verify_jwt_in_request(optional=True)
+        except:
+            return response
+
+        # Refresh if expiring in 20 minutes or less
         REFRESH_THRESHOLD_MINUTES = 20  
         exp_timestamp = get_jwt()["exp"]
         now = datetime.datetime.now(datetime.timezone.utc)
