@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../Auth/AuthContext';
 
 const GroupCard = ({ name, count, groupId }) => {
-    const { user } = useContext(AuthContext);
+  const  user = JSON.parse(localStorage.getItem("_us_unr")) || {};
   
   return (
     <div className="bg-white min-h-[150px] rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200 transform hover:-translate-y-1">

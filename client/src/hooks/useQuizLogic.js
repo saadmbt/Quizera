@@ -20,7 +20,7 @@ export default function useQuizLogic(settings,params) {
   // variable in localstorage to check if the quiz result is saved  or not
   const isResultSavedIn = JSON.parse(localStorage.getItem('isResultSaved'));
   const isResultSaverdIn = isResultSavedIn ? " " : localStorage.setItem('isResultSaved',false);
-  Lesson__id = params ? quiz?.lesson_id : settings?.lesson_id;
+  const Lesson__id = params ? quiz?.lesson_id : settings?.lesson_id;
 
   // Initialize QuizResult on quiz load
   useEffect(() => {

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, BarChart, Brain, ChevronRight, Share, Share2, Youtube } from 'lucide-react';
+import { ArrowLeft, BarChart, Brain, ChevronRight , Share2, Youtube } from 'lucide-react';
 import ScoreSummary from '../dashboard/ScoreSummary';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import {saveQuizResult} from '../../services/StudentService';
+import {saveQuizAttempt, saveQuizResult} from '../../services/StudentService';
 //  Props {
 //   score: number;
 //   totalQuestions: number;
@@ -12,8 +12,8 @@ import {saveQuizResult} from '../../services/StudentService';
 //   onShowVideos: () => function;
 // }
 
-export default function QuizComplete({ quizResult, score, totalQuestions,onShowFlashcards
-    ,onShowVideos, onshowQuestions ,getquiz_resualt_id}) {
+export default function QuizComplete({ quizResult , score , totalQuestions , onShowFlashcards
+    , onShowVideos , onshowQuestions , getquiz_resualt_id , fromGroup }) {
 
   const [quiz_res_id,setquiz_res_id]=useState(null)
 
@@ -35,12 +35,28 @@ export default function QuizComplete({ quizResult, score, totalQuestions,onShowF
       }, [quiz_res_id]);
 
     useEffect(() => {
-      if (!isResultSavedIn && quizResult) {
+      if (!isResultSavedIn && quizResult && !fromGroup) {
         saveQuizResult(quizResult)
           .then((response) => {
             setquiz_res_id(response.quiz_result_id);
             localStorage.setItem('isResultSaved',true)
             console.log('Quiz result saved successfully');
+          })
+          .catch((error) => {
+            console.error('Error saving quiz result:', error);
+          });
+      } else if (!isResultSavedIn && quizResult && fromGroup) {
+        const  quizAtteemptRes={
+          quizId:quizResult.quiz_id,
+          submittedAt: quizResult.date,
+          questions: quizResult.questions,
+          totalScore: scorePercentage,
+          feedback:"No Feedback Provided yet",
+        }
+        saveQuizAttempt(quizAtteemptRes)
+          .then(() => {
+            localStorage.setItem('isResultSaved',true)
+            toast.success(" Your Quiz attempt saved successfully");
           })
           .catch((error) => {
             console.error('Error saving quiz result:', error);
@@ -65,8 +81,8 @@ export default function QuizComplete({ quizResult, score, totalQuestions,onShowF
     
     
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-lg p-6 space-y-8">
+  <div className="max-w-2xl mx-auto p-6">
+    <div className="bg-white rounded-lg shadow-lg p-6 space-y-8">
       <div className="text-center">
         <h2 className="text-3xl font-bold text-gray-800 mb-2">Quiz Complete!</h2>
         <p className="text-gray-600">Here's how you performed</p>
@@ -127,54 +143,56 @@ export default function QuizComplete({ quizResult, score, totalQuestions,onShowF
       {/* Recommendations for low scores */}
       {isLowScore && (
         <div className="space-y-6">
-        <div className="bg-blue-50 rounded-lg p-6">
-          <h3 className="font-semibold text-blue-800 mb-3">Recommendations for Improvement</h3>
-          <ul className="text-sm space-y-3 text-blue-700">
-          <li className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-            Review the material with our generated flashcards
-          </li>
-          <li className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-            Watch recommended video explanations
-          </li>
-          <li className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-            Focus on topics where you scored lowest
-          </li>
-          <li className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-            Practice with similar questions to build confidence
-          </li>
-          </ul>
-        </div>
+          <div className="bg-blue-50 rounded-lg p-6">
+            <h3 className="font-semibold text-blue-800 mb-3">Recommendations for Improvement</h3>
+            <ul className="text-sm space-y-3 text-blue-700">
+            <li className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              Review the material with our generated flashcards
+            </li>
+            <li className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              Watch recommended video explanations
+            </li>
+            <li className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              Focus on topics where you scored lowest
+            </li>
+            <li className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              Practice with similar questions to build confidence
+            </li>
+            </ul>
+          </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={onShowFlashcards}
-            className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-blue-500 text-blue-500 hover:bg-blue-50 transition-all duration-300 transform hover:scale-105"
-          >
-            <Brain className="h-5 w-5" />
-            Study Flashcards
-          </button>
-          <button
-            onClick={onShowVideos}
-            className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-red-500 text-red-500 hover:bg-red-50 transition-all duration-300 transform hover:scale-105"
-          >
-            <Youtube className="h-5 w-5" />
-            Watch Videos
-          </button>
-        </div>
-          <button
-            onClick={()=>{
-              localStorage.setItem('isResultSaved',false)
-              navigate('/Student')
-            }}
-            className="flex items-center w-full justify-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-500 text-gray-500 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            Back to Dashboard
-          </button>
+          {!fromGroup &&( <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={onShowFlashcards}
+                className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-blue-500 text-blue-500 hover:bg-blue-50 transition-all duration-300 transform hover:scale-105"
+              >
+                <Brain className="h-5 w-5" />
+                Study Flashcards
+              </button>
+              <button
+                onClick={onShowVideos}
+                className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-red-500 text-red-500 hover:bg-red-50 transition-all duration-300 transform hover:scale-105"
+              >
+                <Youtube className="h-5 w-5" />
+                Watch Videos
+              </button>
+            </div>)}
+            <div>
+              <button
+              onClick={()=>{
+                localStorage.setItem('isResultSaved',false)
+                navigate('/Student')
+              }}
+              className="flex items-center w-full justify-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-500 text-gray-500 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              Back to Dashboard
+            </button>
+            </div>
 
         </div>
       )}

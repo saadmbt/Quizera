@@ -12,7 +12,7 @@ import useQuizLogic from "../../hooks/useQuizLogic";
 import { generateQuiz } from "../../services/StudentService";
 import { useParams } from "react-router-dom";
 
-export default function Quiz({settings, params}) {
+export default function Quiz({settings, params, fromGroup}) {
   const {
     quiz,
     currentQuestion,
@@ -53,6 +53,7 @@ export default function Quiz({settings, params}) {
         }else{
           const quiz = await generateQuiz(settings);
           const quizData = quiz.quiz;
+
           // Randomize questions once here
           quizData.questions = [...quizData.questions].sort(() => 0.5 - Math.random());
           setQuiz(quizData);
@@ -106,6 +107,7 @@ export default function Quiz({settings, params}) {
         onShowVideos={() => setShowVideos(true)}
         onshowQuestions={() => setshowQuestions(true)}
         getquiz_resualt_id={getQuizResult}
+        fromGroup={fromGroup}
       />
     );
   }

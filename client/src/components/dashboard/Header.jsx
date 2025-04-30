@@ -1,7 +1,7 @@
 import { Sidebar } from "lucide-react";
 import React, { useContext } from "react";
 export default function Header({ onToggleSidebar }) {
-    const user  = JSON.parse(localStorage.getItem("_us_unr"))
+    const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
     console.log("user",user)
     return (
         <header className="flex justify-between items-center sticky top-0 z-30 bg-white/80 mb-8 px-4 py-4 md:px-0">

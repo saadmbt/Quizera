@@ -1,16 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Clock, Award, Brain, Users } from 'lucide-react';
 import QuestionReview from '../../components/quiz/QuestionReview';
-import { getGroupInfo } from '../../services/StudentService';
+import { getGroupInfo, getQuizAssignments } from '../../services/StudentService';
 
 
 function GroupDetailspage() {
     const [group, setGroup] = useState({});
     const [loading, setloading] = useState(false);
     const [showResults, setShowResults] = useState(false);
-    
+    const [answers, setanswers] = useState([]);
+    const [Assignments, setAssignments] = useState([]);
     const { id } = useParams();
+    const navigate=useNavigate()
     const fetchGroup = useCallback(async () => {
       try{
         setloading(true);
@@ -24,11 +26,25 @@ function GroupDetailspage() {
 
     }, [id]);
 
+    // fecth group assignments
+    const fetchAssignments = useCallback(async () => {
+      try{
+        setloading(true);
+        const assignments = await getQuizAssignments(id);
+        setAssignments(assignments);
+      }catch (error) {
+        console.error("Error fetching Group assignments:", error);
+      } finally {
+        setloading(false);
+      }
+    }, [id]);
+
     useEffect(() => {
-      fetchGroup();
+        fetchGroup();
+        fetchAssignments();
     }, []); 
     if (showResults) {
-        return <QuestionReview onBack={() => setShowResults(false)} />;
+        return <QuestionReview answers={answers} onBack={() => setShowResults(false)}  />;
     }
     if (loading) return (
         <div className="flex justify-center items-center min-h-[80vh]">
@@ -87,7 +103,7 @@ function GroupDetailspage() {
                         <Award className="h-6 w-6 text-purple-500" />
                         <div>
                             <p className="text-sm font-medium text-gray-500">Quizzes</p>
-                            <p className="text-lg font-semibold text-gray-900">{group?.quizzes?.length || 0}</p>
+                            <p className="text-lg font-semibold text-gray-900">{Assignments.length || 0}</p>
                         </div>
                     </div>
                 </div>
@@ -110,36 +126,51 @@ function GroupDetailspage() {
                 <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-4">Quizzes</h3>
                     <div className="space-y-4">
-                        {group?.quizzes?.map(quiz => (
-                            <div key={quiz.id} 
+                        {Assignments.map((quiz,i) => (
+                            <div key={i} 
                                 className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200">
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h4 className="text-lg font-semibold text-gray-800">{quiz.title}</h4>
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-sm ${
-                                        quiz.completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                        quiz.isCompleted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                                     }`}>
-                                        {quiz.completed ? 'Completed' : 'Pending'}
+                                        {quiz.isCompleted ? 'Completed' : 'Pending'}
                                     </span>
                                 </div>
                                 <div className="mt-2 text-sm text-gray-500">
-                                    Created on: {quiz.created_at}
+                                    Created on: {new Date(quiz.createdAt).toLocaleDateString()}
                                 </div>
+
+                                {/* Professor feedback */}
+                                {quiz.isCompleted && quiz.feedback && (
+                                    <div className="mt-4 p-3 bg-blue-50 border-l-4 border-blue-400 text-blue-700">
+                                        <p className="font-medium"> Professor Feedback :</p>
+                                        <p>{quiz.feedback}</p>
+                                    </div>
+                                )}
+
                                 {/* action buttons  */}
                                 <div>
-                                    {quiz.completed ? (
+                                    {quiz.isCompleted ? (
                                         <button className="bg-gray-200 hover:bg-gray-300 text-gray-600 py-1 px-3 rounded mt-5 w-40"
-                                        onClick={() => setShowResults(true)} 
+                                        onClick={() => {
+                                            setanswers(quiz.answers)
+                                            setShowResults(true)
+                                        }} 
                                         >
                                             View Results
                                         </button>
                                     ) : (
-                                        <button className="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded mt-5 w-40">
+                                        <button 
+                                        onClick={() => navigate(`/student/group/quiz/${quiz._id}`)}
+                                        className="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded mt-5 w-40">
                                             Take Quiz
                                         </button>
                                     )}
                                 </div>
+                                
                             </div>
                         ))}
                     </div>

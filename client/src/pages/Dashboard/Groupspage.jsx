@@ -9,7 +9,7 @@ function Groupspage() {
     const [isLoading, setIsLoading] = useState(true);
     const [groups, setGroups] = useState([]);
     const [error, setError] = useState(null);
-    const { user } = useContext(AuthContext);
+    const  user = JSON.parse(localStorage.getItem("_us_unr")) || {};
     console.log("groups ",user)
     // Handle search input change
     const handleSearchQueryChange = (event) => {
@@ -33,7 +33,7 @@ function Groupspage() {
             }
         };
         loadGroups();
-    }, [user]);
+    }, []);
 
     if (isLoading) return (
         <div className="flex justify-center items-center min-h-[80vh]">

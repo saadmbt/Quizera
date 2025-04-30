@@ -39,7 +39,7 @@ const renderRoutes = (routes) => {
 
 const Home = () => {
     const token = localStorage.getItem("access_token");
-    const user  = JSON.parse(localStorage.getItem("_us_unr"))
+    const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
 
   // State for lessonID and quizSettings from useContext
   const [lessonID, setLessonID] = useState(false);
@@ -74,12 +74,9 @@ const Home = () => {
       {/* professor routes */}
       <Route
         path="/professor"
-        element={
-          <DashboardLayout />
-          //       <ProtectedRoute allowedRoles={["professor"]}>
-
-          //         
-          //       </ProtectedRoute>
+        element={<ProtectedRoute allowedRoles={["professor"]}>
+                <DashboardLayout />
+          </ProtectedRoute>
         }
       >
         <Route path="upload" element={<ProfUpload onComplete={onComplete} />} />
@@ -119,7 +116,7 @@ const Home = () => {
             </NotAccessibleRoute>
           }
         />
-        <Route path="quiz/:Quiz_id" element={<Quiz settings={{}} params={true} />} />
+        <Route path="quiz/:Quiz_id" element={<Quiz settings={{}} params={true} fromGroup={false} />} />
         <Route path="quizzes" element={<Quizzespage headerSet />} />
         <Route path="quizzes/:id" element={<QuizDetailspage />} />
         <Route path="flashcards" element={<FlashcardsSection />} />
@@ -127,6 +124,7 @@ const Home = () => {
         <Route path="join-group/:token" element={<JoinGroup />} />
         <Route path="groups" element={<Groupspage />} />
         <Route path="groups/:id" element={<GroupDetailspage />} />
+        <Route path="group/quiz/:Quiz_id" element={<Quiz settings={{}} params={true} fromGroup={true} />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<NotFoundpage />} />
       </Route>

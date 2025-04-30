@@ -11,8 +11,8 @@ const Groups = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user } = useContext(AuthContext);
-
+  const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
+  
   // Fetch groups from the API
   useEffect(() => {
     const fetchGroups = async () => {

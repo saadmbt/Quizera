@@ -1,4 +1,6 @@
 import axios from "axios";
+// token
+const token = localStorage.getItem("access_token") || null;
 // uploade file or image or text to the server and create a lesson in the database , 
 // return the lesson objectID
 export const uploadLesson = async (data, title, type) => {
@@ -226,6 +228,42 @@ export const getGroupInfo = async (group_id) => {
   }
   catch (error) {
     console.error("Error fetching group info:", error);
+    throw error;
+  }
+}
+//  get quiz assignments by group_id
+export const getQuizAssignments = async (group_id) => {
+  try {
+    const response = await axios.get(`https://prepgenius-backend.vercel.app/api/group-assignments/${group_id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`
+      },
+    });
+    // Log the response for debugging
+    console.log('Quiz assignments fetched:', response.data);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Error fetching quiz assignments:", error);
+    throw error;
+  }
+}
+//  save quiz attempt for a student
+export const saveQuizAttempt = async (attempt) => {
+  try {
+    const response = await axios.post("https://prepgenius-backend.vercel.app/api/student-quiz-attempt", { attempt }, {
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`
+      },
+    });
+    // Log the response for debugging
+    console.log('Quiz attempt saved:', response.data);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Error saving quiz attempt:", error);
     throw error;
   }
 }
