@@ -132,9 +132,9 @@ def Fetch_quizzes_by_user(user_id):
         return f"Error : fetching quiz {str(e)}"
     
 # insert quiz result
-def Insert_Quiz_Results(Quiz_res):
+def Insert_Quiz_Results(Quiz_res ,collection_name):
     try:
-        collection=db["quizzResult"]
+        collection=db[collection_name]
         quizzResult=Quiz_res
         #Quiz_res formt should be like : {"userId":,"quizId":,"score":,"attemptDate":,"updatedAt":}
         result=collection.insert_one(quizzResult)
@@ -489,8 +489,11 @@ def get_quizzes_by_ids(quiz_ids,student_id):
             quiz_attempt = db["QuizAttempts"].find_one({"quizId": quiz["_id"], "studentId": str(student_id)})
             if quiz_attempt:
                 quiz["isCompleted"] = True
+                quiz["answers"] = quiz_attempt["answers"]
+                quiz["feedback"] = quiz_attempt["feedback"]
             else:
                 quiz["isCompleted"] = False
+
         
         # Convert ObjectId to string for all quizzes
         for quiz in quizzes:

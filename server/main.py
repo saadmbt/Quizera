@@ -428,7 +428,7 @@ def create_quiz_results():
     quiz_result = data['result']
     quiz_result["generated_by"]="get_jwt_identity()"
     # Insert the quiz result into the database
-    quiz_result_id = Insert_Quiz_Results(quiz_result)
+    quiz_result_id = Insert_Quiz_Results(quiz_result,"quizzResult")
     if "error" in str(quiz_result_id).lower():
         return jsonify({"error": str(quiz_result_id)}), 500
     
@@ -692,7 +692,7 @@ def validate_invite_token():
         print(f"General error: {str(e)}")
         return jsonify({"error": "Server error"}), 500
     
-# group mangement  student side
+# ## # group mangement  student side # ## #
 # get group assignments by group id
 @app.route('/api/group-assignments/<group_id>', methods=['GET'])
 @jwt_required()
@@ -732,6 +732,37 @@ def get_group_assignments(group_id):
         return jsonify(quizzes), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 404
+
+# create a quiz attempt for student in group
+@app.route('/api/student-quiz-attempt', methods=['POST'])
+@jwt_required()
+def create_group_quiz_attempt():
+    """
+    Create a quiz attempt for a student in a group.
+    Returns:
+        Response: JSON response containing the quiz attempt ID or an error message.
+    """
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    student_id = get_jwt_identity()
+    # check if student_id is valide (firestone uid)
+    # Check if the student ID exists in Firestore
+    try:
+        auth.get_user(student_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    quiz_result=data['attempt']
+    quiz_result["studentId"]=student_id
+
+    # Insert the quiz result into the database
+    quiz_result_id = Insert_Quiz_Results(quiz_result,"QuizAttempts")
+    if "error" in str(quiz_result_id).lower():
+        return jsonify({"error": str(quiz_result_id)}), 500
+
+    return jsonify({"quiz_attempt_id": str(quiz_result_id)}), 201
+
 
 @app.route('/api/refresh_token', methods=['POST'])
 @jwt_required(refresh=True)
