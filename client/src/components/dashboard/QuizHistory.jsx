@@ -8,9 +8,10 @@ function QuizHistory(props) {
   
    const [quizHistory, setQuizHistory] = useState([]);
    const [loading, setloading] = useState(false);
+   const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
 
   // const { userId } = useContext(AuthContext);
-   const userId = "saad"; // Replace with actual user ID from context or props
+   const userId = user.uid
     const fetchQuizHistory = useCallback(async () => {
       try{
         setloading(true);

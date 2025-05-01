@@ -130,7 +130,8 @@ export default function useQuizLogic(settings,params) {
           if (flashcardsResponse && flashcardsResponse.flashcards) {
             setListFlashcards(flashcardsResponse.flashcards);
           }
-          if (videosResponse && videosResponse.youtube_suggestions) {
+          if (videosResponse ) {
+            console.log("Videos fetched:", videosResponse.youtube_suggestions.length);
             setyoutubevideos(videosResponse.youtube_suggestions);
           }
         })
