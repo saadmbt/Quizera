@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
-import { AuthContext } from "../components/Auth/AuthContext";
 import {jwtDecode} from "jwt-decode";
 
 export default function ProtectedRoute({allowedRoles,children}){

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { SessionExpiredDialog } from '../components/PopUpsUI/SessionExpiredPopup';
 // Function to get the JWT token from the backend and takes  uid as a parameter
 const getJWT = async (uid) => {
   try {
@@ -14,28 +15,25 @@ const getJWT = async (uid) => {
 };
 
 // Helper function to check if a JWT token is expired
-export const isTokenExpired = (token) => {
-  if (!token) return true;
-  try {
-    const base64Url = token.split('.')[1];
-    if (!base64Url) return true;
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join('')
-    );
-    const { exp } = JSON.parse(jsonPayload);
-    if (!exp) return true;
-    // exp is in seconds, Date.now() in ms
-    return Date.now() >= exp * 1000;
-  } catch (e) {
-    console.error('Failed to parse token', e);
+export const isTokenExpired = (tokenData) => {
+  //  Get current time in seconds (Unix timestamp)
+  const currentTime = Math.floor(Date.now() / 1000);
+  console.log("Current Time:", currentTime);
+  console.log("Token Data:", tokenData.exp);
+  // Check if token exists and has an expiration time
+  if (!tokenData || !tokenData.exp) {
+    console.error("Invalid token data or missing 'exp' field");
     return true;
   }
+
+  // Compare expiration time with current time
+  if (currentTime >= tokenData.exp) {
+    console.log("Token expired. Redirecting to login...");
+    return true;
+  }
+
+  console.log("Token is still valid.");
+  return false;
 };
 
 export default getJWT;

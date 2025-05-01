@@ -6,7 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../../assets/authnavbarlogo.png';
 import { AuthContext } from '../../components/Auth/AuthContext';
-import Popup from '../../components/quiz/Popup';
+import Popup from '../../components/PopUpsUI/Popup';
 
 const JoinQuiz = () => {
     const { Quiz_id } = useParams();
