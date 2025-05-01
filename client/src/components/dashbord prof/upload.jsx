@@ -13,49 +13,64 @@ export default function ProfUpload({ onComplete }) {
   const [text, setText] = useState('');
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim()) {
-      toast.error('Please enter a title');
-      return;
-    }
-    if (activeTab === 'file' && !file) {
-      toast.error('Please select a file');
-      return;
-    }
-    if (activeTab === 'text' && !text.trim()) {
-      toast.error('Please enter text content');
-      return;
-    }
-    if  (activeTab === 'file' && file.size > 10 * 1024 * 1024) {
-        toast.error('Please select a file under 10MB');
+    if  (activeTab === 'file' && file && file.size > 10 * 1024 * 1024) {
+        toast.error('File must be less than 10MB.');
         return;
     }
-    const data = activeTab === 'file' ? file : text
-    console.log('Data:', data);
+    if  (activeTab === 'text' && text.length > 10000) {
+        toast.error('Text must be less than 10000 characters.');
+        return;
+    }
+    if(!file && activeTab === 'file'){
+      toast('Please select a file to upload.',{
+        icon: '❗',
+        style: {
+          size: '1rem',
+          fontSize: '1rem', 
+        },
+      });
+      return;
+    }
+    const data = activeTab === 'file' ? (file ? file : null) : (text.trim() ? text : null);
+
     setIsUploading(true);
-      try {
-            const response = await uploadLesson(data, title, activeTab);
+    try {
+      if ((activeTab === 'file' && !file) || (activeTab === 'text' && !text.trim())) {
+        toast('Please select a file or enter valid text to upload.',{
+          icon: '❗❗',
+          style: {
+            size: '1rem',
+            fontSize: '1rem', 
+          },
+        });
+        setIsUploading(false);
+        return;
+      }
+      const response = await uploadLesson(data, title, activeTab);
+
+      const LessonID = response && response.lesson_id ? response.lesson_id : null;
+      if (!LessonID) {
+        toast.error('Failed to retrieve Lesson ID. Please try again.');
+        setIsUploading(false);
+        return;
+      }
       
-            const LessonID=response.lesson_id;
-            console.log('Lesson uploaded:', response);
-            console.log('Lesson uploaded ID:', LessonID);
-            setIsUploading(false);
-            onComplete(LessonID);
-            navigate('/professor/upload/quizsetup', { state: { lessonId: LessonID } });
-          }
-          catch (error) {
-            console.error('Error uploading lesson:', error);
-            setIsUploading(false);
-          }
-    
-    // Simulate upload delay
-    // setTimeout(() => {
-    //   setIsUploading(false);
-    //   onComplete();
-    // }, 2000);
-    // navigate('/Dashboard/upload/QuizSetup');
+      console.log('Lesson uploaded ID:', LessonID);
+      setIsUploading(false);
+      if (onComplete) {
+        onComplete(LessonID);
+      }
+      navigate('/professor/upload/quizsetup', { state: { lessonId: LessonID } });
+    }
+    catch (error) {
+      console.error('Error uploading lesson:', error);
+      toast.error(error.message || 'Failed to upload lesson. Please try again.');
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -64,15 +79,14 @@ export default function ProfUpload({ onComplete }) {
         <div className='flex items-start justify-center gap-4'>
           <h1 className="text-2xl font-bold text-gray-900  mb-2">Upload Learning Material</h1>
         </div>
-        
-        <p className="text-gray-600 ">Add new content to your learning library</p>
+        <p className="text-gray-600 text-center">Add new content to your learning library</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <UploadTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
         {activeTab === 'file' ? (
-          <FileUpload onFileSelect={setFile} />
+          <FileUpload onFileSelect={setFile} setTitle={setTitle} />
         ) : (
           <TextUpload value={text} onChange={setText} />
         )}

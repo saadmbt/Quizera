@@ -1,18 +1,22 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import StatCard from './StatCard';
 import GroupCard from './GroupCard';
 import { fetchProfessorGroups } from '../../services/ProfServices';
-import { AuthContext } from '../Auth/AuthContext';
 
 const ProfDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const [user, setUser] = useState(null);
   const [groups, setGroups] = useState([]);
   const [stats, setStats] = useState({
     activeGroups: 0,
     totalStudents: 0,
     averageScore: 0,
   });
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('_us_unr')) || null;
+    setUser(storedUser);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {

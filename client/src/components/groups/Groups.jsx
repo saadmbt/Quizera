@@ -17,11 +17,11 @@ const Groups = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        console.log('Fetching groups for user:', user); // Debug log
         if (!user || !user.uid) {
           console.error('User or user.uid is undefined');
           return;
         }
+        console.log('Fetching groups for user:', user); // Debug log
         const data = await fetchProfessorGroups(user);
   
         if (Array.isArray(data)) {
@@ -40,7 +40,7 @@ const Groups = () => {
     };
   
     fetchGroups();
-  }, [user]);
+  }, [user.uid]);
 
   // Handle search input change
   const handleSearchQueryChange = (event) => {

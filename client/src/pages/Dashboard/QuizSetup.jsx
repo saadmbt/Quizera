@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { fetchProfessorGroups, assignQuizToGroups } from '../../services/ProfServices.jsx';
 import { generateQuiz } from '../../services/StudentService.jsx';
 import { ChevronRight, Brain, Target, HelpCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AuthContext } from '../../components/Auth/AuthContext.jsx';
 
 const QUESTION_TYPES = [
   { id: 'multiple-choice', label: 'Multiple Choice', icon: Brain },
@@ -29,8 +28,6 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
   const [dueDate, setDueDate] = useState('');
   const [quizStartTime, setQuizStartTime] = useState(''); // New state for quiz start time
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useContext(AuthContext);
-
   const navigate = useNavigate();
   const location = useLocation();
   const isProfessor = location.pathname.includes('professor');
@@ -41,7 +38,8 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
         setGroupsLoading(true);
         setGroupsError(null);
         try {
-          const fetchedGroups = await fetchProfessorGroups(user);
+          const storedUser = JSON.parse(localStorage.getItem('_us_unr')) || null;
+          const fetchedGroups = await fetchProfessorGroups(storedUser);
           setGroups(fetchedGroups);
         } catch (error) {
           setGroupsError('Failed to load groups');
@@ -51,7 +49,7 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
       };
       fetchGroups();
     }
-  }, [isProfessor, user]);
+  }, [isProfessor]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,7 +77,8 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
         if (!quizStartTime) {
           throw new Error('Quiz start time is required');
         }
-        const assignedBy = user ? user.uid : 'current_professor_uid';
+        const storedUser = JSON.parse(localStorage.getItem('_us_unr')) || null;
+        const assignedBy = storedUser ? storedUser.uid : 'current_professor_uid';
         const assignedAt = new Date().toISOString();
         const groupIds = [selectedGroup];
         const dueDateISO = dueDate ? new Date(dueDate).toISOString() : null;

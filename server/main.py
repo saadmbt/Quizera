@@ -195,7 +195,7 @@ def handle_theuploaded():
         # finally:
         # # Clean up the temporary file
         # if os.path.exists(temp_file_name):
-        #     os.remove(temp)
+        #     remove(temp)
     else:
         return jsonify({"error": "Invalid request type"}), 400
     
