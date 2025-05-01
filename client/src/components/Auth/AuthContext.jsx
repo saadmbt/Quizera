@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { auth } from "../../firebase-config"; 
 import { onAuthStateChanged } from "firebase/auth";
+import { isTokenExpired } from "../../services/authService";
 
 // Create a context
 export const AuthContext = createContext();
@@ -9,6 +10,16 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); 
   const isAuthenticated = !!user; // Determine if the user is authenticated
+
+  useEffect(() => {
+    // Check token expiration on first load
+    const token = localStorage.getItem("access_token");
+    if (token && isTokenExpired(token)) {
+      
+      localStorage.removeItem("access_token");
+      setUser(null);
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

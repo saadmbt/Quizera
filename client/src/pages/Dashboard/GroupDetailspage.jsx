@@ -13,6 +13,8 @@ function GroupDetailspage() {
     const [Assignments, setAssignments] = useState([]);
     const { id } = useParams();
     const navigate=useNavigate()
+
+    // fetch group info
     const fetchGroup = useCallback(async () => {
       try{
         setloading(true);
@@ -43,6 +45,12 @@ function GroupDetailspage() {
         fetchGroup();
         fetchAssignments();
     }, []); 
+
+    // filter assignments by quiz status 
+    const completedAssignments = Assignments.filter((assignment) => assignment.isCompleted);
+    const pendingAssignments = Assignments.filter((assignment) => !assignment.isCompleted);
+
+
     if (showResults) {
         return <QuestionReview answers={answers} onBack={() => setShowResults(false)}  />;
     }
@@ -125,6 +133,25 @@ function GroupDetailspage() {
                 {/* Quizzes Section */}
                 <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-4">Quizzes</h3>
+                    {/* filter Assignments by status */}
+                    <div className="flex items-center gap-4 mb-4">
+                        <span className="text-sm text-gray-500">Filter by:</span>
+                        <button
+                            onClick={()=>setAssignments(Assignments)}  
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            All
+                        </button>
+                        <button 
+                            onClick={()=>setAssignments(completedAssignments)}
+                        className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
+                            Completed
+                        </button>
+                        <button 
+                            onClick={()=>setAssignments(pendingAssignments)}
+                        className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
+                            Pending
+                        </button>
+                    </div>
                     <div className="space-y-4">
                         {Assignments.map((quiz,i) => (
                             <div key={i} 
