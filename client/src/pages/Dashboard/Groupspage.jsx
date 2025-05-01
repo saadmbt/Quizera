@@ -10,7 +10,6 @@ function Groupspage() {
     const [groups, setGroups] = useState([]);
     const [error, setError] = useState(null);
     const  user = JSON.parse(localStorage.getItem("_us_unr")) || {};
-    console.log("groups ",user)
     // Handle search input change
     const handleSearchQueryChange = (event) => {
         setSearchQuery(event.target.value);

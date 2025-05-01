@@ -9,8 +9,8 @@ function FlashcardsSection({ limit }) {
    const [DECKS, setDECKS] = useState([]);
    const [loading, setloading] = useState(false);
 
-  // const { userId } = useContext(AuthContext);
-   const userId = "saad"; // Replace with actual user ID from context or props
+   const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
+   const userId = user.uid
     const fetchflashcards = useCallback(async () => {
       try{
         setloading(true);

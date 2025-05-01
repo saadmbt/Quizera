@@ -3,8 +3,8 @@ from flask_jwt_extended import (
     JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token, get_jwt
 )
 from bson.objectid import ObjectId
-import datetime
-from datetime import timedelta
+import datetime as dt
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 from functionsDB import (
@@ -85,9 +85,9 @@ def login():
         return jsonify({'error': f'Authentication failed: {str(e)}'}), 500
 
 @app.route('/api/profile', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def profile():
-    uid = "get_jwt_identity()"
+    uid = get_jwt_identity()
     try:
         user = auth.get_user(uid)
         # dictionary of user information
@@ -105,8 +105,21 @@ def profile():
 
 # Lesson Management Endpoints
 @app.route('/api/upload', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def handle_theuploaded():
+    """
+    Handle the uploaded lesson content.
+    Returns:
+        Response: JSON response containing the lesson ID or an error message.
+    """
+    # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     # Check if the request body is text, file, or image
     request_type = check_request_body()
     
@@ -121,9 +134,9 @@ def handle_theuploaded():
         lesson_obj = {
             "title": request.form["title"],
             "id": New_id,
-            "author": "get_jwt_identity()",
+            "author": get_jwt_identity(),
             "content": request.form['text'],
-            "uploadedAt": datetime.now(datetime.timezone.utc).isoformat(),
+            "uploadedAt": datetime.now(dt.timezone.utc).isoformat(),
         }
         lesson_objid = insert_Lessons(lesson_obj)
         response = jsonify({'message': 'Lesson uploaded successfully', "lesson_id": str(lesson_objid)})
@@ -148,9 +161,9 @@ def handle_theuploaded():
             lesson_obj = {
                 "title": request.form["title"],
                 "id": New_id,
-                "author": "get_jwt_identity()",
+                "author": get_jwt_identity(),
                 "content": file_extracted_text,
-                "uploadedAt": datetime.now(datetime.timezone.utc).isoformat(),
+                "uploadedAt":  datetime.now(dt.timezone.utc).isoformat(),
             }
             
             lesson_objid = insert_Lessons(lesson_obj)
@@ -182,9 +195,9 @@ def handle_theuploaded():
             lesson_obj={
                 "title":request.form["title"],
                 "id":New_id,
-                "author":"get_jwt_identity()",
+                "author":get_jwt_identity(),
                 "content" :extracted_text,
-                "uploadedAt": datetime.now(datetime.timezone.utc).isoformat(),
+                "uploadedAt":  datetime.now(dt.timezone.utc).isoformat(),
             }
             # Save the dictionary Lesson to the database
             lesson_objid = insert_Lessons(lesson_obj)
@@ -200,15 +213,21 @@ def handle_theuploaded():
         return jsonify({"error": "Invalid request type"}), 400
     
 @app.route('/api/lessons', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def fetch_lessons():
     """
     Fetch all lessons for the authenticated user.
     Returns:
         Response: JSON response containing the lessons or an error message.
     """
-    # Get the user's id from the JWT token 
-    user_id = "get_jwt_identity()"
+    # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     # Fetch all lessons for the authenticated user.
     lessons = fetch_all_lessons_by_user(user_id)
     print("lenght of the array",len(lessons))
@@ -220,7 +239,7 @@ def fetch_lessons():
     return jsonify(lessons), 200
 
 @app.route('/api/lessons/<lesson_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def fetch_lesson(lesson_id):
     """
     Fetch a specific lesson by its ID.
@@ -231,6 +250,14 @@ def fetch_lesson(lesson_id):
     Returns:
         Response: JSON response containing the lesson or an error message.
     """
+        # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     try:
         lesson_obj_id = ObjectId(lesson_id)
     except Exception as e:
@@ -244,9 +271,17 @@ def fetch_lesson(lesson_id):
 
 # Quiz Management Endpoints
 @app.route('/api/create_quiz', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def create_quiz():
     #par: lessonid, type of question, number of question, dif of question
+        # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
@@ -265,8 +300,16 @@ def create_quiz():
     return jsonify({"quiz": quiz_result}), 201
 #just for show the quiz if needed 
 @app.route('/api/quizzes/<quiz_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def fetch_quiz(quiz_id):
+    # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     quiz = Fetch_Quizzes(ObjectId(quiz_id))
     if quiz is None:
         return jsonify({"error": "Quiz not found"}), 404
@@ -277,9 +320,17 @@ def fetch_quiz(quiz_id):
 
 # flashcards and youtube suggestions endpoints
 @app.route('/api/flashcards/<lesson_id>/<quiz_ress_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def generatee_flashcards(lesson_id, quiz_ress_id):
+    # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
     try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    try:
+        
         lesson_obj_id = ObjectId(lesson_id)
         quiz_res_id = ObjectId(quiz_ress_id)
         print(lesson_obj_id,quiz_res_id)
@@ -297,9 +348,16 @@ def generatee_flashcards(lesson_id, quiz_ress_id):
     
 # fetch  All geneareted Flashcards by user
 @app.route('/api/flashcards/Fetch_All/<user_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def fetch_all_flashcards(user_id):
     """ Fetch all flashcards for a given user ID."""
+    # check if the jwt is valide 
+    user = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
     try:
         user_id = str(user_id)
         flashcards = Fetch_Flashcards_by_user(user_id)
@@ -314,7 +372,7 @@ def fetch_all_flashcards(user_id):
         return jsonify({"error": str(e)}), 400
 # get flashcards  by quiz Result id
 @app.route('/api/flashcards/get/<quiz_result_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def fetch_flashcard(quiz_result_id):
     """Fetches the flashcard for a given quiz result ID.
     This endpoint requires a valid JWT token to access.
@@ -325,6 +383,14 @@ def fetch_flashcard(quiz_result_id):
                     or an error message if the flashcard is not found or an error occurs.
                     The response status code is 200 for success and 404 for errors.
     """
+    # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     try:
         quiz_result_id = ObjectId(quiz_result_id)
         flashcard = Fetch_Flashcard_by_id(quiz_result_id)
@@ -339,9 +405,17 @@ def fetch_flashcard(quiz_result_id):
     
 # Generate YouTube suggestions
 @app.route('/api/youtube/<lesson_id>/<quiz_ress_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def generate_yt_suggestions(lesson_id, quiz_ress_id):
     """ Generate YouTube suggestions for a given lesson ID and quiz result ID. """
+    # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     try:
         lesson_obj_id = ObjectId(lesson_id)
         quiz_res_id = ObjectId(quiz_ress_id)
@@ -368,7 +442,7 @@ def generate_yt_suggestions(lesson_id, quiz_ress_id):
     
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/<user_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def fetch_quiz_results(user_id):
     """Fetches the quiz results for a given quiz ID.
     This endpoint requires a valid JWT token to access.
@@ -379,6 +453,13 @@ def fetch_quiz_results(user_id):
                 or an error message if the quiz results are not found or an error occurs.
                 The response status code is 200 for success and 404 for errors.
     """
+        # check if the jwt is valide 
+    user = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
     try:
         # change this later to ObjectId 
         user_id = str(user_id)
@@ -397,7 +478,7 @@ def fetch_quiz_results(user_id):
         return jsonify({"error": str(e)}), 400
 # get quiz results by quiz Result id
 @app.route('/api/quiz_results/get/<quiz_result_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def fetch_quiz_result(quiz_result_id):
     """Fetches the quiz result for a given quiz result ID.
     This endpoint requires a valid JWT token to access.
@@ -408,6 +489,14 @@ def fetch_quiz_result(quiz_result_id):
                     or an error message if the quiz result is not found or an error occurs.
                     The response status code is 200 for success and 404 for errors.
     """
+    # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     try:
         quiz_result_id = ObjectId(quiz_result_id)
         quiz_result = Fetch_Quiz_Results(quiz_result_id)
@@ -421,13 +510,21 @@ def fetch_quiz_result(quiz_result_id):
         return jsonify({"error": str(e)}), 400
 # Quiz Results Management Endpoints
 @app.route('/api/quiz_results/insert', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def create_quiz_results():
+    # check if the jwt is valide 
+    user_id = get_jwt_identity()
+    # Check if the user ID exists in Firestore
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
     quiz_result = data['result']
-    quiz_result["generated_by"]="get_jwt_identity()"
+    quiz_result["generated_by"]=user_id
     # Insert the quiz result into the database
     quiz_result_id = Insert_Quiz_Results(quiz_result,"quizzResult")
     if "error" in str(quiz_result_id).lower():
@@ -771,8 +868,10 @@ def create_group_quiz_attempt():
         auth.get_user(student_id)
     except auth.UserNotFoundError:
         return jsonify({"error": "Invalid or unknown UID"}), 401
+    
     quiz_result=data['attempt']
     quiz_result["studentId"]=student_id
+    quiz_result["quizId"]=ObjectId(quiz_result["quizId"])
 
     # Insert the quiz result into the database
     quiz_result_id = Insert_Quiz_Results(quiz_result,"QuizAttempts")
@@ -803,7 +902,7 @@ def refresh_expiring_jwts(response):
         # Refresh if expiring in 20 minutes or less
         REFRESH_THRESHOLD_MINUTES = 20  
         exp_timestamp = get_jwt()["exp"]
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = dt.datetime.now(dt.timezone.utc)
         target_timestamp = (now + timedelta(minutes=REFRESH_THRESHOLD_MINUTES)).timestamp()
 
         if target_timestamp > exp_timestamp:
@@ -822,7 +921,7 @@ def refresh_expiring_jwts(response):
                 'access_token',
                 new_access_token,
                 # Set the cookie to expire when the token expires
-                expires=datetime.datetime.fromtimestamp(exp_timestamp, datetime.timezone.utc)
+                expires=dt.datetime.fromtimestamp(exp_timestamp, dt.timezone.utc)
             )
     except Exception as e:
         # Log any exceptions that occur during token refresh

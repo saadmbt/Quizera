@@ -2,28 +2,28 @@ import React from 'react';
 import { Play, ArrowLeft, Youtube } from 'lucide-react';
 import VideoCard from './VideoCard';
 
-export default function Videos({ videos=[], onBack }) {
+export default function Videos({ videos, onBack }) {
 
-     // If videos array is empty, show message
-   if (!videos.length) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <button
-          onClick={onBack}
-          className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
-        >
-          <ArrowLeft className="h-5 w-5 mr-2" />
-          Back to Results
-        </button>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center">
-          <h2 className="text-xl font-medium text-yellow-800 mb-2">No youtube videos Available</h2>
-          <p className="text-yellow-700">
-            It seems there are no youtube videos  generated yet. Try creating some new ones or check back later.
-          </p>
+    // If videos array is empty, show message
+    if (!videos?.length) {
+      return (
+        <div className="max-w-4xl mx-auto p-6">
+          <button
+            onClick={onBack}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Results
+          </button>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center">
+            <h2 className="text-xl font-medium text-yellow-800 mb-2">Generating Your Videos</h2>
+            <p className="text-yellow-700">
+              Please wait while we generate relevant YouTube videos for your quiz. This may take a moment.
+            </p>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50">

@@ -49,7 +49,7 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
         const  quizAtteemptRes={
           quizId:quizResult.quiz_id,
           submittedAt: quizResult.date,
-          questions: quizResult.questions,
+          answers: quizResult.questions,
           totalScore: scorePercentage,
           feedback:"No Feedback Provided yet",
         }

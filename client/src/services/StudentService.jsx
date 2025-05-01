@@ -27,7 +27,7 @@ export const uploadLesson = async (data, title, type) => {
       {
         headers: {
           'Content-Type': 'multipart/form-data',
-          // "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}`
         },
       }
     );
@@ -55,7 +55,7 @@ export const generateQuiz = async (quizsetup) => {
       quizsetup, {
         headers: {
           'Content-Type': 'application/json',
-          // "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}`
         },
       });
     // Log the response for debugging
@@ -72,7 +72,7 @@ export const saveQuizResult = async (result) => {
     const response = await axios.post("https://prepgenius-backend.vercel.app/api/quiz_results/insert",{result}, {
         headers: {
           'Content-Type': 'application/json',
-          // "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}`
         },
       });
     // Log the response for debugging
@@ -90,7 +90,7 @@ export const generateFlashcards = async (lesson_id,quiz_ress_id) => {
     const response = await axios.get(`https://prepgenius-backend.vercel.app/api/flashcards/${lesson_id}/${quiz_ress_id}`, {
       headers: {
         'Content-Type': 'application/json',
-        // "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
     });
     // Log the response for debugging
@@ -109,7 +109,7 @@ export const fetchVideos = async (lesson_id,quiz_ress_id)  => {
     const response = await axios.get(`https://prepgenius-backend.vercel.app/api/youtube/${lesson_id}/${quiz_ress_id}`, {
       headers: {
         'Content-Type': 'application/json',
-        // "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
     });
     // Log the response for debugging
@@ -128,7 +128,7 @@ export const getQuizById = async (quiz_id) => {
     const response = await axios.get(`https://prepgenius-backend.vercel.app/api/quizzes/${quiz_id}`, {
       headers: {
         'Content-Type': 'application/json',
-        // "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
     });
     // Log the response for debugging
@@ -147,7 +147,7 @@ export const getFlashcards = async (user_id) => {
     const response = await axios.get(`https://prepgenius-backend.vercel.app/api/flashcards/Fetch_All/${user_id}`, {
       headers: {
         'Content-Type': 'application/json',
-        // "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
     });
     // Log the response for debugging
@@ -165,7 +165,7 @@ export const getFlashcardById = async (resualt_id) => {
     const response = await axios.get(`https://prepgenius-backend.vercel.app/api/flashcards/get/${resualt_id}`, {
       headers: {
         'Content-Type': 'application/json',
-        // "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
     });
     // Log the response for debugging
@@ -183,7 +183,7 @@ export const getQuizResults = async (user_id) => {
     const response = await axios.get(`https://prepgenius-backend.vercel.app/api/quiz_results/${user_id}`, {
       headers: {
         'Content-Type': 'application/json',
-        // "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
     });
     // Log the response for debugging
@@ -201,7 +201,7 @@ export const getQuizResultById = async (result_id) => {
     const response = await axios.get(`https://prepgenius-backend.vercel.app/api/quiz_results/get/${result_id}`, {
       headers: {
         'Content-Type': 'application/json',
-        // "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
     });
     // Log the response for debugging
@@ -219,7 +219,7 @@ export const getGroupInfo = async (group_id) => {
     const response = await axios.get(`https://prepgenius-backend.vercel.app/api/groups/get/${group_id}`, {
       headers: {
         'Content-Type': 'application/json',
-        // "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
     });
     // Log the response for debugging
