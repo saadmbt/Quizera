@@ -14,7 +14,8 @@ from functionsDB import (
     insert_group, add_student_to_group, get_group_by_code,
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
     Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id,
-    insert_quiz_assignment,get_quiz_assignment_group_ids_for_student,get_quizzs_Assignments_by_group_id,get_quizzes_by_ids
+    insert_quiz_assignment,get_quiz_assignment_group_ids_for_student,get_quizzs_Assignments_by_group_id,get_quizzes_by_ids,
+    get_students_with_average_scores_for_group
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -487,6 +488,23 @@ def update_group(group_id):
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+@app.route('/api/groups/<group_id>/students-scores', methods=['GET'])
+# @jwt_required()
+def get_students_scores(group_id):
+    try:
+        # Validate group_id
+        if not ObjectId.is_valid(group_id):
+            return jsonify({"error": "Invalid group_id format"}), 400
+
+        students_scores = get_students_with_average_scores_for_group(group_id)
+        if isinstance(students_scores, dict) and "error" in students_scores:
+            return jsonify({"error": students_scores["error"]}), 500
+        if not students_scores:
+            return jsonify({"error": "No students found for this group"}), 404
+
+        return jsonify(students_scores), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # 4. Get a Group by Group ID and Professor ID (GET /api/groups/<group_id>/<prof_id>)
 @app.route('/api/groups/<group_id>/<prof_id>', methods=['GET'])

@@ -345,7 +345,7 @@ def get_professor_by_id(profid):
         prof = user.find_one({"_id": ObjectId(profid)})
         if prof:
             prof['_id'] = str(prof['_id'])
-            # Use displayName/name/username based on your user collection schema
+            # Use displayName/name/username based
             prof_name = prof.get('displayName') or prof.get('name') or prof.get('username', 'Unknown Professor')
             return {
                 "_id": prof['_id'],
@@ -356,6 +356,47 @@ def get_professor_by_id(profid):
     except Exception as e:
         print(f"Error in get_professor_by_id: {str(e)}")
         return f"Error fetching professor: {str(e)}"
+
+# New function to get students with average scores for a group
+def get_students_with_average_scores_for_group(group_id):
+    try:
+        if not ObjectId.is_valid(group_id):
+            return {"error": "Invalid group_id format"}
+        obj_id = ObjectId(group_id)
+        group = groups_collection.find_one({"_id": obj_id})
+        if not group:
+            return {"error": "Group not found"}
+
+        students = group.get("students", [])
+        if not students:
+            return []
+
+        # For each student, fetch quiz results and calculate average score
+        results = []
+        for student in students:
+            uid = student.get("uid")
+            if not uid:
+                continue
+            quiz_results = list(db["quizzResult"].find({"generated_by": uid}))
+            if not quiz_results:
+                avg_score = 0
+            else:
+                total_score = sum([res.get("score", 0) for res in quiz_results])
+                avg_score = total_score / len(quiz_results)
+
+            # Fetch user info from users collection
+            user_info = user.find_one({"uid": uid})
+            name = user_info.get("name") if user_info else "Unnamed Student"
+
+            results.append({
+                "uid": uid,
+                "name": name,
+                "averageScore": avg_score
+            })
+
+        return results
+    except Exception as e:
+        return {"error": f"Error fetching students with average scores: {str(e)}"}
 
 def update_group_info(group_id, update_data):
     try:
