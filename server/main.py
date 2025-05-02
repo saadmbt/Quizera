@@ -15,7 +15,7 @@ from functionsDB import (
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
     Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id,
     insert_quiz_assignment,get_quiz_assignment_group_ids_for_student,get_quizzs_Assignments_by_group_id,get_quizzes_by_ids,
-    get_students_with_average_scores_for_group
+    get_students_with_average_scores_for_group,getStudentPerformance
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -884,6 +884,33 @@ def create_group_quiz_attempt():
         return jsonify({"error": str(quiz_result_id)}), 500
 
     return jsonify({"quiz_attempt_id": str(quiz_result_id)}), 201
+
+# Get student performance across all quizzes
+@app.route('/api/student-performance', methods=['GET'])
+@jwt_required()
+def get_student_performance():
+    """
+    Fetch the performance of a student across all quizzes.
+    
+    Returns:
+        Response: JSON response containing the student's performance data or an error message.
+    """
+    student_id = get_jwt_identity()
+    # check if student_id is valide (firestone uid)
+    # Check if the student ID exists in Firestore
+    try:
+        auth.get_user(student_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
+    performance_data = getStudentPerformance(student_id)
+    if isinstance(performance_data, str) and "error" in performance_data.lower():
+        return jsonify({"error": performance_data}), 500
+    if not performance_data:
+        return jsonify({"error": "No performance data found for this student"}), 404
+
+    return jsonify(performance_data), 200
+
 
 
 @app.route('/api/refresh_token', methods=['POST'])

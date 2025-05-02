@@ -542,3 +542,48 @@ def get_quizzes_by_ids(quiz_ids,student_id):
         return quizzes
     except Exception as e:
         return {"error": f"Error fetching quizzes by IDs: {str(e)}"}
+
+# get user preformance
+def getStudentPerformance(studentId):
+    try:
+        # Fetch all quiz results
+        quizzResult_collection = db["quizzResult"]
+        QuizAttempts_collection = db["QuizAttempts"]
+
+        quiz_attempts=list(QuizAttempts_collection.aggregate([
+            { "$match": { "studentId": studentId} },
+            { "$group": {
+                "_id": None,
+                "totalAttempts": { "$sum": 1 },
+                "averageScore": { "$avg": "$score" }
+                
+                    }}
+                ])
+            )
+
+        quizz_Result=list(quizzResult_collection.aggregate([
+        { "$match": { "generated_by": studentId} },
+        { "$group": {
+            "_id": None,
+            "totalQuizzes": { "$sum": 1 },
+            "averageScore": { "$avg": "$score" }
+            
+                }}
+            ])
+        )
+        # check if the user has any quiz results 
+        if not quizz_Result:
+            quizz_Result=[{"totalQuizzes": 0, "averageScore": 0}]
+        # check if the user has any quiz attempts
+        if not quiz_attempts:
+            quiz_attempts=[{"totalAttempts": 0, "averageScore": 0}]
+
+           
+        final_result = {
+            "totalQuizzes": quizz_Result[0]["totalQuizzes"] + quiz_attempts[0]["totalAttempts"],
+            "averageScore": quizz_Result[0]["averageScore"] + quiz_attempts[0]["averageScore"] / 2,
+        }
+
+        return final_result
+    except Exception as e:
+        return f"Error fetching student performance: {str(e)}"
