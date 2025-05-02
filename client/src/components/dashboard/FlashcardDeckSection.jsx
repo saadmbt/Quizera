@@ -38,17 +38,22 @@ function FlashcardsSection({ limit }) {
   return (
     <div className="space-y-6 mb-8 px-4 md:px-0">
       {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <button
+              className="md:hidden text-gray-600"
+              onClick={() => {
+                console.log("Toggle button clicked.");
+                toggleSidebar();
+              }}
+            >
+              <Sidebar className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+        
       <div className="flex flex-col md:flex-col md:items-start lg:flex-row justify-between gap-4">
         <div>
-          <button
-            className="md:hidden text-gray-600"
-            onClick={() => {
-            console.log("Toggle button clicked.");
-            toggleSidebar();
-              }}
-          >
-                <Sidebar className="h-6 w-6" />
-          </button>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Library className="h-6 w-6 text-blue-500" />
             Flashcard Decks

@@ -1,8 +1,13 @@
-import { Sidebar } from "lucide-react";
+import { LogOut, Sidebar } from "lucide-react";
 import React, { useContext } from "react";
+import { AuthContext } from "../Auth/AuthContext";
 export default function Header({ onToggleSidebar }) {
     const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
     console.log("user",user)
+    const {logout}=useContext(AuthContext)
+    const handleLogout = () => {
+      logout();
+    };
     return (
         <header className="flex justify-between items-center sticky top-0 z-30 bg-white/80 mb-8 px-4 py-4 md:px-0">
             <div className="flex items-center space-x-4">
@@ -22,6 +27,14 @@ export default function Header({ onToggleSidebar }) {
                     <h2 className="text-xl font-semibold">Welcome back, {user.username}!</h2>
                     <p className="text-gray-600">Continue your learning journey</p>
                 </div>
+            </div>
+            <div className="hidden md:flex items-center space-x-4">
+                <button 
+                onClick={handleLogout}
+                 className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 transition duration-200 flex items-center gap-2">
+                    <LogOut className="h-5 w-5" />
+                    Logout
+                </button>
             </div>
         </header>
     );
