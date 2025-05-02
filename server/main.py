@@ -743,9 +743,14 @@ def create_quiz_assignment():
     assigned_by = data.get("assignedBy")
     assigned_at = data.get("assignedAt")
     due_date = data.get("dueDate")
+    start_time = data.get("startTime")  # Added startTime
 
     if not quiz_id or not group_ids or not assigned_by or not assigned_at:
         return jsonify({"error": "Missing required fields"}), 400
+
+    # Add start_time to data if present
+    if start_time:
+        data["startTime"] = start_time
 
     result = insert_quiz_assignment(data)
     if isinstance(result, dict) and "error" in result:
