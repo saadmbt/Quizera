@@ -903,7 +903,7 @@ def get_student_performance():
     except auth.UserNotFoundError:
         return jsonify({"error": "Invalid or unknown UID"}), 401
     
-    performance_data = getStudentPerformance(student_id)
+    performance_data = getStudentPerformance(str(student_id))
     if isinstance(performance_data, str) and "error" in performance_data.lower():
         return jsonify({"error": performance_data}), 500
     if not performance_data:

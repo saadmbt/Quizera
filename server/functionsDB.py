@@ -579,9 +579,12 @@ def getStudentPerformance(studentId):
             quiz_attempts=[{"totalAttempts": 0, "averageScore": 0}]
 
            
+        quiz_result_avg = quizz_Result[0]["averageScore"] or 0
+        quiz_attempts_avg = quiz_attempts[0]["averageScore"] or 0
+        
         final_result = {
             "totalQuizzes": quizz_Result[0]["totalQuizzes"] + quiz_attempts[0]["totalAttempts"],
-            "averageScore": quizz_Result[0]["averageScore"] + quiz_attempts[0]["averageScore"] / 2,
+            "averageScore": (quiz_result_avg + quiz_attempts_avg) / 2 if (quiz_result_avg or quiz_attempts_avg) else 0,
         }
 
         return final_result
