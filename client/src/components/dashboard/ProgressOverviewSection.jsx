@@ -20,12 +20,10 @@ const ProgressOverviewSection = () => {
     ])
   }).catch((error) => {
     console.error('Error fetching student performance:', error);
-  });
-
-  // Simulate loading state
-  setTimeout(() => {
+  }).finally(() => {
     setLoading(false);
-  }, 2000);
+  })
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 px-4 md:px-0">

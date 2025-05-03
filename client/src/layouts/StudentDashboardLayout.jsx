@@ -19,6 +19,20 @@ const StudentDashboardLayout = () => {
             <div>
                 
             </div>
+                {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                            <button
+                            className="flex  md:hidden text-gray-600"
+                            onClick={() => {
+                                console.log("Toggle button clicked.");
+                                toggleSidebar();
+                            }}
+                            >
+                            <Sidebar className="h-6 w-6" />
+                            </button>
+                        </div>
+                    </div>
                 {/* Main Content */}
                 <Outlet context={{ toggleSidebar }} />
             </div>
