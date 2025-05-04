@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ProgressOverviewCard from './ProgressOverviewCard';
 import { BookOpen, BrainCircuit, Crown } from 'lucide-react';
 import { fetchStudentPerformance } from '../../services/StudentService';
@@ -11,18 +11,21 @@ const ProgressOverviewSection = () => {
     { title: 'Average Score', value: '92%', color: 'bg-green-500', icon: BrainCircuit },
     { title: 'Study Streak', value: '7 days', color: 'bg-orange-500', icon: Crown }
   ];
-  fetchStudentPerformance().then((data) => {
-    console.log('Student Performance:', data);
-    setstats([
-      { title: 'Completed Quizzes', value: data.totalQuizzes, color: 'bg-blue-500', icon: BookOpen },
-      { title: 'Average Score', value: `${data.averageScore}%`, color: 'bg-green-500', icon: BrainCircuit },
-      { title: 'Study Streak', value: '7 days', color: 'bg-orange-500', icon: Crown }
-    ])
-  }).catch((error) => {
-    console.error('Error fetching student performance:', error);
-  }).finally(() => {
-    setLoading(false);
-  })
+  useEffect(()=>{
+      fetchStudentPerformance().then((data) => {
+        console.log('Student Performance:', data);
+        setstats([
+          { title: 'Completed Quizzes', value: data.totalQuizzes, color: 'bg-blue-500', icon: BookOpen },
+          { title: 'Average Score', value: `${data.averageScore}%`, color: 'bg-green-500', icon: BrainCircuit },
+          { title: 'Study Streak', value: '7 days', color: 'bg-orange-500', icon: Crown }
+        ])
+      }).catch((error) => {
+        console.error('Error fetching student performance:', error);
+      }).finally(() => {
+        setLoading(false);
+      })
+  },[])
+
 
 
   return (

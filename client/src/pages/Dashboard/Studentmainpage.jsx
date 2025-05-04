@@ -12,7 +12,7 @@ function Studentmainpage() {
     const isNew= JSON.parse(localStorage.getItem("isNew"));
   return (
     <>
-        <Header onToggleSidebar={toggleSidebar} />
+        <Header isInMain={true} />
         {isNew ? <StartComponent /> : (
           <>
         {/* Progress Overview section  */}

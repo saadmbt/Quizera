@@ -117,7 +117,7 @@ const Home = () => {
           }
         />
         <Route path="quiz/:Quiz_id" element={<Quiz settings={{}} params={true} fromGroup={false} />} />
-        <Route path="quizzes" element={<Quizzespage headerSet />} />
+        <Route path="quizzes" element={<Quizzespage />} />
         <Route path="quizzes/:id" element={<QuizDetailspage />} />
         <Route path="flashcards" element={<FlashcardsSection />} />
         <Route path="flashcards/study/:id" element={<FlashcardStudy />} />

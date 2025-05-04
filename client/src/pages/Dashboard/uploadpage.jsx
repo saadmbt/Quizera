@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Sidebar, Upload as UploadIcon } from 'lucide-react';
+import { Upload as UploadIcon } from 'lucide-react';
 import UploadTabs from '../../components/dashboard/UploadTabs';
 import FileUpload from '../../components/dashboard/FileUpload';
 import TextUpload from '../../components/dashboard/TextUpload';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {uploadLesson} from '../../services/StudentService'
 import toast from 'react-hot-toast';
 
@@ -14,7 +14,6 @@ export default function Upload({ onComplete }) {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const navigate=useNavigate();
-   const {toggleSidebar} = useOutletContext();
   const handleSubmit = async (e) => {
     e.preventDefault();
     if  (activeTab === 'file' && file && file.size > 10 * 1024 * 1024) {
@@ -78,15 +77,6 @@ export default function Upload({ onComplete }) {
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
         <div className='flex items-start justify-center gap-4'>
-          <button
-            className="md:hidden text-gray-600 mr-2 hover:text-gray-900 focus:outline-none justify-self-start"
-            onClick={() => {
-            console.log("Toggle button clicked.");
-            toggleSidebar();
-            }}
-          >
-            <Sidebar className="h-8 w-6" />
-          </button>
           <h1 className="text-2xl font-bold text-gray-900  mb-2">Upload Learning Material</h1>
         </div>
         <p className="text-gray-600 text-center ">Add new content to your learning library</p>

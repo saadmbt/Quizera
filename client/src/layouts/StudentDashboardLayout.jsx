@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../components/dashboard/Sidebar';
 import { Toaster } from 'react-hot-toast';
+import { Sidebar as X } from 'lucide-react';
+import Sidebar from '../components/dashboard/Sidebar';
 
 const StudentDashboardLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -29,7 +30,7 @@ const StudentDashboardLayout = () => {
                                 toggleSidebar();
                             }}
                             >
-                            <Sidebar className="h-6 w-6" />
+                            <X className="h-6 w-6" />
                             </button>
                         </div>
                     </div>
