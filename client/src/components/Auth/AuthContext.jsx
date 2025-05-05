@@ -4,6 +4,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { isTokenExpired } from "../../services/authService";
 import { jwtDecode } from "jwt-decode";
 import { SessionExpiredDialog } from "../PopUpsUI/SessionExpiredPopup";
+import { Navigate } from "react-router-dom";
 
 // Create a context
 export const AuthContext = createContext();
@@ -18,6 +19,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check token expiration on first load
     const token = localStorage.getItem("access_token");
+    
      let decodedToken = null;
         if(token){
             try{
@@ -72,6 +74,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         localStorage.removeItem("access_token");
         localStorage.removeItem("_us_unr");
+        Navigate("/");
       })
       .catch((error) => {
         console.error("Error signing out: ", error);
@@ -79,7 +82,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, setUser, isAuthenticated ,logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,7 +4,7 @@ import { footerlinks } from '../../constants'
 import {Facebook,Youtube,Instagram,Linkedin}  from 'lucide-react'
 import {Link} from 'react-scroll'
 const Footer = () => {
-  return (<footer className="border border-t-2 border-gray-300 text-sm  text-center">
+  return (<footer className="border border-t-2 border-r-0 border-gray-300 text-sm  text-center">
         <div className='container lg-centered py-6 px-4'>
             <div className='flex justify-center items-center gap-4 '>
                 <img src={logo} alt='logo' className='w-60 h-13'/>

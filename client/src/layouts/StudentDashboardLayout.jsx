@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../components/dashboard/Sidebar';
 import { Toaster } from 'react-hot-toast';
+import { Sidebar as X } from 'lucide-react';
+import Sidebar from '../components/dashboard/Sidebar';
 
 const StudentDashboardLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -19,6 +20,20 @@ const StudentDashboardLayout = () => {
             <div>
                 
             </div>
+                {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                            <button
+                            className="flex  md:hidden text-gray-600"
+                            onClick={() => {
+                                console.log("Toggle button clicked.");
+                                toggleSidebar();
+                            }}
+                            >
+                            <X className="h-6 w-6" />
+                            </button>
+                        </div>
+                    </div>
                 {/* Main Content */}
                 <Outlet context={{ toggleSidebar }} />
             </div>

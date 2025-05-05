@@ -5,12 +5,16 @@ import Header from '../../components/dashboard/Header'
 import QuizHistory from '../../components/dashboard/QuizHistory';
 import { History } from 'lucide-react';
 import FlashcardsSection from '../../components/dashboard/FlashcardDeckSection';
+import StartComponent from '../../components/dashboard/StartComponent';
+
 function Studentmainpage() {
     const { toggleSidebar } = useOutletContext();
-
+    const isNew= JSON.parse(localStorage.getItem("isNew"));
   return (
     <>
-        <Header onToggleSidebar={toggleSidebar} />
+        <Header isInMain={true} />
+        {isNew ? <StartComponent /> : (
+          <>
         {/* Progress Overview section  */}
         <ProgressOverviewSection />
         {/* Recent Quizzes */}
@@ -24,7 +28,8 @@ function Studentmainpage() {
           <QuizHistory limit={3} showViewAll={true} />
         </div>
         {/* FlashCard section  */}
-        <FlashcardsSection limit={3} />
+        <FlashcardsSection limit={3} /> 
+        </>)}
     </>
   )
 }

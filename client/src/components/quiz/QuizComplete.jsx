@@ -182,16 +182,16 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
               </button>
             </div>)}
             <div>
-              <button
-              onClick={()=>{
-                localStorage.setItem('isResultSaved',false)
-                navigate('/Student')
-              }}
-              className="flex items-center w-full justify-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-500 text-gray-500 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              Back to Dashboard
-            </button>
+                <button
+                onClick={()=>{
+                  localStorage.setItem('isResultSaved',false)
+                  navigate('/Student')
+                }}
+                className="flex items-center w-full justify-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-500 text-gray-500 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
+              >
+                <ArrowLeft className="h-5 w-5" />
+                Back to Dashboard
+              </button>
             </div>
 
         </div>

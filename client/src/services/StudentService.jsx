@@ -267,3 +267,22 @@ export const saveQuizAttempt = async (attempt) => {
     throw error;
   }
 }
+
+//  fetch  student performance across all quizzes
+export const fetchStudentPerformance = async () => {
+  try {
+    const response = await axios.get(`https://prepgenius-backend.vercel.app/api/student-performance`, {
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`
+      },
+    });
+    // Log the response for debugging
+    console.log('Student performance fetched:', response.data);
+    return response.data;
+  }
+  catch (error) {
+    console.error("Error fetching student performance:", error);
+    throw error;
+  }
+}
