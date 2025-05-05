@@ -432,10 +432,14 @@ def insert_quiz_assignment(assignment_data):
         assigned_at = assignment_data.get("assignedAt")
         due_date = assignment_data.get("dueDate")
 
+        print(f"insert_quiz_assignment - quiz_id: {quiz_id} (type: {type(quiz_id)})")
+        print(f"insert_quiz_assignment - group_ids: {group_ids} (types: {[type(g) for g in group_ids]})")
+        print(f"insert_quiz_assignment - assigned_by: {assigned_by} (type: {type(assigned_by)})")
+
         if not quiz_id or not group_ids or not assigned_by or not assigned_at:
             return {"error": "Missing required fields"}
 
-        # Convert to ObjectId if strings
+        # Convert to ObjectId if strings and valid ObjectId
         if isinstance(quiz_id, str):
             quiz_id = ObjectId(quiz_id)
         group_ids_obj = []
@@ -445,7 +449,11 @@ def insert_quiz_assignment(assignment_data):
             else:
                 group_ids_obj.append(gid)
         if isinstance(assigned_by, str):
-            assigned_by = ObjectId(assigned_by)
+            if ObjectId.is_valid(assigned_by):
+                assigned_by = ObjectId(assigned_by)
+            else:
+                # Keep as string if not valid ObjectId
+                assigned_by = assigned_by
 
         # Parse dates if strings
         if isinstance(assigned_at, str):
