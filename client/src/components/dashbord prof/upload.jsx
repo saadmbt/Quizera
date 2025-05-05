@@ -4,7 +4,8 @@ import UploadTabs from '../../components/dashboard/UploadTabs';
 import FileUpload from '../../components/dashboard/FileUpload';
 import TextUpload from '../../components/dashboard/TextUpload';
 import { useNavigate } from 'react-router-dom';
-import {uploadLesson} from '../../services/StudentService'
+import { uploadLesson } from '../../services/StudentService';
+import getJWT, { isTokenExpired } from '../../services/authService';
 import toast from 'react-hot-toast';
 
 export default function ProfUpload({ onComplete }) {
@@ -15,22 +16,49 @@ export default function ProfUpload({ onComplete }) {
   const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
 
+  const refreshTokenIfNeeded = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      return null;
+    }
+    try {
+      const tokenData = JSON.parse(atob(token.split('.')[1]));
+      if (isTokenExpired(tokenData)) {
+        // Assuming uid is stored in localStorage or elsewhere
+        const uid = localStorage.getItem('uid');
+        if (!uid) {
+          return null;
+        }
+        const newToken = await getJWT(uid);
+        if (newToken) {
+          localStorage.setItem('access_token', newToken);
+          return newToken;
+        }
+        return null;
+      }
+      return token;
+    } catch (error) {
+      console.error('Error parsing token:', error);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if  (activeTab === 'file' && file && file.size > 10 * 1024 * 1024) {
-        toast.error('File must be less than 10MB.');
-        return;
+    if (activeTab === 'file' && file && file.size > 10 * 1024 * 1024) {
+      toast.error('File must be less than 10MB.');
+      return;
     }
-    if  (activeTab === 'text' && text.length > 10000) {
-        toast.error('Text must be less than 10000 characters.');
-        return;
+    if (activeTab === 'text' && text.length > 10000) {
+      toast.error('Text must be less than 10000 characters.');
+      return;
     }
-    if(!file && activeTab === 'file'){
-      toast('Please select a file to upload.',{
+    if (!file && activeTab === 'file') {
+      toast('Please select a file to upload.', {
         icon: '❗',
         style: {
           size: '1rem',
-          fontSize: '1rem', 
+          fontSize: '1rem',
         },
       });
       return;
@@ -40,16 +68,25 @@ export default function ProfUpload({ onComplete }) {
     setIsUploading(true);
     try {
       if ((activeTab === 'file' && !file) || (activeTab === 'text' && !text.trim())) {
-        toast('Please select a file or enter valid text to upload.',{
+        toast('Please select a file or enter valid text to upload.', {
           icon: '❗❗',
           style: {
             size: '1rem',
-            fontSize: '1rem', 
+            fontSize: '1rem',
           },
         });
         setIsUploading(false);
         return;
       }
+
+      const validToken = await refreshTokenIfNeeded();
+      if (!validToken) {
+        toast.error('Authentication required. Please log in again.');
+        setIsUploading(false);
+        return;
+      }
+
+      // uploadLesson reads token from localStorage, so token is updated there
       const response = await uploadLesson(data, title, activeTab);
 
       const LessonID = response && response.lesson_id ? response.lesson_id : null;
@@ -58,15 +95,14 @@ export default function ProfUpload({ onComplete }) {
         setIsUploading(false);
         return;
       }
-      
+
       console.log('Lesson uploaded ID:', LessonID);
       setIsUploading(false);
       if (onComplete) {
         onComplete(LessonID);
       }
       navigate('/professor/upload/quizsetup', { state: { lessonId: LessonID } });
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error uploading lesson:', error);
       toast.error(error.message || 'Failed to upload lesson. Please try again.');
       setIsUploading(false);
@@ -76,7 +112,7 @@ export default function ProfUpload({ onComplete }) {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
-        <div className='flex items-start justify-center gap-4'>
+        <div className="flex items-start justify-center gap-4">
           <h1 className="text-2xl font-bold text-gray-900  mb-2">Upload Learning Material</h1>
         </div>
         <p className="text-gray-600 text-center">Add new content to your learning library</p>
