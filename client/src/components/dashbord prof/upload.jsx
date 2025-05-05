@@ -98,10 +98,8 @@ export default function ProfUpload({ onComplete }) {
 
       console.log('Lesson uploaded ID:', LessonID);
       setIsUploading(false);
-      if (onComplete) {
-        onComplete(LessonID);
-      }
-      navigate('/professor/upload/quizsetup', { state: { lessonId: LessonID } });
+      onComplete(LessonID);
+      navigate('/professor/upload/quizsetup');
     } catch (error) {
       console.error('Error uploading lesson:', error);
       toast.error(error.message || 'Failed to upload lesson. Please try again.');

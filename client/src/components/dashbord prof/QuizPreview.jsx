@@ -1,33 +1,26 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Copy, Share2, Settings, Check, X } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-export default function QuizPreview({ quiz }) {
+export default function QuizPreview() {
   const [isCopied, setIsCopied] = useState(false);
   const [isShared, setIsShared] = useState(false);
   const navigate = useNavigate();
-  
-  // Mock quiz data - replace with actual quiz from props
-  const quizData = {
-    title: "Chapter 5: World History",
-    questions: [
-      {
-        question: "Who was the first Emperor of China?",
-        options: ["Qin Shi Huang", "Sun Tzu", "Confucius", "Liu Bang"],
-        correctAnswer: "Qin Shi Huang"
-      },
-      {
-        question: "Which dynasty ruled China the longest?",
-        options: ["Ming", "Han", "Zhou", "Qing"],
-        correctAnswer: "Zhou"
-      }
-    ],
-    settings: {
-      timeLimit: "30 mins",
-      difficulty: "Medium",
-      type: "Multiple Choice"
-    }
+  const location = useLocation();
+  const quiz = location.state?.quiz;
+
+  // Use quiz from location state, safely handle missing settings
+  const quizData = quiz || {
+    title: "No quiz data available",
+    questions: [],
+    settings: {}
   };
+  console.log("QuizPreview quizData.settings.dueDate:", quizData.settings?.dueDate);
+
+  // Provide defaults for settings fields to avoid undefined errors
+  const timeLimit = quizData.settings?.timeLimit || "N/A";
+  const difficulty = quizData.settings?.difficulty || "N/A";
+  const type = quizData.settings?.type || "N/A";
 
   const copyLink = () => {
     // Mock copy function - replace with actual sharing logic
@@ -61,37 +54,32 @@ export default function QuizPreview({ quiz }) {
       <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">{quizData.title}</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={copyLink}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
-            >
-              {isCopied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
-              {isCopied ? "Copied!" : "Copy Link"}
-            </button>
-            <button
-              onClick={shareQuiz}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-            >
-              <Share2 className="h-5 w-5" />
-              Share
-            </button>
-          </div>
         </div>
 
         {/* Quiz Settings */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-sm text-gray-500">Time Limit</p>
-            <p className="font-medium">{quizData.settings.timeLimit}</p>
+            <p className="text-sm text-gray-500">Due Date</p>
+            <p className="font-medium">
+              {quizData.settings?.dueDate && !isNaN(new Date(quizData.settings.dueDate).getTime())
+                ? new Date(quizData.settings.dueDate).toLocaleString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                  })
+                : "N/A"}
+            </p>
           </div>
           <div className="bg-gray-50 p-3 rounded-lg">
             <p className="text-sm text-gray-500">Difficulty</p>
-            <p className="font-medium">{quizData.settings.difficulty}</p>
+            <p className="font-medium">{difficulty}</p>
           </div>
           <div className="bg-gray-50 p-3 rounded-lg">
             <p className="text-sm text-gray-500">Type</p>
-            <p className="font-medium">{quizData.settings.type}</p>
+            <p className="font-medium">{type}</p>
           </div>
         </div>
 
@@ -104,10 +92,10 @@ export default function QuizPreview({ quiz }) {
               <div className="grid grid-cols-2 gap-2">
                 {q.options.map((option, i) => (
                   <div key={i} className={`p-2 rounded border ${
-                    option === q.correctAnswer ? 'border-green-500 bg-green-50' : 'border-gray-200'
+                    option === q.correctanswer ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'
                   }`}>
                     {option}
-                    {option === q.correctAnswer && (
+                    {option === q.correctanswer && (
                       <Check className="h-4 w-4 text-green-500 inline ml-2" />
                     )}
                   </div>

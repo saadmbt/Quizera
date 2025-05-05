@@ -28,10 +28,6 @@ const ProfessorRoutes = [
     element: <QuizzesProf />,
   },
   {
-    path: 'upload/quizsetup',
-    element: <QuizSetup />,
-  },
-  {
     path:'upload/quizpreview',
     element: <QuizPreview />,
   },

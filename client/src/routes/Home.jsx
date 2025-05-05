@@ -19,13 +19,12 @@ import FlashcardsSection from "../components/dashboard/FlashcardDeckSection";
 import FlashcardStudy from "../components/dashboard/FlashCardStudy";
 import JoinGroup from "../components/groups/Joingroup";
 import Settings from "../components/settings/settings";
-import ProfUpload from "../components/dashbord prof/Upload";
-
 import NotAccessibleRoute from "./NotAccessibleRoute";
 import Groupspage from "../pages/Dashboard/Groupspage";
 import GroupDetailspage from "../pages/Dashboard/GroupDetailspage";
 import ProtectedRoute from "./ProtectedRoute";
 import JoinQuiz from "../pages/Dashboard/JoinQuiz";
+import ProfUpload from "../components/dashbord prof/upload";
 
 const renderRoutes = (routes) => {
   return routes.map((route, i) => (
@@ -80,6 +79,7 @@ const Home = () => {
         }
       >
         <Route path="upload" element={<ProfUpload onComplete={onComplete} />} />
+        <Route path="upload/quizsetup" element={<QuizSetup onStartQuiz={onStartQuiz} lessonID={lessonID}/>} />
         {renderRoutes(ProfessorRoutes)}
       </Route>
 

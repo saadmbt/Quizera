@@ -1,95 +1,91 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, Award, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { fetchProfessorQuizzes, fetchQuizAttempts } from '../../services/ProfServices';
 
-const QUIZ_HISTORY = [
-  {
-    id: 1,
-    title: 'Geography Quiz',
-    date: '2024-03-15',
-    score: 85,
-    timeSpent: '12:30',
-    questionsCount: 10,
-    category: 'Geography'
-  },
-  {
-    id: 2,
-    title: 'World Capitals',
-    date: '2024-03-14',
-    score: 92,
-    timeSpent: '15:45',
-    questionsCount: 15,
-    category: 'Geography'
-  },
-  {
-    id: 3,
-    title: 'Solar System Quiz',
-    date: '2024-03-13',
-    score: 78,
-    timeSpent: '10:15',
-    questionsCount: 8,
-    category: 'Science'
-  },
-  {
-    id: 4,
-    title: 'Ancient History',
-    date: '2024-03-12',
-    score: 88,
-    timeSpent: '20:00',
-    questionsCount: 12,
-    category: 'History'
-  },
-  {
-    id: 5,
-    title: 'Mathematics Basic',
-    date: '2024-03-11',
-    score: 95,
-    timeSpent: '18:30',
-    questionsCount: 10,
-    category: 'Mathematics'
+function QuizzHistoryProf({ limit }) {
+  const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        // Get all quizzes created by the professor
+        const quizzesData = await fetchProfessorQuizzes();
+
+        // Get all quiz attempts
+        const attemptsData = await fetchQuizAttempts();
+
+        // Map attempts to quizzes
+        const quizzesWithAttempts = quizzesData.map(quiz => {
+          const attempts = attemptsData.filter(attempt => attempt.quizId === quiz._id);
+          return {
+            ...quiz,
+            attempts: attempts,
+            averageScore: attempts.length > 0 
+              ? attempts.reduce((acc, curr) => acc + curr.totalScore, 0) / attempts.length 
+              : null
+          };
+        });
+
+        setQuizzes(limit ? quizzesWithAttempts.slice(0, limit) : quizzesWithAttempts);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching quizzes:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchQuizzes();
+  }, [limit]);
+
+  if (loading) {
+    return <div className="text-center py-8">Loading quizzes...</div>;
   }
-];
-
-function QuizHistoryProf(props) {
-  const quizzes = props.limit ? QUIZ_HISTORY.slice(0, props.limit) : QUIZ_HISTORY
 
   return (
     <div className="space-y-4 mb-8 px-4 md:px-0">
       {quizzes.map((quiz) => (
         <div
-          key={quiz.id}
-          className="bg-white  rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+          key={quiz._id}
+          className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
         >
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 ">{quiz.title}</h3>
-              <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 ">
+              <h3 className="font-semibold text-gray-900">{quiz.title}</h3>
+              <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                 <span className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1" />
-                  {new Date(quiz.date).toLocaleDateString()}
+                  {new Date(quiz.createdAt).toLocaleDateString()}
                 </span>
-                <span className="flex items-center">
-                  <Clock className="h-4 w-4 mr-1" />
-                  {quiz.timeSpent}
-                </span>
-                <span className="flex items-center">
-                  <Award className="h-4 w-4 mr-1" />
-                  {quiz.score}%
-                </span>
+                {quiz.attempts?.length > 0 && (
+                  <>
+                    <span className="flex items-center">
+                      <Clock className="h-4 w-4 mr-1" />
+                      {quiz.attempts.length} attempts
+                    </span>
+                    <span className="flex items-center">
+                      <Award className="h-4 w-4 mr-1" />
+                      {Math.round(quiz.averageScore)}% avg
+                    </span>
+                  </>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className={`
                 px-3 py-1 rounded-full text-sm
-                ${quiz.score >= 90 ? 'bg-green-100 text-green-800  ' :
-                  quiz.score >= 70 ? 'bg-blue-100 text-blue-800  ' :
-                  'bg-orange-100 text-orange-800  '}
+                ${quiz.attempts?.length 
+                  ? quiz.averageScore >= 90 ? 'bg-green-100 text-green-800' 
+                  : quiz.averageScore >= 70 ? 'bg-blue-100 text-blue-800'
+                  : 'bg-orange-100 text-orange-800'
+                  : 'bg-gray-100 text-gray-800'}
               `}>
-                {quiz.questionsCount} Questions
+                {quiz.questions?.length || 0} Questions
               </div>
               <Link
-                to={`/professor/quizzes/${quiz.id}`}
-                className="p-2 hover:bg-gray-100  rounded-full transition-colors"
+                to={`/professor/quizzes/${quiz._id}`}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </Link>
@@ -98,10 +94,10 @@ function QuizHistoryProf(props) {
         </div>
       ))}
 
-      {props.showViewAll && (
+      {limit && quizzes.length >= limit && (
         <Link
           to="/professor/quizzes"
-          className="flex items-center justify-center py-3 text-blue-600  hover:text-blue-800 -300"
+          className="flex items-center justify-center py-3 text-blue-600 hover:text-blue-800"
         >
           View All Quizzes
           <ChevronRight className="h-4 w-4 ml-1" />
@@ -111,4 +107,4 @@ function QuizHistoryProf(props) {
   );
 }
 
-export default QuizHistoryProf;
+export default QuizzHistoryProf;

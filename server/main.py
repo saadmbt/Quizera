@@ -15,7 +15,7 @@ from functionsDB import (
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
     Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id,
     insert_quiz_assignment,get_quiz_assignment_group_ids_for_student,get_quizzs_Assignments_by_group_id,get_quizzes_by_ids,
-    get_students_with_average_scores_for_group,getStudentPerformance
+    get_students_with_average_scores_for_group,getStudentPerformance, get_quiz_attempts, get_professor_quizzes
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -911,7 +911,26 @@ def get_student_performance():
 
     return jsonify(performance_data), 200
 
+@app.route('/api/quiz-attempts', methods=['GET'])
+@jwt_required()
+def get_quiz_attempts_route():
+    # check if the jwt is valid
+    user_id = get_jwt_identity()
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
 
+    quiz_id = request.args.get('quiz_id', None)
+    if quiz_id:
+        attempts = get_quiz_attempts_by_quiz_id(quiz_id)
+    else:
+        attempts = get_quiz_attempts()
+
+    if isinstance(attempts, dict) and "error" in attempts:
+        return jsonify(attempts), 500
+
+    return jsonify(attempts), 200
 
 @app.route('/api/refresh_token', methods=['POST'])
 @jwt_required(refresh=True)
@@ -964,6 +983,22 @@ def refresh_expiring_jwts(response):
 def hello_world():
     print("hi")
     return "Hello, World!"
+
+@app.route('/api/quizzes/professor', methods=['GET'])
+@jwt_required()
+def get_professor_quizzes():
+    # check if the jwt is valid
+    professor_id = get_jwt_identity()
+    try:
+        auth.get_user(professor_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
+    quizzes = get_professor_quizzes(professor_id)
+    if isinstance(quizzes, dict) and "error" in quizzes:
+        return jsonify(quizzes), 500
+        
+    return jsonify(quizzes), 200
 
 if __name__ == "__main__":
     app.run()

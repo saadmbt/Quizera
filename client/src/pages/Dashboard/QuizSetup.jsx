@@ -26,7 +26,8 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
   const [questionCount, setQuestionCount] = useState(10);
   const [selectedGroup, setSelectedGroup] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [quizStartTime, setQuizStartTime] = useState(''); // New state for quiz start time
+  const [quizStartTime, setQuizStartTime] = useState(''); 
+  // Removed timeLimit state as per rollback
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,6 +61,7 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
       number: questionCount,
       difficulty,
     };
+    console.log(quizSetupData)
 
     try {
       if (isProfessor) {
@@ -90,18 +92,29 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
           assignedBy,
           assignedAt,
           dueDate: dueDateISO,
-          startTime: quizStartTimeISO, // Include start time in assignment data
+          startTime: quizStartTimeISO,
         });
+        
 
-        navigate('/professor/upload/quizpreview', { state: { quizData: quizSetupData, quizId } });
+        // Refactor quiz object to send to QuizPreview
+        const refinedQuiz = {
+          title: quizResponse.quiz.title || "Untitled Quiz",
+          questions: quizResponse.quiz.questions || [],
+          settings: {
+            dueDate: dueDateISO,
+            startTime: quizStartTimeISO,
+            difficulty: quizSetupData.difficulty,
+            type: quizSetupData.type 
+          }
+        };
+        navigate('/professor/upload/quizpreview', { state: { quiz:refinedQuiz , quizId } });
       } else {
         onStartQuiz(quizSetupData);
         navigate('/student/quiz');
       }
     } catch (error) {
       console.error('Error during quiz creation and assignment:', error);
-      // Optionally, set error state here to show error message in UI
-    } finally {
+      } finally {
       setIsLoading(false);
     }
   };
@@ -233,20 +246,36 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
 
           {/* Quiz Start Time Input */}
           {isProfessor && (
-            <div className="space-y-4">
-              <label htmlFor="quizStartTime" className="block text-lg font-medium text-gray-900">
-                Quiz Start Time
-              </label>
-              <input
-                id="quizStartTime"
-                type="datetime-local"
-                value={quizStartTime}
-                onChange={(e) => setQuizStartTime(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg p-2"
-                required
-              />
-            </div>
+            <>
+              <div className="space-y-4">
+                <label htmlFor="quizStartTime" className="block text-lg font-medium text-gray-900">
+                  Quiz Start Time
+                </label>
+                <input
+                  id="quizStartTime"
+                  type="datetime-local"
+                  value={quizStartTime}
+                  onChange={(e) => setQuizStartTime(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg p-2"
+                  required
+                />
+              </div>
+              <div className="space-y-4">
+                <label htmlFor="dueDate" className="block text-lg font-medium text-gray-900">
+                  Due Date
+                </label>
+                <input
+                  id="dueDate"
+                  type="datetime-local"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg p-2"
+                  required
+                />
+              </div>
+            </>
           )}
+          {/* Removed Time Limit Input as per rollback */}
 
           {/* Group Selection (only for professors) */}
           {isProfessor && (
