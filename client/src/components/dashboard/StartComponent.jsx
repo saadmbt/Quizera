@@ -1,17 +1,25 @@
 import { useState } from 'react';
 import { BookOpen, MessageSquare, FileText, UserPlus, Award } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function StartComponent() {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [completionStep, setCompletionStep] = useState(2);
   const totalSteps = 4;
-
+  const navigate=useNavigate()
   const handleCardClick = (cardId) => {
     setIsLoading(true);
     // Simulate loading
     setTimeout(() => {
       setIsLoading(false);
+      if (cardId === 'generate') {
+        navigate('/Student/upload');
+      } else if (cardId === 'chat') {
+        navigate('/Student/upload');
+      } else if (cardId === 'assign') {
+        navigate('/Student/groups');
+      }
     }, 1500);
   };
 

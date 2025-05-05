@@ -1,63 +1,69 @@
-import React ,{ useEffect, useRef }from 'react'
-import { howitworks } from '../../constants'
-import video from "../../assets/landingpageexam.mp4"
-import { motion} from "framer-motion"
-import {fadeIn} from '../../constants/variants'
+import React from 'react'
+import { UploadCloudIcon, WandIcon, BrainIcon, ShareIcon } from 'lucide-react'
 import Subhero from './Subhero'
 
 const Howitworks = () => {
-  const videoRef = useRef(null)
-  useEffect(()=>{
-    const observ= new IntersectionObserver((entries)=>{
-      if(entries[0].isIntersecting){
-        videoRef.current.play()
-        } else {
-          videoRef.current.pause()
-        }
-    },{
-      threshold: 1.0
-    });
-    observ.observe(videoRef.current);
-    return ()=>observ.unobserve(videoRef.current);
-  },[])
+  const steps = [
+    {
+      title: 'Upload your file',
+      description:
+        'Simply drag and drop your document, or select it from your device.',
+      icon: <UploadCloudIcon size={32} className="text-white" />,
+    },
+    {
+      title: 'Generate your quiz',
+      description:
+        'Our AI analyzes your content and creates relevant questions automatically.',
+      icon: <WandIcon size={32} className="text-white" />,
+    },
+    {
+      title: 'Test Your Knowledge',
+      description:
+        'Take the quiz yourself or assign it to others to gauge understanding.',
+      icon: <BrainIcon size={32} className="text-white" />,
+    },
+    {
+      title: 'Share your quiz',
+      description:
+        'Distribute your quiz via link, email, or embed it on your website.',
+      icon: <ShareIcon size={32} className="text-white" />,
+    },
+  ]
   return (
     <section className='py-14 px-4 bg-gradient-to-b from-[#FFFFFF] to-[#D2DCFF]' id='howitworks'>
-        <motion.div 
-        variants={fadeIn('up',0.1)}
-        initial='hidden'
-        whileInView={'show'}
-        viewport={{once:false,amount:0.4}}
-        className='container lg-centered mt-4'>
-            <div className='flex justify-center flex-col items-center gap-4'>                            
-                <h2 className='section-title'>{howitworks.title}</h2>
-                <ul className='flex flex-col gap-2 px-4 md:grid md:grid-cols-2   md:gap-4 lg:flex lg:flex-row lg:gap-8'>
-                  {howitworks.Steps.map((item, i) => (
-                    <motion.li 
-                    variants={fadeIn('right',`${i+2/10}`)}
-                    initial='hidden'
-                    whileInView={'show'}
-                    viewport={{once:false,amount:0.5}}
-                    key={i} className='text-center font-bold '><span className='sp'>{i+1}  </span>{item}</motion.li>
-                  ))}
-                </ul>
-            </div>
-            {/* video section i should be here and it will be play if it on the screen */}
-            <div  className='flex justify-center w-full my-6 px-4 md:px-0' >
-                <div className='w-full max-w-4xl md:max-w-lg border-2 border-gray-200  rounded-xl p-4 shadow-lg'>
-                      <video
-                      ref={videoRef}
-                      className=' w-full h-auto rounded-lg'
-                      src={video}
-                      type='video/mp4'
-                      muted
-                      loop
-                      playsInline
-                      loading='lazy'
-
-                    />
+        <div className="container mx-auto px-4 max-w-6xl">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            How PrepGenius Works
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Creating quizzes has never been easier. Follow these simple steps to
+            get started.
+          </p>
+        </div>
+        <div className="relative">
+          {/* Connection line */}
+          <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-indigo-200 transform -translate-y-1/2 z-0"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+            {steps.map((step, index) => (
+              <div
+                key={index}
+                className="flex flex-col items-center text-center"
+                data-aos="fade-up"
+                data-aos-delay={index * 100}
+              >
+                <div className="bg-blue-500 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-lg transform transition-transform duration-500 hover:scale-110 hover:rotate-3">
+                  {step.icon}
                 </div>
-            </div>
-        </motion.div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 pt-3">
+                  {step.title}
+                </h3>
+                <p className="text-gray-600">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
         <Subhero/>
     </section>
   )

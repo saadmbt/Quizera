@@ -21,7 +21,7 @@ export default function LoginWithFirebase() {
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const navigate = useNavigate();
-  const {setUser} = useContext(AuthContext);
+  const {setUser} = useContext(AuthContext) || {};
 
   const handleLogin = async (e) => {
     e.preventDefault();

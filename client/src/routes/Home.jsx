@@ -101,7 +101,7 @@ const Home = () => {
               condition={lessonID !== false && quizSettings !== false}
               redirectTo="/student/upload"
             >
-              <Quiz settings={quizSettings} params={false} />
+              <Quiz settings={quizSettings} params={false} fromGroup={false}/>
             </NotAccessibleRoute>
           }
         />
