@@ -253,26 +253,6 @@ export const fetchProfessorQuizzes = async () => {
         throw error;
     }
 };
-
-/**
- * Fetch all quiz attempts
- * @returns {Promise} Array of quiz attempts
- */
-export const fetchQuizAttempts = async () => {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('https://prepgenius-backend.vercel.app/api/quiz-attempts', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching quiz attempts:', error);
-        throw error;
-    }
-};
-
 // Get attempts for a specific quiz
 export const getQuizAttemptsByQuizId = async (quizId) => {
   try {

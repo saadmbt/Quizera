@@ -623,26 +623,6 @@ def get_professor_quizzes(professor_id):
     except Exception as e:
         return {"error": f"Error fetching quizzes: {str(e)}"}
 
-# def get_quiz_attempts():
-#     """
-#     Fetch all quiz attempts.
-    
-#     Returns:
-#         list: List of all quiz attempts
-#     """
-#     try:
-#         collection = db["QuizAttempts"]
-#         attempts = list(collection.find({}))
-        
-#         # Convert ObjectId to string for JSON serialization
-#         for attempt in attempts:
-#             attempt["_id"] = str(attempt["_id"])
-#             attempt["quizId"] = str(attempt["quizId"])
-        
-#         return attempts
-#     except Exception as e:
-#         return {"error": f"Error fetching quiz attempts: {str(e)}"}
-
 def get_quiz_attempts_by_quiz_id(quiz_id):
     """
     Fetch quiz attempts filtered by quizId.
