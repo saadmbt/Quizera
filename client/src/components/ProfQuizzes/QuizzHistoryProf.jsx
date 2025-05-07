@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, Award, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { fetchProfessorQuizzes, fetchQuizAttempts } from '../../services/ProfServices';
+import { fetchProfessorQuizzes} from '../../services/ProfServices';
 
 function QuizzHistoryProf({ limit }) {
   const [quizzes, setQuizzes] = useState([]);
@@ -12,23 +12,7 @@ function QuizzHistoryProf({ limit }) {
       try {
         // Get all quizzes created by the professor
         const quizzesData = await fetchProfessorQuizzes();
-
-        // Get all quiz attempts
-        const attemptsData = await fetchQuizAttempts();
-
-        // Map attempts to quizzes
-        const quizzesWithAttempts = quizzesData.map(quiz => {
-          const attempts = attemptsData.filter(attempt => attempt.quizId === quiz._id);
-          return {
-            ...quiz,
-            attempts: attempts,
-            averageScore: attempts.length > 0 
-              ? attempts.reduce((acc, curr) => acc + curr.totalScore, 0) / attempts.length 
-              : null
-          };
-        });
-
-        setQuizzes(limit ? quizzesWithAttempts.slice(0, limit) : quizzesWithAttempts);
+        setQuizzes(quizzesData);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching quizzes:", error);
@@ -58,18 +42,6 @@ function QuizzHistoryProf({ limit }) {
                   <Calendar className="h-4 w-4 mr-1" />
                   {new Date(quiz.createdAt).toLocaleDateString()}
                 </span>
-                {quiz.attempts?.length > 0 && (
-                  <>
-                    <span className="flex items-center">
-                      <Clock className="h-4 w-4 mr-1" />
-                      {quiz.attempts.length} attempts
-                    </span>
-                    <span className="flex items-center">
-                      <Award className="h-4 w-4 mr-1" />
-                      {Math.round(quiz.averageScore)}% avg
-                    </span>
-                  </>
-                )}
               </div>
             </div>
             <div className="flex items-center gap-3">

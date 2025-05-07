@@ -234,14 +234,9 @@ export const assignQuizToGroups = async ({ quizId, groupIds, assignedBy, assigne
     throw error;
   }
 };
-
-/**
- * Fetch all quizzes created by a professor
- * @returns {Promise} Array of quizzes
- */
 export const fetchProfessorQuizzes = async () => {
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('access_token');
         const response = await axios.get('https://prepgenius-backend.vercel.app/api/quizzes/professor', {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -256,7 +251,7 @@ export const fetchProfessorQuizzes = async () => {
 // Get attempts for a specific quiz
 export const getQuizAttemptsByQuizId = async (quizId) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     const response = await axios.get(`https://prepgenius-backend.vercel.app/api/quiz-attempts?quiz_id=${quizId}`, {
       headers: {
         'Authorization': `Bearer ${token}`
