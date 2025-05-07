@@ -11,20 +11,33 @@ const ProgressOverviewSection = () => {
     { title: 'Average Score', value: '92%', color: 'bg-green-500', icon: BrainCircuit },
     { title: 'Study Streak', value: '7 days', color: 'bg-orange-500', icon: Crown }
   ];
-  useEffect(()=>{
-      fetchStudentPerformance().then((data) => {
-        console.log('Student Performance:', data);
-        setstats([
-          { title: 'Completed Quizzes', value: data.totalQuizzes, color: 'bg-blue-500', icon: BookOpen },
-          { title: 'Average Score', value: `${data.averageScore}%`, color: 'bg-green-500', icon: BrainCircuit },
-          { title: 'Study Streak', value: '7 days', color: 'bg-orange-500', icon: Crown }
-        ])
-      }).catch((error) => {
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchData = async () => {
+      try {
+        const data = await fetchStudentPerformance();
+        if (isMounted) {
+          console.log('Student Performance:', data);
+          setstats([
+            { title: 'Completed Quizzes', value: data.totalQuizzes, color: 'bg-blue-500', icon: BookOpen },
+            { title: 'Average Score', value: `${data.averageScore}%`, color: 'bg-green-500', icon: BrainCircuit },
+            { title: 'Study Streak', value: '7 days', color: 'bg-orange-500', icon: Crown }
+          ]);
+        }
+      } catch (error) {
         console.error('Error fetching student performance:', error);
-      }).finally(() => {
-        setLoading(false);
-      })
-  },[])
+        if (isMounted) setstats(x); // Fallback to default stats
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
 
 

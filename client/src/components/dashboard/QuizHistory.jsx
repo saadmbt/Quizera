@@ -19,32 +19,49 @@ function QuizHistory(props) {
         setQuizHistory(history);
       }catch (error) {
         console.error("Error fetching quiz history:", error);
-      } finally {
-        setloading(false);
       }
-
     }, [userId]);
 
     useEffect(() => {
       fetchQuizHistory();
+      //  set a time out of 20 seconds to show the loading animation
+      const timer = setTimeout(() => {
+        setloading(false);
+      }, 8000);
     }, []); 
 
-  if (loading) return (
-    <div className="flex justify-center items-center min-h-[80vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-    </div>
-  );
+
   const quizzes = props.limit ? quizHistory.slice(0, props.limit) : quizHistory
 
   return (
     <div className="space-y-4 mb-8 px-4 md:px-0">
-      {quizzes.map((quiz,i) => (
+      {loading ? (
+          // Skeleton loading animation
+          Array(4).fill(0).map((_, i) => (
+              <div key={i} className="p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+                  <div className="flex justify-between items-start">
+                      <div className="space-y-1 w-full">
+                          {/* Title skeleton */}
+                          <div className="h-7 bg-gray-200 rounded-md animate-pulse w-3/4"></div>
+                          
+                          {/* Date and time skeleton */}
+                          <div className="flex items-center gap-6">
+                              <div className="h-8 bg-gray-200 rounded-full animate-pulse w-32"></div>
+                          </div>
+                      </div>
+                      {/* Status skeleton */}
+                      <div className="h-8 bg-gray-200 rounded-full animate-pulse w-24"></div>
+                  </div>
+              </div>
+          ))
+      
+      ):quizzes.map((quiz,i) => (
         <div
           key={i}
           className="bg-white  rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
+          <div className="flex items-center justify-between space-y-3">
+            <div className="flex-1 ">
               <h3 className="font-semibold text-gray-900 ">{quiz.title}</h3>
               <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 ">
                 <span className="flex items-center">

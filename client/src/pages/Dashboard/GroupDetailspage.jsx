@@ -8,6 +8,7 @@ import { getGroupInfo, getQuizAssignments } from '../../services/StudentService'
 function GroupDetailspage() {
     const [group, setGroup] = useState({});
     const [loading, setloading] = useState(false);
+    const [Assinloading, setAssinloading] = useState(true);
     const [showResults, setShowResults] = useState(false);
     const [answers, setanswers] = useState([]);
     const [Assignments, setAssignments] = useState([]);
@@ -32,16 +33,16 @@ function GroupDetailspage() {
     // fecth group assignments
     const fetchAssignments = useCallback(async () => {
       try{
-        setloading(true);
+        setAssinloading(true);
         const assignments = await getQuizAssignments(id);
         setAssignments(assignments);
         setquizzes(assignments);
       }catch (error) {
         console.error("Error fetching Group assignments:", error);
       } finally {
-        setloading(false);
+        setAssinloading(false);
       }
-    }, [id]);
+    }, []);
 
     useEffect(() => {
         fetchGroup();
@@ -176,7 +177,27 @@ function GroupDetailspage() {
                                 
                     {/* Quiz List */}
                     <div className="space-y-4">
-                        {quizzes.length === 0 ? (
+                        {Assinloading ? (
+                            // Skeleton loading animation
+                            Array(3).fill(0).map((_, i) => (
+                                <div key={i} className="p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+                                    <div className="flex justify-between items-start">
+                                        <div className="space-y-3 w-full">
+                                            {/* Title skeleton */}
+                                            <div className="h-7 bg-gray-200 rounded-md animate-pulse w-3/4"></div>
+                                            
+                                            {/* Date and time skeleton */}
+                                            <div className="flex items-center gap-6">
+                                                <div className="h-8 bg-gray-200 rounded-full animate-pulse w-32"></div>
+                                                <div className="h-8 bg-gray-200 rounded-full animate-pulse w-32"></div>
+                                            </div>
+                                        </div>
+                                        {/* Status skeleton */}
+                                        <div className="h-8 bg-gray-200 rounded-full animate-pulse w-24"></div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : quizzes.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg">
                                 <Brain className="w-16 h-16 text-gray-300 mb-4" />
                                 <p className="text-gray-500 text-lg">No quizzes available yet</p>
@@ -214,8 +235,6 @@ function GroupDetailspage() {
                                             {quiz.isCompleted ? 'Completed' : 'Pending'}
                                         </span>
                                     </div>
-
-                                    {/* Professor feedback with improved styling */}
                                     {quiz.isCompleted && quiz.feedback && (
                                         <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                                             <p className="font-medium text-blue-800 mb-2 flex items-center gap-2">
@@ -239,7 +258,7 @@ function GroupDetailspage() {
                                         </button>
                                     ) : (
                                         <button 
-                                        onClick={() => navigate(`/student/group/quiz/${quiz._id}`)}
+                                        onClick={() => navigate(`/Student/groups/quiz/${quiz._id}`)}
                                         className="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded mt-5 w-40">
                                             Take Quiz
                                         </button>

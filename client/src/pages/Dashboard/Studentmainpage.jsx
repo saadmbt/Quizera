@@ -8,7 +8,6 @@ import FlashcardsSection from '../../components/dashboard/FlashcardDeckSection';
 import StartComponent from '../../components/dashboard/StartComponent';
 
 function Studentmainpage() {
-    const { toggleSidebar } = useOutletContext();
     const isNew= JSON.parse(localStorage.getItem("isNew"));
   return (
     <>

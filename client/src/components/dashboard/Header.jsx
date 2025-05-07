@@ -1,12 +1,15 @@
 import { LogOut, Sidebar } from "lucide-react";
 import React, { useContext } from "react";
 import { AuthContext } from "../Auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 export default function Header({ isInMain }) {
     const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
     console.log("user",user)
     const {logout}=useContext(AuthContext)
+    const navigate=useNavigate()
     const handleLogout = () => {
       logout();
+      navigate("/");  
     };
     return (
         <header className="flex justify-between items-center sticky top-0 z-30 bg-white/80 mb-8 px-4 py-4 md:px-0">
