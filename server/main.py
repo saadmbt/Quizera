@@ -805,7 +805,7 @@ def validate_invite_token():
             
             return jsonify({
                 "group_name": group.get("group_name", "Unknown Group"),
-                "professor_name": "Unknown Professor",  # Hardcoded for now
+                "professor_name": professor,  # Hardcoded for now
                 "group_id": group_id
             }), 200
 
