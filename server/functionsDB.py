@@ -505,7 +505,7 @@ def get_quiz_assignment_group_ids_for_student(student_uid):
 #  Get assignments for a group
 def get_quizzs_Assignments_by_group_id(group_id):
     try:
-        collection = db["QuizzAssignment"]
+        collection = db["quiz_assignments"]
         quizzes_ids = list(collection.find({"groupIds":{"$in":[ObjectId(group_id)]}},{"_id":0,"quizId": 1}))
         # Check if quizzes are found
         if not quizzes_ids:
