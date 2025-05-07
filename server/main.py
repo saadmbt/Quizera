@@ -931,7 +931,7 @@ def get_quiz_attempts_route():
     return jsonify(attempts), 200
 @app.route('/api/quizzes/professor', methods=['GET'])
 @jwt_required()
-def get_professor_quizzes():
+def fetch_Prof_quizzes ():
     # check if the jwt is valid
     professor_id = get_jwt_identity()
     try:
