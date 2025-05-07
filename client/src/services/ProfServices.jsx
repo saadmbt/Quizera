@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const token = localStorage.getItem("access_token") || null;
+
 // Fetch groups for a professor using the correct endpoint
 export const fetchProfessorGroups = async (user) => {
   try {
@@ -11,6 +13,23 @@ export const fetchProfessorGroups = async (user) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching professor groups:', error);
+    throw error;
+  }
+};
+
+// Fetch quiz info by quiz ID
+export const getQuizById = async (quiz_id) => {
+  try {
+    const response = await axios.get(`https://prepgenius-backend.vercel.app/api/quizzes/${quiz_id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`
+      },
+    });
+    console.log('Quiz fetched:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching quiz:", error);
     throw error;
   }
 };

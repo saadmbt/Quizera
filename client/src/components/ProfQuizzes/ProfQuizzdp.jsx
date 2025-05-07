@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, XCircle, Clock, Calendar, Award, Brain, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Clock, Calendar, Award, Brain, AlertCircle } from 'lucide-react';
 import ScoreSummary from '../../components/dashboard/ScoreSummary';
-import { getQuizAttemptsByQuizId } from '../../services/ProfServices';
+import { getQuizAttemptsByQuizId, getQuizById } from '../../services/ProfServices';
 
 function ProfQuizzdp() {
     const { id } = useParams();
+    const [quizInfo, setQuizInfo] = useState(null);
     const [quiz, setQuiz] = useState(null);
     const [attempts, setAttempts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -14,21 +15,21 @@ function ProfQuizzdp() {
     useEffect(() => {
         const fetchQuizData = async () => {
             try {
+                // Fetch quiz info from quizzes collection
+                const quizInfoData = await getQuizById(id);
+                setQuizInfo(quizInfoData);
+
                 // Fetch quiz attempts for this specific quiz
                 const attemptsData = await getQuizAttemptsByQuizId(id);
-                
                 if (attemptsData && attemptsData.length > 0) {
                     // Calculate quiz statistics from attempts
                     const totalScore = attemptsData.reduce((acc, attempt) => acc + attempt.totalScore, 0);
                     const averageScore = Math.round(totalScore / attemptsData.length);
-                    const correctAnswers = attemptsData.reduce((acc, attempt) => {
-                        return acc + attempt.answers.filter(ans => ans.isCorrect).length;
-                    }, 0);
-                    
+
                     // Create quiz object from attempts data
                     const quizData = {
                         _id: id,
-                        title: "Quiz Details",
+                        title: quizInfoData.title || "Quiz Details",
                         date: attemptsData[0].submittedAt,
                         score: averageScore,
                         attempts: attemptsData,
@@ -42,6 +43,9 @@ function ProfQuizzdp() {
                     };
                     setQuiz(quizData);
                     setAttempts(attemptsData);
+                } else {
+                    setQuiz(null);
+                    setAttempts([]);
                 }
                 setLoading(false);
             } catch (error) {
@@ -58,13 +62,13 @@ function ProfQuizzdp() {
         return <div className="max-w-4xl mx-auto p-6 text-center">Loading quiz data...</div>;
     }
 
-    if (error || !quiz) {
+    if (error || !quizInfo) {
         return (
             <div className="max-w-4xl mx-auto p-6">
                 <div className="text-center py-12">
                     <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Quiz Not Found</h2>
-                    <p className="text-gray-600 mb-6">The quiz you're looking for doesn't exist or has no attempts.</p>
+                    <p className="text-gray-600 mb-6">The quiz you're looking for doesn't exist.</p>
                     <Link
                         to="/professor/quizzes"
                         className="inline-flex items-center text-blue-600 hover:text-blue-800"
@@ -77,7 +81,7 @@ function ProfQuizzdp() {
         );
     }
 
-    const totalQuestions = quiz.questions.length;
+    const totalQuestions = quiz?.questions?.length || 0;
     const totalAttempts = attempts.length;
 
     return ( 
@@ -93,7 +97,7 @@ function ProfQuizzdp() {
                 </Link>
                 <div className="flex items-center gap-2">
                     <Brain className="h-6 w-6 text-blue-500" />
-                    <h1 className="text-2xl font-bold text-gray-900">{quiz.title}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">{quizInfo.title}</h1>
                 </div>
             </div>
 
@@ -104,7 +108,7 @@ function ProfQuizzdp() {
                         <Calendar className="h-5 w-5 text-gray-400" />
                         <div>
                             <p className="text-sm text-gray-500">Date</p>
-                            <p className="font-medium">{new Date(quiz.date).toLocaleDateString()}</p>
+                            <p className="font-medium">{new Date(quizInfo.createdAt || quizInfo.date).toLocaleDateString()}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -118,7 +122,7 @@ function ProfQuizzdp() {
                         <Award className="h-5 w-5 text-gray-400" />
                         <div>
                             <p className="text-sm text-gray-500">Average Score</p>
-                            <p className="font-medium">{quiz.score}%</p>
+                            <p className="font-medium">{quiz?.score || 0}%</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -131,77 +135,125 @@ function ProfQuizzdp() {
                 </div>
             </div>
 
+            {/* Improved Quiz Overview */}
+            <div className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl p-6 shadow-md border border-blue-300">
+                <h2 className="text-xl font-semibold mb-4 text-blue-800 border-b border-blue-400 pb-2">Quiz Overview</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-blue-900">
+                    <div className="flex items-center gap-3">
+                        <Calendar className="h-6 w-6" />
+                        <div>
+                            <p className="text-sm font-medium">Title</p>
+                            <p className="text-lg font-bold">{quizInfo.title}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Clock className="h-6 w-6" />
+                        <div>
+                            <p className="text-sm font-medium">Date</p>
+                            <p className="text-lg">{new Date(quizInfo.createdAt || quizInfo.date).toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Award className="h-6 w-6" />
+                        <div>
+                            <p className="text-sm font-medium">Average Score</p>
+                            <p className="text-lg font-semibold">{quiz?.score || 0}%</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Brain className="h-6 w-6" />
+                        <div>
+                            <p className="text-sm font-medium">Total Attempts</p>
+                            <p className="text-lg font-semibold">{totalAttempts}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Award className="h-6 w-6" />
+                        <div>
+                            <p className="text-sm font-medium">Total Questions</p>
+                            <p className="text-lg font-semibold">{totalQuestions}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Score Summary */}
-            <ScoreSummary 
-                quizLenght={totalQuestions * totalAttempts}
-                correctAnswers={attempts.reduce((acc, attempt) => 
-                    acc + attempt.answers.filter(ans => ans.isCorrect).length, 0)}
-                incorrectAnswers={totalQuestions * totalAttempts - attempts.reduce((acc, attempt) => 
-                    acc + attempt.answers.filter(ans => ans.isCorrect).length, 0)}
-            />
+            {totalAttempts > 0 ? (
+                <ScoreSummary 
+                    quizLenght={totalQuestions * totalAttempts}
+                    correctAnswers={attempts.reduce((acc, attempt) => 
+                        acc + attempt.answers.filter(ans => ans.isCorrect).length, 0)}
+                    incorrectAnswers={totalQuestions * totalAttempts - attempts.reduce((acc, attempt) => 
+                        acc + attempt.answers.filter(ans => ans.isCorrect).length, 0)}
+                />
+            ) : (
+                <p className="text-center text-gray-500">No attempts have been made for this quiz yet.</p>
+            )}
 
             {/* Questions & Answers */}
-            <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Questions & Answers</h2>
-                {quiz.questions.map((question, index) => (
-                    <div key={question.id} className="bg-white rounded-xl p-6 shadow-lg">
-                        <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                                <h3 className="text-lg font-medium mb-4">
-                                    {index + 1}. {question.question}
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {question.options.map((option, optionIndex) => {
-                                        const timesChosen = question.userAnswers.filter(ans => ans === option).length;
-                                        const percentage = Math.round((timesChosen / totalAttempts) * 100);
-                                        
-                                        return (
-                                            <div
-                                                key={optionIndex}
-                                                className={`
-                                                    p-4 rounded-lg border-2 transition-all
-                                                    ${option === question.correctAnswer
-                                                        ? 'border-green-500 bg-green-50'
-                                                        : 'border-gray-200'}
-                                                `}
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <span className={
-                                                        option === question.correctAnswer
-                                                            ? 'text-green-700'
-                                                            : 'text-gray-700'
-                                                    }>
-                                                        {option}
-                                                    </span>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-sm text-gray-500">
-                                                            {percentage}% ({timesChosen})
+            {totalAttempts > 0 && (
+                <div className="space-y-6">
+                    <h2 className="text-xl font-semibold">Questions & Answers</h2>
+                    {quiz.questions.map((question, index) => (
+                        <div key={question.id} className="bg-white rounded-xl p-6 shadow-lg">
+                            <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-medium mb-4">
+                                        {index + 1}. {question.question}
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {question.options.map((option, optionIndex) => {
+                                            const timesChosen = question.userAnswers.filter(ans => ans === option).length;
+                                            const percentage = Math.round((timesChosen / totalAttempts) * 100);
+                                            
+                                            return (
+                                                <div
+                                                    key={optionIndex}
+                                                    className={`
+                                                        p-4 rounded-lg border-2 transition-all
+                                                        ${option === question.correctAnswer
+                                                            ? 'border-green-500 bg-green-50'
+                                                            : 'border-gray-200'}
+                                                    `}
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <span className={
+                                                            option === question.correctAnswer
+                                                                ? 'text-green-700'
+                                                                : 'text-gray-700'
+                                                        }>
+                                                            {option}
                                                         </span>
-                                                        {option === question.correctAnswer && 
-                                                            <CheckCircle className="h-5 w-5 text-green-500" />
-                                                        }
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-sm text-gray-500">
+                                                                {percentage}% ({timesChosen})
+                                                            </span>
+                                                            {option === question.correctAnswer && 
+                                                                <CheckCircle className="h-5 w-5 text-green-500" />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    {/* Progress bar showing selection percentage */}
+                                                    <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                        <div 
+                                                            className={`h-full ${
+                                                                option === question.correctAnswer
+                                                                    ? 'bg-green-500'
+                                                                    : 'bg-gray-300'
+                                                            }`}
+                                                            style={{ width: `${percentage}%` }}
+                                                        />
                                                     </div>
                                                 </div>
-                                                {/* Progress bar showing selection percentage */}
-                                                <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                    <div 
-                                                        className={`h-full ${
-                                                            option === question.correctAnswer
-                                                                ? 'bg-green-500'
-                                                                : 'bg-gray-300'
-                                                        }`}
-                                                        style={{ width: `${percentage}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

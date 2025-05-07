@@ -1,15 +1,12 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { AuthContext } from '../Auth/AuthContext';
+import {jwtDecode} from 'jwt-decode';
 
 const JoinGroup = () => {
   const { token } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useContext(AuthContext); 
-  console.log("User:", user); // Log the user state
-  console.log("Is Authenticated:", isAuthenticated); // Log the authentication state
   const [groupInfo, setGroupInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,7 +14,8 @@ const JoinGroup = () => {
   useEffect(() => {
     const validateInvitation = async () => {
       try {
-        if (!user || !user.uid) {
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
           console.log('User not authenticated, redirecting to login');
           localStorage.setItem('redirectAfterLogin', `/student/join-group/${token}`);
           navigate('/auth/login');
@@ -29,10 +27,19 @@ const JoinGroup = () => {
           return;
         }
 
-        // Log the payload for debugging
+        let decodedToken;
+        try {
+          decodedToken = jwtDecode(accessToken);
+        } catch (e) {
+          console.error('Failed to decode token', e);
+          setError('Invalid access token');
+          setIsLoading(false);
+          return;
+        }
+
         const payload = {
           token: token,
-          uid: user.uid
+          uid: decodedToken.uid || decodedToken.user_id || decodedToken.sub
         };
         console.log('Sending validation payload:', payload);
 
@@ -41,7 +48,8 @@ const JoinGroup = () => {
           payload,
           {
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`
             }
           }
         );
@@ -57,32 +65,43 @@ const JoinGroup = () => {
     };
 
     validateInvitation();
-  }, [token, user, navigate]);
+  }, [token, navigate]);
 
   const handleJoinGroup = async () => {
     try {
-      if (!user || !user.uid) {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
         console.log('User not authenticated, redirecting to login');
         localStorage.setItem('redirectAfterLogin', `/student/join-group/${token}`);
         navigate('/auth/login');
         return;
       }
 
+      let decodedToken;
+      try {
+        decodedToken = jwtDecode(accessToken);
+      } catch (e) {
+        console.error('Failed to decode token', e);
+        toast.error('Invalid access token');
+        return;
+      }
+
       const response = await axios.post(
         'https://prepgenius-backend.vercel.app/api/groups/join',
-        { 
-          token:token,
-          uid: user.uid 
+        {
+          token: token,
+          uid: decodedToken.uid || decodedToken.user_id || decodedToken.sub
         },
         {
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
           }
         }
       );
-      
+
       toast.success('Successfully joined group');
-      navigate(`/Student/groups/${response.data.group._id}`);  
+      navigate(`/Student/groups/${response.data.group._id}`);
     } catch (error) {
       console.error('Join error:', error);
       toast.error(error.response?.data?.error || 'Failed to join group');
@@ -117,7 +136,7 @@ const JoinGroup = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
       <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full mx-4">
         <h2 className="text-2xl font-bold mb-6 text-center">Join Group</h2>
-        
+
         <div className="mb-6">
           <p className="text-lg mb-2">
             <span className="font-semibold">Group:</span> {groupInfo?.group_name}
@@ -129,7 +148,7 @@ const JoinGroup = () => {
             You are about to join this group. Once you join, you'll have access to all group resources.
           </p>
         </div>
-        
+
         <div className="flex justify-center">
           <button
             onClick={handleJoinGroup}
