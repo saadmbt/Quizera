@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { navlinks } from '../../constants';
 import logo from '../../assets/logo3.png';
 import { X } from 'lucide-react';
@@ -9,9 +9,20 @@ import { twMerge } from 'tailwind-merge';
 
 const Navbar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const [isScrolled, setIsScrolled] = useState(false)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
   return (
-    <nav className={twMerge('sticky top-0 z-10 py-3 px-2 shadow-md backdrop-blur-sm', props.ishowing === false && "hidden md:hidden")}>
+    <nav className={twMerge('fixed w-full top-0 z-10 py-3 px-2   backdrop-blur-sm', props.ishowing === false && "hidden md:hidden" , isScrolled ? 'backdrop-blur-md shadow-md py-3' : 'bg-transparent py-4')}>
       <div className='container lg-centered'>
         <div className='flex items-center justify-between'>
           <a href='/' className='cursor-pointer'>

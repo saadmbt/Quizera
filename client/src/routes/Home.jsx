@@ -124,7 +124,7 @@ const Home = () => {
         <Route path="join-group/:token" element={<JoinGroup />} />
         <Route path="groups" element={<Groupspage />} />
         <Route path="groups/:id" element={<GroupDetailspage />} />
-        <Route path="group/quiz/:Quiz_id" element={<Quiz settings={{}} params={true} fromGroup={true} />} />
+        <Route path="groups/quiz/:Quiz_id" element={<Quiz settings={{}} params={true} fromGroup={true} />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<NotFoundpage />} />
       </Route>

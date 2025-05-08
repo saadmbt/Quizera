@@ -12,7 +12,6 @@ import getJWT from "../services/authService";
  * On successful login, it retrieves user data from Firestore, generates a JWT token,
  * and navigates the user to their respective dashboard based on their role.
  *
- * @returns {JSX.Element} The rendered login form component.
  */
 export default function LoginWithFirebase() {
   const [email, setEmail] = useState("");

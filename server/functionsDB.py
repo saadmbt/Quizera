@@ -505,8 +505,9 @@ def get_quiz_assignment_group_ids_for_student(student_uid):
 #  Get assignments for a group
 def get_quizzs_Assignments_by_group_id(group_id):
     try:
-        collection = db["QuizzAssignment"]
-        quizzes_ids = list(collection.find({"groupIds":{"$in":[ObjectId(group_id)]}},{"_id":0,"quizId": 1}))
+        current_date = datetime.now(timezone.utc)
+        collection = db["quiz_assignments"]
+        quizzes_ids = list(collection.find({"groupIds":{"$in":[ObjectId(group_id)]},"startTime":{"gte":current_date},"dueDate":{"lt":current_date} },{"_id":0,"quizId": 1}))
         # Check if quizzes are found
         if not quizzes_ids:
             return "error: No quizzes found for the provided group ID"  
@@ -528,7 +529,7 @@ def get_quizzes_by_ids(quiz_ids,student_id):
     try:
         collection = db["quizzes"]
         quiz_object_ids = [ObjectId(qid.get("quizId")) for qid in quiz_ids if isinstance(qid, dict)]
-        quizzes = list(collection.find({"_id": {"$in": quiz_object_ids}}, {"_id": 1, "title": 1,"createdAt": 1}))
+        quizzes = list(collection.find({"_id": {"$in": quiz_object_ids} }, {"_id": 1, "title": 1,"createdAt": 1}))
         # Check if quizzes are found
         if not quizzes:
             return "error: No quizzes found for the provided IDs"

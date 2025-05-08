@@ -1,139 +1,120 @@
-import React from 'react'
-import { herotext } from '../../constants'
-import { ArrowDown, CheckCircle, FileText, HelpCircle } from 'lucide-react'
-import heroimage from '../../assets/heroimage.png'
-import LogosTicker from './LogosTicker'
-import { motion } from "framer-motion"
-import { fadeIn } from '../../constants/variants'
-import { Link } from 'react-scroll'
-
-const Hero = () => {
+import React, { useEffect } from 'react'
+import { Globe2Icon, SparklesIcon, ArrowRightIcon, ArrowDownRightIcon, ArrowDownIcon } from 'lucide-react'
+export default function Hero() {
+  useEffect(() => {
+    const elements = document.querySelectorAll('.animate-in')
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fade-in')
+        }
+      })
+    })
+    elements.forEach((element) => observer.observe(element))
+    return () => observer.disconnect()
+  }, [])
   return (
-    <section className='pt-8 pl-4 pb-20 md:pt-5 md:pb-[59px] lg:pt-2 lg:pb-[68px] bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#D2DCFF,#fafcff_45%)] md:bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#D2DCFF,#fafcff_66%)] overflow-x-clip relative'>
-      <div className='container lg-centered'>
-        <div className='md:flex items-center gap-6'>
-          {/* text section */}
-          <motion.div 
-            variants={fadeIn('right', 0.3)}
-            initial='hidden'
-            whileInView={'show'}
-            viewport={{once: false, amount: 0.4}}
-            className='max-w-[400px] md:w-[470px] lg:max-w-[500px]'
-          >
-            <div>
-              <div className='text-sm inline-flex border border-primary px-3 py-1 mt-1 md:mt-4 rounded-lg tracking-tight shadow-md bg-white/50 backdrop-blur-sm'>{herotext.upsub}</div>
-              <h1 className='text-4xl md:text-3xl lg:text-5xl font-bold tracking-tighter mt-6'>
-                <span className='text-[#1884FF]'>Create a Quiz</span> <br />
-                <span className='text-gray-800'>instantly, with your</span> <br />
-                <span className='text-[#1884FF]'>own files!</span>
-              </h1>
-              <p className='text-lg text-[#010D3E] tracking-tight lg:text-xl mt-6 md:text-medium'>{herotext.subtitle}</p>
-            </div>
-            
-            {/* Quick steps */}
-            <div className='flex gap-4 mt-6 mb-8'>
-              <div className='flex gap-2 items-center'>
-                <span className='text-[#1884FF] text-xs font-bold'>1. UPLOAD</span>
-                <FileText className='h-4 w-4 text-[#1884FF]' />
-              </div>
-              <div className='flex gap-2 items-center'>
-                <span className='text-[#1884FF] text-xs font-bold'>2. GENERATE</span>
-                <HelpCircle className='h-4 w-4 text-[#1884FF]' />
-              </div>
-              <div className='flex gap-2 items-center'>
-                <span className='text-[#1884FF] text-xs font-bold'>3. SHARE</span>
-                <CheckCircle className='h-4 w-4 text-[#1884FF]' />
-              </div>
-            </div>
-            
-            {/* buttons section */}
-            <div className='flex gap-4 items-center mt-8'>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }} 
-                className='btn btn-primary text-white bg-[#1884FF] hover:bg-[#0066cc] px-6 md:px-3 py-3 rounded-lg font-medium shadow-lg shadow-blue-200'
+    <section className="relative w-full min-h-[90vh] bg-gradient-to-b from-indigo-50 via-white to-white pt-32 overflow-hidden mb-6">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Gradient orbs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-200/30 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-200/30 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-1/3 w-96 h-96 bg-blue-200/30 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+        {/* Geometric shapes */}
+        <div className="absolute top-1/4 left-1/4 w-12 h-12 border-2 border-indigo-200 rounded-lg transform rotate-45 animate-float"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-8 h-8 bg-blue-100 rounded-full animate-float animation-delay-2000"></div>
+        <div className="absolute top-1/3 right-1/3 w-6 h-6 bg-indigo-100 transform rotate-12 animate-float animation-delay-4000"></div>
+      </div>
+      <div className="relative container mx-auto px-4 text-center">
+        {/* New Feature Badge */}
+        <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-indigo-100 mb-8 animate-in">
+          <SparklesIcon size={16} className="text-blue-600" />
+          <span className="text-sm font-medium bg-gradient-to-r from-indigo-600 to-blue-600 text-transparent bg-clip-text">
+            Introducing AI-Powered Quiz Generation
+          </span>
+        </div>
+        {/* Main Content */}
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8 animate-in">
+            Create Quizzes{' '}
+            <span className="relative">
+              <span className="relative z-10 bg-gradient-to-r from-indigo-600 to-blue-600 text-transparent bg-clip-text">
+                Instantly
+              </span>
+              <svg
+                className="absolute -bottom-2 left-0 w-full h-3 text-indigo-200 z-0"
+                viewBox="0 0 100 12"
+                preserveAspectRatio="none"
               >
-                <a href="/auth/login">{herotext.cta}</a>
-              </motion.button>
-              <motion.button 
-                whileHover={{ y: 2 }}
-                whileTap={{ scale: 0.85 }} 
-                className='btn btn-text flex items-center gap-2 text-gray-700 hover:text-[#1884FF]'
-              > 
-                <Link to="howitworks" smooth={true} duration={500}>{herotext.lmbtn}</Link>
-                <motion.div
-                  animate={{ y: [0, 5, 0] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                >
-                  <ArrowDown className='h-5 w-5'/>
-                </motion.div>
-              </motion.button>
+                <path d="M0,0 Q50,12 100,0" fill="currentColor" />
+              </svg>
+            </span>
+            <br />
+            with Your Own Files
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8 animate-in">
+            Transform your documents into engaging quizzes in seconds. Perfect
+            for educators, students, and professionals seeking efficient
+            learning assessment tools.
+          </p>
+          {/* Language Support */}
+          <div className="inline-flex items-center gap-2 text-blue-400 mb-12 animate-in">
+            <div className="p-2 bg-white rounded-full shadow-md">
+              <Globe2Icon size={24} className="animate-pulse" />
             </div>
-          </motion.div>
-          
-          {/* illustration section */}
-          <motion.div 
-            variants={fadeIn('left', 0.3)}
-            initial='hidden'
-            whileInView={'show'}
-            viewport={{once: false, amount: 0.4}}
-            className='relative hidden md:block mt-20 md:mt-0 md:w-2/3 lg:w-2/4 lg:ml-28 xl:ml-40'
-            id='usedby'
-          >
-            {/* Icon animations
-            <motion.div 
-              className="absolute -top-4 left-20 bg-white p-2 rounded-full shadow-lg z-10"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 3, delay: 0.5 }}
-            >
-              <FileText className="h-6 w-6 text-[#1884FF]" />
-            </motion.div>
-            
-            <motion.div 
-              className="absolute top-1/4 -left-4 bg-white p-2 rounded-full shadow-lg z-10"
-              animate={{ x: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 3 }}
-            >
-              <HelpCircle className="h-6 w-6 text-[#1884FF]" /> 
-            </motion.div>*/}
-            
-            {/* <motion.div 
-              className="absolute bottom-1/4 right-4 bg-white p-2 rounded-full shadow-lg z-10"
-              animate={{ rotate: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 2, delay: 1 }}
-            >
-              <CheckCircle className="h-6 w-6 text-green-500" />
-            </motion.div> */}
-            
-            {/* Main image with enhancement */}
-            <div className="relative">
-              <div className="absolute  rounded-2xl"></div>
-              <img 
-                src={heroimage} 
-                alt="PrepGenius quiz creation illustration" 
-                className="relative z-0 rounded-2xl "
+            <span className="font-semibold">Available in All Languages</span>
+          </div>
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-in">
+            <button
+              onClick={() => window.location.href = '/auth/Signup'} 
+            className="group relative px-8 py-4 bg-gradient-to-r from-primary to-blue-800 text-white rounded-full font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-indigo-200">
+              <span className="flex items-center justify-center gap-2">
+                Create Your First Quiz
+                <ArrowRightIcon
+                  size={20}
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </span>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-200 to-blue-600 blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
+            </button>
+            <button 
+            // on click scroll down to the next section 
+            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+            className="flex  justify-center text-center px-6 py-4 bg-white text-blue-600 rounded-full font-medium border-2 border-indigo-100 transition-all duration-300 hover:border-indigo-200 hover:bg-indigo-50">
+              learn more
+              <ArrowDownIcon
+                size={20}
+                className="ml-2 transition-transform group-hover:translate-x-1"
+              />
+            </button>
+          </div>
+          {/* Trust Indicators */}
+          <div className="animate-in">
+            <p className="text-sm text-gray-500 mb-6">
+              Trusted by leading organizations worldwide
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/2560px-Google_2015_logo.svg.png"
+                alt="Google"
+                className="h-5 sm:h-6 grayscale hover:grayscale-0 transition-all duration-300"
+              />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/2560px-Microsoft_logo_%282012%29.svg.png"
+                alt="Microsoft"
+                className="h-5 sm:h-6 grayscale hover:grayscale-0 transition-all duration-300"
+              />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/IBM_logo.svg/2560px-IBM_logo.svg.png"
+                alt="IBM"
+                className="h-5 sm:h-6 grayscale hover:grayscale-0 transition-all duration-300"
               />
             </div>
-            
-            {/* Social proof badge */}
-            <motion.div 
-              className="absolute bottom-4 left-10 bg-white px-3 py-2 rounded-lg shadow-lg z-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-            >
-              <p className="text-xs font-medium text-gray-800">Trusted by <span className="text-[#1884FF] font-bold">10,000+</span> educators</p>
-            </motion.div>
-          </motion.div>
+          </div>
         </div>
-      </div>
-      
-      {/* Logos section */}
-      <div className="mt-12 md:mt-16">
-        <LogosTicker />
       </div>
     </section>
   )
 }
-
-export default Hero

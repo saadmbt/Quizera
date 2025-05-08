@@ -4,6 +4,7 @@ import ScoreSummary from '../dashboard/ScoreSummary';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {saveQuizAttempt, saveQuizResult} from '../../services/StudentService';
+
 //  Props {
 //   score: number;
 //   totalQuestions: number;
@@ -16,15 +17,14 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
     , onShowVideos , onshowQuestions , getquiz_resualt_id , fromGroup }) {
 
   const [quiz_res_id,setquiz_res_id]=useState(null)
-
+  
   const scorePercentage = Math.round((score / totalQuestions) * 100);
   const isLowScore = scorePercentage < 70;
   const incorrectanswers =totalQuestions - score;
   const navigate = useNavigate();
   // add a varible in localstorage to check if the quiz result is saved  or not
-  const isResultSavedIn = JSON.parse(localStorage.getItem('isResultSaved'));
-  console.log(isResultSavedIn)
-  // const onShareQuiz = () => {
+  const isResultSavedIn = JSON.parse(localStorage.getItem('isResultSaved')) || false;
+  console.log("isResultSavedIn",isResultSavedIn)
     useEffect(() => {
       if (isLowScore && quiz_res_id) {        
         console.log('Recommendations for improvement shown');
@@ -54,9 +54,10 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
           feedback:"No Feedback Provided yet",
         }
         saveQuizAttempt(quizAtteemptRes)
-          .then(() => {
+          .then((res) => {
             localStorage.setItem('isResultSaved',true)
             toast.success(" Your Quiz attempt saved successfully");
+            console.log("ress ",res)
           })
           .catch((error) => {
             console.error('Error saving quiz result:', error);
@@ -78,7 +79,6 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
         console.error('Failed to copy quiz link: ', err);
       });
     }
-    
     
   return (
   <div className="max-w-2xl mx-auto p-6">
@@ -112,10 +112,11 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
             <h3 className="font-semibold">Performance Breakdown</h3>
           </div>
           {/* share quiz button to copy quiz link */}
-          <button className="btn btn-primary py-1 hover:transition-all duration-300 transform hover:scale-105 " onClick={onShareQuiz}>
-            <Share2 className="h-5 w-5 text-white mr-2 " />
-            Share Quiz
-          </button>
+         {!fromGroup && (
+           <button className="btn btn-primary py-1 hover:transition-all duration-300 transform hover:scale-105 " onClick={onShareQuiz}>
+           <Share2 className="h-5 w-5 text-white mr-2 " />
+           Share Quiz
+         </button>)}
         </div>
         <ScoreSummary quizLenght={totalQuestions} correctAnswers={score} incorrectAnswers={incorrectanswers} />
 
@@ -181,21 +182,21 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
                 Watch Videos
               </button>
             </div>)}
-            <div>
-                <button
-                onClick={()=>{
-                  localStorage.setItem('isResultSaved',false)
-                  navigate('/Student')
-                }}
-                className="flex items-center w-full justify-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-500 text-gray-500 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
-              >
-                <ArrowLeft className="h-5 w-5" />
-                Back to Dashboard
-              </button>
-            </div>
-
         </div>
       )}
+       <div>
+          <button
+          onClick={()=>{
+            localStorage.setItem('isResultSaved',false)
+            fromGroup ? navigate('/Student/groups'):navigate('/Student')
+          }}
+          className="flex items-center w-full justify-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-500 text-gray-500 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          Back to Dashboard
+        </button>
+      </div>
+
       </div>
     </div>
     );

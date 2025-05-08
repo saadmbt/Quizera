@@ -1,5 +1,4 @@
 import React from 'react';
-import AuthLayout from '../layouts/AuthLayout';
 import Login from '../pages/login';
 import Register from '../pages/Register';
 import UserRoleSelection from '../pages/UserRoleSelection';

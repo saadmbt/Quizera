@@ -22,8 +22,13 @@ flashcards_prompt = """
     - Each flashcard should contain a question and an answer.
     - The question should be clear and concise, directly related to the content.
     - The answer should provide a complete and accurate response to the question.
-    - Use the same language as the content.
+    - **Use the same language as the content**.
     - Ensure that the questions vary in difficulty and cover different aspects of the content.
+    Requirements:
+        - Provide a brief explanation of why the correct answer is correct.
+        - **Use the same language as the content**
+        - Ensure that the questions are not too easy .
+
     Output Format:
     Return a valid Python list of dictionaries as shown below:
     [{{"front": "Flashcard question","back": "Flashcard answer",}}]
@@ -34,13 +39,16 @@ base_prompt = {
         You are an expert question generator. Based on the following content, generate {num} {difficulty} **multiple-choice questions**.Content:{content}
         Guidelines:
         - Each question must directly test comprehension or application of the content, not simple recall.
-        - Use the same language as the content.
+        - **Use the same language as the content**
         - Each question must have exactly 4 plausible options.
         - Only one option should be 100% correct; others should be plausible distractors (avoid obviously incorrect choices).
         - Keep the question and options clear, concise, and free from ambiguity.
         - Avoid using trick questions or overly complex wording.
         - Ensure a balance of factual, conceptual, and applied questions.
-
+        Requirements:
+        - Provide a brief explanation of why the correct answer is correct.
+        - **Use the same language as the content**
+        - Ensure that the questions are not too easy .
         Output Format:
         Return a valid Python list of dictionaries as shown below:
         [
@@ -60,7 +68,12 @@ base_prompt = {
         - Avoid double negatives, complex phrasing, or trick statements.
         - Mix both true and false statements (aim for a near 50/50 split).
         - Focus on meaningful, core ideas or key takeaways.
-        - Use the same language as the content.
+        - **Use the same language as the content**
+        Requirements:
+        - Provide a brief explanation of why the correct answer is correct.
+        - **Use the same language as the content**
+        - Ensure that the questions are not too easy .
+        
         Output Format:
         Return a valid Python list of dictionaries in the format below:
         [{{"question": "Statement goes here.","options": ["True", "False"],"correctanswer": "True" or "False",
@@ -78,7 +91,11 @@ base_prompt = {
         - Each blank must have a single correct answer (2-4 words maximum).
         - Provide 2-3 plausible incorrect answers for each blank.
         - incorrect answers must be contextually related to the topic but clearly incorrect in the given sentence.
-        - Use the same language as the content.
+        Requirements:
+        - Provide a brief explanation of why the correct answer is correct.
+        - **Use the same language as the content**
+        - Ensure that the questions are not too easy .
+
         Output Format:
         Return a valid Python list of dictionaries in the format below:
         [{{"question": "This is a sentence with ___ to be filled.","blanks": ["___"],"answers": ["Correct term or phrase","fasle answers",...],"correctanswer": "Correct term or phrase","explanation": "Brief explanation of why the answer is correct."}}]
