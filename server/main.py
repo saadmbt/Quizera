@@ -763,11 +763,11 @@ def create_quiz_assignment():
 @app.route('/api/validate-invite-token', methods=['POST'])
 @jwt_required()
 def validate_invite_token():
-        # check if the jwt is valide 
+    # check if the jwt is valid 
     user_id = get_jwt_identity()
     # Check if the user ID exists in Firestore
     try:
-        user=auth.get_user(user_id)
+        user = auth.get_user(user_id)
     except auth.UserNotFoundError:
         return jsonify({"error": "Invalid or unknown UID"}), 401
     try:
@@ -797,15 +797,23 @@ def validate_invite_token():
 
             # Get group info
             group = get_group_by_id(group_id)
-            if not group or isinstance(group, dict) and 'error' in group:
+            if not group or (isinstance(group, dict) and 'error' in group):
                 return jsonify({"error": "Group not found"}), 404
-            professor = user.display_name if hasattr(user, 'display_name') and user.display_name else "Unknown Professor"
-            if not professor:
-                return jsonify({"error": "Professor not found"}), 404
-            
+
+            # Fetch professor user from Firebase using prof_id from group
+            prof_id = group.get("prof_id")
+            professor_name = "Unknown Professor"
+            if prof_id:
+                try:
+                    prof_user = auth.get_user(prof_id)
+                    if prof_user and hasattr(prof_user, 'display_name') and prof_user.display_name:
+                        professor_name = prof_user.display_name
+                except Exception as e:
+                    print(f"Error fetching professor user from Firebase: {str(e)}")
+
             return jsonify({
                 "group_name": group.get("group_name", "Unknown Group"),
-                "professor_name": professor,  # Hardcoded for now
+                "professor_name": professor_name,
                 "group_id": group_id
             }), 200
 
