@@ -17,7 +17,7 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
     , onShowVideos , onshowQuestions , getquiz_resualt_id , fromGroup }) {
 
   const [quiz_res_id,setquiz_res_id]=useState(null)
-  
+  const user= JSON.parse(localStorage.getItem('_us_unr'))
   const scorePercentage = Math.round((score / totalQuestions) * 100);
   const isLowScore = scorePercentage < 70;
   const incorrectanswers =totalQuestions - score;
@@ -48,6 +48,7 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
       } else if (!isResultSavedIn && quizResult && fromGroup) {
         const  quizAtteemptRes={
           quizId:quizResult.quiz_id,
+          username:user.username,
           submittedAt: quizResult.date,
           answers: quizResult.questions,
           totalScore: scorePercentage,
