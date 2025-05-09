@@ -806,8 +806,14 @@ def validate_invite_token():
             if prof_id:
                 try:
                     prof_user = auth.get_user(prof_id)
-                    if prof_user and hasattr(prof_user, 'username') and prof_user.username:
-                        professor_name = prof_user.username
+                    # Use display_name or email as professor name, or username if exists
+                    if prof_user:
+                        if hasattr(prof_user, 'username') and prof_user.username:
+                            professor_name = prof_user.username
+                        elif hasattr(prof_user, 'display_name') and prof_user.display_name:
+                            professor_name = prof_user.display_name
+                        elif hasattr(prof_user, 'email') and prof_user.email:
+                            professor_name = prof_user.email
                 except Exception as e:
                     print(f"Error fetching professor user from Firebase: {str(e)}")
 
