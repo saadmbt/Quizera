@@ -683,7 +683,7 @@ def generate_invite_link():
         print("Generated token for group:", group_id)
         
         return jsonify({
-            "invite_link": f"http://localhost:5173/Student/join-group/{token}",
+            "invite_link": f"http://localhost:5173/student/join-group/{token}",
             "token": token
         }), 200
 
