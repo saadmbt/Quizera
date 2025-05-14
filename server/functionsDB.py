@@ -431,15 +431,17 @@ def insert_quiz_assignment(assignment_data):
         assigned_by = assignment_data.get("assignedBy")
         assigned_at = assignment_data.get("assignedAt")
         due_date = assignment_data.get("dueDate")
-        start_date = assignment_data.get("startTime")
-        print(f"insert_quiz_assignment - quiz_id: {quiz_id} (type: {type(quiz_id)})")
-        print(f"insert_quiz_assignment - group_ids: {group_ids} (types: {[type(g) for g in group_ids]})")
-        print(f"insert_quiz_assignment - assigned_by: {assigned_by} (type: {type(assigned_by)})")
+        start_time = assignment_data.get("startTime")  # Get startTime from assignment_data
+        
+        print(f"insert_quiz_assignment - quiz_id: {quiz_id}")
+        print(f"insert_quiz_assignment - group_ids: {group_ids}")
+        print(f"insert_quiz_assignment - assigned_by: {assigned_by}")
+        print(f"insert_quiz_assignment - start_time: {start_time}")
 
-        if not quiz_id or not group_ids or not assigned_by or not assigned_at:
+        if not quiz_id or not group_ids or not assigned_by or not assigned_at or not start_time:
             return {"error": "Missing required fields"}
 
-        # Convert to ObjectId if strings and valid ObjectId
+        # Convert to ObjectId if strings
         if isinstance(quiz_id, str):
             quiz_id = ObjectId(quiz_id)
         group_ids_obj = []
@@ -457,11 +459,11 @@ def insert_quiz_assignment(assignment_data):
 
         # Parse dates if strings
         if isinstance(assigned_at, str):
-            assigned_at = datetime.fromisoformat(assigned_at)
+            assigned_at = datetime.fromisoformat(assigned_at.replace('Z', '+00:00'))
         if due_date and isinstance(due_date, str):
-            due_date = datetime.fromisoformat(due_date)
-        if start_date and isinstance(start_date, str):
-            start_date = datetime.fromisoformat(start_date)
+            due_date = datetime.fromisoformat(due_date.replace('Z', '+00:00'))
+        if isinstance(start_time, str):
+            start_time = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
 
         doc = {
             "quizId": quiz_id,
@@ -469,11 +471,14 @@ def insert_quiz_assignment(assignment_data):
             "assignedBy": assigned_by,
             "assignedAt": assigned_at,
             "dueDate": due_date,
-            "startTime":start_date 
+            "startTime": start_time  # Make sure to include startTime in the document
         }
+        
+        print(f"Inserting document: {doc}")  # Debug print
         result = collection.insert_one(doc)
         return str(result.inserted_id)
     except Exception as e:
+        print(f"Error in insert_quiz_assignment: {e}")  # Debug print
         return {"error": f"Error inserting quiz assignment: {str(e)}"}
 
 #  get group IDs with quiz assignments for a student

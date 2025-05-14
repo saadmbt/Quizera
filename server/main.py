@@ -738,26 +738,28 @@ def create_quiz_assignment():
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
-    quiz_id = data.get("quizId")
-    group_ids = data.get("groupIds")
-    assigned_by = data.get("assignedBy")
-    assigned_at = data.get("assignedAt")
-    due_date = data.get("dueDate")
-    start_time = data.get("startTime")  # Added startTime
+    # Validate required fields
+    required_fields = ["quizId", "groupIds", "assignedBy", "assignedAt", "startTime"]
+    missing_fields = [field for field in required_fields if not data.get(field)]
+    if missing_fields:
+        return jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}), 400
 
-    if not quiz_id or not group_ids or not assigned_by or not assigned_at:
-        return jsonify({"error": "Missing required fields"}), 400
+    # Validate startTime is not null and is a valid date string
+    if not data.get("startTime"):
+        return jsonify({"error": "startTime cannot be null"}), 400
 
-    # Add start_time to data if present
-    if start_time:
-        data["startTime"] = start_time
+    try:
+        # Parse startTime to verify it's a valid date string
+        start_time = datetime.fromisoformat(data["startTime"].replace('Z', '+00:00'))
+        data["startTime"] = start_time.isoformat()
+    except ValueError as e:
+        return jsonify({"error": f"Invalid startTime format: {str(e)}"}), 400
 
     result = insert_quiz_assignment(data)
     if isinstance(result, dict) and "error" in result:
         return jsonify({"error": result["error"]}), 500
 
     return jsonify({"message": "Quiz assignment created successfully", "assignment_id": result}), 201
-
 
 # Validate invitation token
 @app.route('/api/validate-invite-token', methods=['POST'])
