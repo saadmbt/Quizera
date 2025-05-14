@@ -507,7 +507,7 @@ def get_quizzs_Assignments_by_group_id(group_id):
     try:
         current_date = datetime.now(timezone.utc)
         collection = db["quiz_assignments"]
-        quizzes_ids = list(collection.find({"groupIds":{"$in":[ObjectId(group_id)]},"startTime":{"gte":current_date},"dueDate":{"lt":current_date} },{"_id":0,"quizId": 1}))
+        quizzes_ids = list(collection.find({"groupIds":{"$in":[ObjectId(group_id)]},"startTime":{"$gte":current_date},"dueDate":{"$lt":current_date} },{"_id":0,"quizId": 1}))
         # Check if quizzes are found
         if not quizzes_ids:
             return "error: No quizzes found for the provided group ID"  
