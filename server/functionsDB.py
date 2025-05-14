@@ -431,7 +431,7 @@ def insert_quiz_assignment(assignment_data):
         assigned_by = assignment_data.get("assignedBy")
         assigned_at = assignment_data.get("assignedAt")
         due_date = assignment_data.get("dueDate")
-
+        start_date = assignment_data.get("startTime")
         print(f"insert_quiz_assignment - quiz_id: {quiz_id} (type: {type(quiz_id)})")
         print(f"insert_quiz_assignment - group_ids: {group_ids} (types: {[type(g) for g in group_ids]})")
         print(f"insert_quiz_assignment - assigned_by: {assigned_by} (type: {type(assigned_by)})")
@@ -460,6 +460,8 @@ def insert_quiz_assignment(assignment_data):
             assigned_at = datetime.fromisoformat(assigned_at)
         if due_date and isinstance(due_date, str):
             due_date = datetime.fromisoformat(due_date)
+        if start_date and isinstance(start_date, str):
+            start_date = datetime.fromisoformat(start_date)
 
         doc = {
             "quizId": quiz_id,
@@ -467,7 +469,7 @@ def insert_quiz_assignment(assignment_data):
             "assignedBy": assigned_by,
             "assignedAt": assigned_at,
             "dueDate": due_date,
-            "startTime": assignment_data.get("startTime")  # Add startTime field
+            "startTime":start_date 
         }
         result = collection.insert_one(doc)
         return str(result.inserted_id)
