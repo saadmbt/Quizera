@@ -230,7 +230,7 @@ export const previewQuiz = async (quizId) => {
 };
 
 // Assign quiz to groups (quizz assignment)
-export const assignQuizToGroups = async ({ quizId, groupIds, assignedBy, assignedAt, dueDate }) => {
+export const assignQuizToGroups = async ({ quizId, groupIds, assignedBy, assignedAt, dueDate, startTime }) => {
   try {
     const response = await axios.post(
       'https://prepgenius-backend.vercel.app/api/quiz-assignments',
@@ -239,7 +239,8 @@ export const assignQuizToGroups = async ({ quizId, groupIds, assignedBy, assigne
         groupIds,
         assignedBy,
         assignedAt,
-        dueDate
+        dueDate,
+        startTime  // Include startTime in the request payload
       },
       {
         headers: {
@@ -279,6 +280,25 @@ export const getQuizAttemptsByQuizId = async (quizId) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching quiz attempts:', error);
+    throw error;
+  }
+};
+
+// Update quiz questions
+export const updateQuizQuestions = async (quizId, questions) => {
+  try {
+    const response = await axios.put(
+      `https://prepgenius-backend.vercel.app/api/quizzes/${quizId}/questions`,
+      { questions },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error updating quiz questions:', error);
     throw error;
   }
 };

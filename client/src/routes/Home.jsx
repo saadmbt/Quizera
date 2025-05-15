@@ -85,7 +85,7 @@ const Home = () => {
 
       {/* student routes */}
       <Route
-        path="/student"
+        path="/Student"
         element={
           <ProtectedRoute allowedRoles={["student"]}>
             <StudentDashboardLayout />
@@ -99,7 +99,7 @@ const Home = () => {
           element={
             <NotAccessibleRoute
               condition={lessonID !== false && quizSettings !== false}
-              redirectTo="/student/upload"
+              redirectTo="/Student/upload"
             >
               <Quiz settings={quizSettings} params={false} fromGroup={false}/>
             </NotAccessibleRoute>
@@ -110,7 +110,7 @@ const Home = () => {
           element={
             <NotAccessibleRoute
               condition={lessonID !== false}
-              redirectTo="/student/upload"
+              redirectTo="/Student/upload"
             >
               <QuizSetup onStartQuiz={onStartQuiz} lessonID={lessonID} />
             </NotAccessibleRoute>
@@ -121,13 +121,14 @@ const Home = () => {
         <Route path="quizzes/:id" element={<QuizDetailspage />} />
         <Route path="flashcards" element={<FlashcardsSection />} />
         <Route path="flashcards/study/:id" element={<FlashcardStudy />} />
-        <Route path="join-group/:token" element={<JoinGroup />} />
         <Route path="groups" element={<Groupspage />} />
         <Route path="groups/:id" element={<GroupDetailspage />} />
         <Route path="groups/quiz/:Quiz_id" element={<Quiz settings={{}} params={true} fromGroup={true} />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<NotFoundpage />} />
       </Route>
+      {/* JoinGroup route outside ProtectedRoute to allow setting redirectAfterLogin */}
+      <Route path="/Student/join-group/:token" element={<JoinGroup />} />
 
       <Route path="/JoinQuiz/:Quiz_id" element={<JoinQuiz />} />
 

@@ -10,7 +10,7 @@ function GroupCard({ group }) {
         navigate(`/Student/groups/${group.id}`);
     }
     return (
-      <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-blue-100">
+      <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm transition-all duration-300 border border-gray-100">
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex justify-between items-start mb-3 md:mb-4">
@@ -59,4 +59,4 @@ function GroupCard({ group }) {
     );
 }
 
-export default GroupCard
+export default GroupCard;

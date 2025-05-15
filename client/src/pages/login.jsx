@@ -155,7 +155,7 @@ export default function LoginWithFirebase() {
         <p className="text-sm text-center text-gray-600">
           Forgot your password?{" "}
           <span
-            onClick={() => navigate("/auth/forgetpassword")}
+            onClick={() => navigate("/forgetpassword")}
             className="text-blue-500 hover:underline cursor-pointer"
           >
             Reset it here

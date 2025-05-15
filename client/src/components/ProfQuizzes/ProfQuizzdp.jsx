@@ -209,17 +209,16 @@ function ProfQuizzdp() {
                                             return (
                                                 <div
                                                     key={optionIndex}
-                                                    className={`
-                                                        p-4 rounded-lg border-2 transition-all
-                                                        ${option === question.correctAnswer
+                                                    className={`p-4 rounded-lg border-2 transition-all ${
+                                                        option === question.correctAnswer
                                                             ? 'border-green-500 bg-green-50'
-                                                            : 'border-gray-200'}
-                                                    `}
+                                                            : 'border-gray-200'
+                                                    }`}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <span className={
                                                             option === question.correctAnswer
-                                                                ? 'text-green-700'
+                                                                ? 'text-green-700 font-semibold'
                                                                 : 'text-gray-700'
                                                         }>
                                                             {option}
@@ -236,11 +235,7 @@ function ProfQuizzdp() {
                                                     {/* Progress bar showing selection percentage */}
                                                     <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
                                                         <div 
-                                                            className={`h-full ${
-                                                                option === question.correctAnswer
-                                                                    ? 'bg-green-500'
-                                                                    : 'bg-gray-300'
-                                                            }`}
+                                                            className={`h-full ${option === question.correctAnswer ? 'bg-green-500' : 'bg-gray-300'}`}
                                                             style={{ width: `${percentage}%` }}
                                                         />
                                                     </div>

@@ -70,6 +70,7 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
         if (!quizResponse || !quizResponse.quiz) {
           throw new Error('Quiz generation failed');
         }
+
         const quizId = quizResponse.quiz._id || quizResponse.quiz.id || quizResponse.quiz;
 
         // Assign quiz to selected group(s)
@@ -79,12 +80,17 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
         if (!quizStartTime) {
           throw new Error('Quiz start time is required');
         }
+
         const storedUser = JSON.parse(localStorage.getItem('_us_unr')) || null;
         const assignedBy = storedUser ? storedUser.uid : 'current_professor_uid';
         const assignedAt = new Date().toISOString();
         const groupIds = [selectedGroup];
+
+        // Format dates with timezone
         const dueDateISO = dueDate ? new Date(dueDate).toISOString() : null;
-        const quizStartTimeISO = new Date(quizStartTime).toISOString();
+        const startTimeISO = quizStartTime ? new Date(quizStartTime).toISOString() : null;
+        
+        console.log('Start time before sending:', startTimeISO); // Debug log
 
         await assignQuizToGroups({
           quizId,
@@ -92,9 +98,8 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
           assignedBy,
           assignedAt,
           dueDate: dueDateISO,
-          startTime: quizStartTimeISO,
+          startTime: startTimeISO // Make sure startTime is included
         });
-        
 
         // Refactor quiz object to send to QuizPreview
         const refinedQuiz = {
@@ -102,12 +107,12 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
           questions: quizResponse.quiz.questions || [],
           settings: {
             dueDate: dueDateISO,
-            startTime: quizStartTimeISO,
+            startTime: startTimeISO,
             difficulty: quizSetupData.difficulty,
             type: quizSetupData.type 
           }
         };
-        navigate('/professor/upload/quizpreview', { state: { quiz:refinedQuiz , quizId } });
+        navigate('/professor/upload/quizpreview', { state: { quiz: refinedQuiz, quizId: quizId } });
       } else {
         onStartQuiz(quizSetupData);
         navigate('/student/quiz');

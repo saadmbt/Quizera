@@ -29,7 +29,7 @@ from flask_cors import CORS
 import json
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:5173'], methods=['GET', 'POST', 'PUT', 'DELETE'], headers=['Content-Type', 'Authorization'], supports_credentials=True)
+CORS(app, origins=['http://localhost:5173', 'https://prepgenius.com'], methods=['GET', 'POST', 'PUT', 'DELETE'], headers=['Content-Type', 'Authorization'], supports_credentials=True)
 
 # Load credentials from environment variables
 load_dotenv()
@@ -1017,6 +1017,29 @@ def refresh_expiring_jwts(response):
 def hello_world():
     print("hi")
     return "Hello, World!"
+
+@app.route('/api/quizzes/<quiz_id>/questions', methods=['PUT'])
+@jwt_required()
+def update_quiz_questions_route(quiz_id):
+    user_id = get_jwt_identity()
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+
+    data = request.json
+    if not data or "questions" not in data:
+        return jsonify({"error": "No questions provided"}), 400
+
+    questions = data["questions"]
+
+    from functionsDB import update_quiz_questions
+    result = update_quiz_questions(quiz_id, questions)
+
+    if result.get("success"):
+        return jsonify({"message": result.get("message")}), 200
+    else:
+        return jsonify({"error": result.get("error", "Failed to update questions")}), 400
 
 if __name__ == "__main__":
     app.run()

@@ -72,7 +72,7 @@ const Groups = () => {
         prof_name: user.username,
       };
       
-      const result = await createGroup(newGroup);
+      const result = await createGroup(newGroup,user);
       
       // Add the new group to the local state with correct structure
       const formattedGroup = {

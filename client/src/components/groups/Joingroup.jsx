@@ -17,8 +17,13 @@ const JoinGroup = () => {
         const accessToken = localStorage.getItem('access_token');
         if (!accessToken) {
           console.log('User not authenticated, redirecting to login');
-          localStorage.setItem('redirectAfterLogin', `/student/join-group/${token}`);
-          navigate('/auth/login');
+          console.log('Setting redirectAfterLogin to:', `/Student/join-group/${token}`);
+          localStorage.setItem('redirectAfterLogin', `/Student/join-group/${token}`);
+          console.log('redirectAfterLogin after set:', localStorage.getItem('redirectAfterLogin'));
+          // Delay navigate to ensure localStorage is set
+          setTimeout(() => {
+            navigate('/auth/login');
+          }, 0);
           return;
         }
 
@@ -67,46 +72,68 @@ const JoinGroup = () => {
     validateInvitation();
   }, [token, navigate]);
 
-  const handleJoinGroup = async () => {
-    try {
-      const accessToken = localStorage.getItem('access_token');
-      if (!accessToken) {
-        console.log('User not authenticated, redirecting to login');
-        localStorage.setItem('redirectAfterLogin', `/student/join-group/${token}`);
-        navigate('/auth/login');
-        return;
-      }
-
-      let decodedToken;
+    const handleJoinGroup = async () => {
       try {
-        decodedToken = jwtDecode(accessToken);
-      } catch (e) {
-        console.error('Failed to decode token', e);
-        toast.error('Invalid access token');
-        return;
-      }
-
-      const response = await axios.post(
-        'https://prepgenius-backend.vercel.app/api/groups/join',
-        {
-          token: token,
-          uid: decodedToken.uid || decodedToken.user_id || decodedToken.sub
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
-          }
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+          console.log('User not authenticated, redirecting to login');
+          console.log('Setting redirectAfterLogin to:', `/Student/join-group/${token}`);
+          localStorage.setItem('redirectAfterLogin', `/Student/join-group/${token}`);
+          console.log('redirectAfterLogin after set:', localStorage.getItem('redirectAfterLogin'));
+          // Delay navigate to ensure localStorage is set
+          setTimeout(() => {
+            navigate('/auth/login');
+          }, 0);
+          return;
         }
-      );
 
-      toast.success('Successfully joined group');
-      navigate(`/Student/groups/${response.data.group._id}`);
-    } catch (error) {
-      console.error('Join error:', error);
-      toast.error(error.response?.data?.error || 'Failed to join group');
-    }
-  };
+        let decodedToken;
+        try {
+          decodedToken = jwtDecode(accessToken);
+        } catch (e) {
+          console.error('Failed to decode token', e);
+          toast.error('Invalid access token');
+          return;
+        }
+
+        const response = await axios.post(
+          'https://prepgenius-backend.vercel.app/api/groups/join',
+          {
+            token: token,
+            uid: decodedToken.uid || decodedToken.user_id || decodedToken.sub
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`
+            }
+          }
+        );
+
+        toast.success('Successfully joined group');
+        navigate(`/Student/groups/${response.data.group._id}`);
+      } catch (error) {
+        console.error('Join error:', error);
+        const errorMessage = error.response?.data?.error || 'Failed to join group';
+        console.log('Join error message:', errorMessage);
+        if (errorMessage.toLowerCase().trim().includes('student already in group')) {
+          // Show toast informing user is already in the group and redirect to group page
+          toast('You are already a member of this group.', { icon: 'ℹ️' });
+          try {
+            const decodedToken = jwtDecode(token);
+            const groupId = decodedToken.sub || decodedToken.uid || decodedToken.user_id;
+            if (groupId) {
+              navigate(`/Student/groups/${groupId}`);
+              return;
+            }
+          } catch (e) {
+            console.error('Failed to decode invitation token', e);
+          }
+          return;
+        }
+        toast.error(errorMessage);
+      }
+    };
 
   if (isLoading) {
     return (

@@ -656,3 +656,18 @@ def get_quiz_attempts_by_quiz_id(quiz_id):
         return attempts
     except Exception as e:
         return {"error": f"Error fetching quiz attempts by quizId: {str(e)}"}
+def update_quiz_questions(quiz_id, questions):
+    try:
+        collection = db["quizzes"]
+        if isinstance(quiz_id, str):
+            quiz_id = ObjectId(quiz_id)
+        result = collection.update_one(
+            {"_id": quiz_id},
+            {"$set": {"questions": questions}}
+        )
+        if result.modified_count > 0:
+            return {"success": True, "message": "Quiz questions updated successfully"}
+        else:
+            return {"success": False, "message": "No changes made or quiz not found"}
+    except PyMongoError as e:
+        return {"success": False, "error": f"Error updating quiz questions: {str(e)}"}

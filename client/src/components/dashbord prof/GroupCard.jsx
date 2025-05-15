@@ -1,26 +1,21 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../Auth/AuthContext';
-import GroupStatistics from '../../pages/Dashboard/GroupStatistics';
 
 const GroupCard = ({ name, count, groupId }) => {
   const user = JSON.parse(localStorage.getItem("_us_unr")) || {};
-  const [isHovered, setIsHovered] = useState(false);
 
   // Determine if user is professor
   const isProfessor = user.role === 'professor';
 
   return (
     <div
-      className={`relative bg-white min-h-[150px] rounded-lg p-6 shadow-lg transition-all duration-300 border border-gray-100
-        ${isProfessor ? 'hover:shadow-xl hover:border-blue-200 transform hover:-translate-y-1' : ''}`}
-      onMouseEnter={() => isProfessor && setIsHovered(true)}
-      onMouseLeave={() => isProfessor && setIsHovered(false)}
+      className="relative bg-white min-h-[150px] rounded-lg p-6 shadow-lg transition-all duration-300 border border-gray-100"
     >
       <div className="flex items-center justify-between space-x-4 py-4 gap-3">
         <div>
-          <h3 className={`text-lg font-bold text-gray-800 ${isProfessor ? 'hover:text-blue-600 transition-colors' : ''}`}>
+          <h3 className="text-lg font-bold text-gray-800">
             {name}
           </h3>
           <div className="flex items-center mt-3 text-gray-600">
@@ -47,11 +42,6 @@ const GroupCard = ({ name, count, groupId }) => {
           )}
         </div>
       </div>
-      {isProfessor && isHovered && (
-        <div className="absolute top-full left-0 z-10 mt-2 w-[400px] max-w-full bg-white border border-gray-300 rounded-md shadow-lg overflow-auto max-h-[300px]">
-          <GroupStatistics groupid={groupId} groupName={name} />
-        </div>
-      )}
     </div>
   );
 };
