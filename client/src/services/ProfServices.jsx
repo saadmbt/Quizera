@@ -287,12 +287,14 @@ export const getQuizAttemptsByQuizId = async (quizId) => {
 // Update quiz questions
 export const updateQuizQuestions = async (quizId, questions) => {
   try {
+    const token = localStorage.getItem("access_token") || null;
     const response = await axios.put(
       `https://prepgenius-backend.vercel.app/api/quizzes/${quizId}/questions`,
       { questions },
       {
         headers: {
           'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`
         },
       }
     );

@@ -4,6 +4,7 @@ import { generateQuiz } from '../../services/StudentService.jsx';
 import { ChevronRight, Brain, Target, HelpCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 const QUESTION_TYPES = [
   { id: 'multiple-choice', label: 'Multiple Choice', icon: Brain },
@@ -24,7 +25,7 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
   const [questionType, setQuestionType] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [questionCount, setQuestionCount] = useState(10);
-  const [selectedGroup, setSelectedGroup] = useState('');
+  const [selectedGroups, setSelectedGroups] = useState([]);
   const [dueDate, setDueDate] = useState('');
   const [quizStartTime, setQuizStartTime] = useState(''); 
   // Removed timeLimit state as per rollback
@@ -65,31 +66,46 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
 
     try {
       if (isProfessor) {
+        // Validate quiz start time and due date before generating quiz
+        if (selectedGroups.length === 0) {
+          toast.error('No group selected for quiz assignment');
+          setIsLoading(false);
+          return;
+        }
+        if (!quizStartTime) {
+          toast.error('Quiz start time is required');
+          setIsLoading(false);
+          return;
+        }
+        const dueDateISO = dueDate ? new Date(dueDate).toISOString() : null;
+        const startTimeISO = quizStartTime ? new Date(quizStartTime).toISOString() : null;
+        const nowISO = new Date().toISOString();
+        if (startTimeISO < nowISO) {
+          toast.error('Quiz start time cannot be in the past');
+          setIsLoading(false);
+          return;
+        }
+        if (dueDateISO && startTimeISO > dueDateISO) {
+          toast.error('Due date must be after the start time');
+          setIsLoading(false);
+          return;
+        }
+
         // Generate the quiz first
         const quizResponse = await generateQuiz(quizSetupData);
         if (!quizResponse || !quizResponse.quiz) {
-          throw new Error('Quiz generation failed');
+          toast.error('Quiz generation failed');
+          setIsLoading(false);
+          return;
         }
 
         const quizId = quizResponse.quiz._id || quizResponse.quiz.id || quizResponse.quiz;
 
-        // Assign quiz to selected group(s)
-        if (!selectedGroup) {
-          throw new Error('No group selected for quiz assignment');
-        }
-        if (!quizStartTime) {
-          throw new Error('Quiz start time is required');
-        }
-
         const storedUser = JSON.parse(localStorage.getItem('_us_unr')) || null;
         const assignedBy = storedUser ? storedUser.uid : 'current_professor_uid';
         const assignedAt = new Date().toISOString();
-        const groupIds = [selectedGroup];
+        const groupIds = selectedGroups;
 
-        // Format dates with timezone
-        const dueDateISO = dueDate ? new Date(dueDate).toISOString() : null;
-        const startTimeISO = quizStartTime ? new Date(quizStartTime).toISOString() : null;
-        
         console.log('Start time before sending:', startTimeISO); // Debug log
 
         await assignQuizToGroups({
@@ -119,7 +135,8 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
       }
     } catch (error) {
       console.error('Error during quiz creation and assignment:', error);
-      } finally {
+      toast.error('Error during quiz creation and assignment: ' + (error.message || error));
+    } finally {
       setIsLoading(false);
     }
   };
@@ -127,11 +144,11 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
   const progress = [
     !!questionType,
     !!difficulty,
-    isProfessor ? !!selectedGroup : true,
-    isProfessor ? !!quizStartTime : true, // Include start time in progress for professor
-  ].filter(Boolean).length;
+    isProfessor ? selectedGroups.length > 0 : false,
+    isProfessor ? !!quizStartTime : false, // Include start time in progress for professor
+  ].filter(Boolean).length + (isProfessor ? 1 : 1);
 
-  const totalSteps = isProfessor ? 4 : 2;
+  const totalSteps = isProfessor ? 4 : 3;
 
   return (
     <motion.div
@@ -292,23 +309,32 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
               {groupsError && <p className="text-red-500">{groupsError}</p>}
               {!groupsLoading && !groupsError && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {groups.map(({ _id, group_name }) => (
-                    <motion.button
-                      key={_id}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
-                      onClick={() => setSelectedGroup(_id)}
-                      className={
-                        "p-4 rounded-lg border-2 transition-all text-left " +
-                        (selectedGroup === _id
-                          ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
-                          : "border-gray-200 hover:border-blue-300")
-                      }
-                    >
-                      <div className="text-base font-medium">{group_name}</div>
-                    </motion.button>
-                  ))}
+                  {groups.map(({ _id, group_name }) => {
+                    const isSelected = selectedGroups.includes(_id);
+                    return (
+                      <motion.button
+                        key={_id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedGroups(selectedGroups.filter(id => id !== _id));
+                          } else {
+                            setSelectedGroups([...selectedGroups, _id]);
+                          }
+                        }}
+                        className={
+                          "p-4 rounded-lg border-2 transition-all text-left " +
+                          (isSelected
+                            ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
+                            : "border-gray-200 hover:border-blue-300")
+                        }
+                      >
+                        <div className="text-base font-medium">{group_name}</div>
+                      </motion.button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -319,10 +345,10 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            disabled={!questionType || !difficulty || (isProfessor && (!selectedGroup || !quizStartTime)) || isLoading}
+            disabled={!questionType || !difficulty || (isProfessor && (selectedGroups.length === 0 || !quizStartTime)) || isLoading}
             className={
               "w-full flex items-center justify-center py-4 px-6 rounded-lg text-base font-medium transition-all " +
-              (!questionType || !difficulty || (isProfessor && (!selectedGroup || !quizStartTime)) || isLoading
+              (!questionType || !difficulty || (isProfessor && (selectedGroups.length === 0 || !quizStartTime)) || isLoading
                 ? "bg-gray-300 cursor-not-allowed"
                 : "bg-blue-500 hover:bg-blue-600 text-white shadow-lg")
             }

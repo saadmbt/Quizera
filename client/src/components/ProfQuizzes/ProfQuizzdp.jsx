@@ -190,64 +190,74 @@ function ProfQuizzdp() {
                 <p className="text-center text-gray-500">No attempts have been made for this quiz yet.</p>
             )}
 
-            {/* Questions & Answers */}
+            {/* Attempt Selector and Questions & Answers for Selected Attempt */}
             {totalAttempts > 0 && (
-                <div className="space-y-6">
-                    <h2 className="text-xl font-semibold">Questions & Answers</h2>
-                    {quiz.questions.map((question, index) => (
-                        <div key={question.id} className="bg-white rounded-xl p-6 shadow-lg">
-                            <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                    <h3 className="text-lg font-medium mb-4">
-                                        {index + 1}. {question.question}
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {question.options.map((option, optionIndex) => {
-                                            const timesChosen = question.userAnswers.filter(ans => ans === option).length;
-                                            const percentage = Math.round((timesChosen / totalAttempts) * 100);
-                                            
-                                            return (
-                                                <div
-                                                    key={optionIndex}
-                                                    className={`p-4 rounded-lg border-2 transition-all ${
-                                                        option === question.correctAnswer
-                                                            ? 'border-green-500 bg-green-50'
-                                                            : 'border-gray-200'
-                                                    }`}
-                                                >
-                                                    <div className="flex items-center justify-between">
-                                                        <span className={
-                                                            option === question.correctAnswer
-                                                                ? 'text-green-700 font-semibold'
-                                                                : 'text-gray-700'
-                                                        }>
-                                                            {option}
-                                                        </span>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm text-gray-500">
-                                                                {percentage}% ({timesChosen})
-                                                            </span>
-                                                            {option === question.correctAnswer && 
-                                                                <CheckCircle className="h-5 w-5 text-green-500" />
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                    {/* Progress bar showing selection percentage */}
-                                                    <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                        <div 
-                                                            className={`h-full ${option === question.correctAnswer ? 'bg-green-500' : 'bg-gray-300'}`}
-                                                            style={{ width: `${percentage}%` }}
-                                                        />
-                                                    </div>
+                <>
+                    <div className="bg-white rounded-xl p-4 shadow-md">
+                        <h2 className="text-lg font-semibold mb-2">Select Student Attempt</h2>
+                        <select
+                            className="w-full border border-gray-300 rounded-md p-2"
+                            onChange={(e) => setSelectedAttemptIndex(Number(e.target.value))}
+                            value={selectedAttemptIndex ?? ''}
+                        >
+                            <option value="" disabled>Select an attempt</option>
+                            {attempts.map((attempt, index) => (
+                                <option key={attempt._id} value={index}>
+                                    {attempt.studentId} - {new Date(attempt.submittedAt).toLocaleString()}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {selectedAttemptIndex !== null && attempts[selectedAttemptIndex] && quizInfo && quizInfo.questions && (
+                        <div className="space-y-6 mt-6">
+                            <h2 className="text-xl font-semibold">Questions & Answers - Student Attempt</h2>
+                            {quizInfo.questions.map((question, index) => {
+                                const answer = attempts[selectedAttemptIndex].answers.find(ans => ans.questionIndex === index + 1);
+                                return (
+                                    <div key={index} className="bg-white rounded-xl p-6 shadow-lg">
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <h3 className="text-lg font-medium mb-4">
+                                                    {index + 1}. {question.question}
+                                                </h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {question.options.map((option, optionIndex) => {
+                                                        const isCorrect = option === question.correctAnswer;
+                                                        const isSelected = answer && option === answer.answerSubmitted;
+                                                        return (
+                                                            <div
+                                                                key={optionIndex}
+                                                                className={`p-4 rounded-lg border-2 transition-all ${
+                                                                    isCorrect ? 'border-green-500 bg-green-50' : 'border-gray-200'
+                                                                } ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
+                                                            >
+                                                                <div className="flex items-center justify-between">
+                                                                    <span className={
+                                                                        isCorrect ? 'text-green-700 font-semibold' : 'text-gray-700'
+                                                                    }>
+                                                                        {option}
+                                                                    </span>
+                                                                    {isCorrect && <CheckCircle className="h-5 w-5 text-green-500" />}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
-                                            );
-                                        })}
+                                                <p className="mt-2 text-sm text-gray-600">
+                                                    {answer ? (answer.isCorrect ? 'Correct' : 'Incorrect') : 'No answer submitted'}
+                                                </p>
+                                                {answer && answer.feedback && (
+                                                    <p className="mt-1 text-sm text-gray-500 italic">Feedback: {answer.feedback}</p>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                );
+                            })}
                         </div>
-                    ))}
-                </div>
+                    )}
+                </>
             )}
         </div>
     );

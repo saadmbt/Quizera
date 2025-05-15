@@ -1,21 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Copy, Share2, Settings, Check, X, Edit2, Save, XCircle } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { updateQuizQuestions } from '../../services/ProfServices.jsx';
+import toast from 'react-hot-toast';
 
 export default function QuizPreview() {
   const [isCopied, setIsCopied] = useState(false);
   const [isShared, setIsShared] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedQuestions, setEditedQuestions] = useState([]);
+  const [localQuizData, setLocalQuizData] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const quiz = location.state?.quiz;
   const quizIdFromState = location.state?.quizId;
   console.log(quizIdFromState)
 
-  // Use quiz from location state, safely handle missing settings
-  const quizData = quiz || {
+  // Initialize localQuizData state with quiz from location state
+  useEffect(() => {
+    if (quiz) {
+      setLocalQuizData(quiz);
+    }
+  }, [quiz]);
+
+  // Use localQuizData if available, else fallback to default
+  const quizData = localQuizData || quiz || {
     title: "No quiz data available",
     questions: [],
     settings: {}
@@ -81,12 +90,43 @@ export default function QuizPreview() {
 
   const saveChanges = async () => {
     try {
+      // Validate editedQuestions before sending
+      for (const q of editedQuestions) {
+        if (!q.question || typeof q.question !== 'string' || q.question.trim() === '') {
+          toast.error('Each question must have a non-empty question text.');
+          return;
+        }
+        if (type === 'fill-blank') {
+          if (!Array.isArray(q.answers) || q.answers.length === 0) {
+            toast.error('Each question must have at least one answer.');
+            return;
+          }
+          if (!q.correctanswer || !q.answers.includes(q.correctanswer)) {
+            toast.error('Each question must have a correct answer that is in the answers list.');
+            return;
+          }
+        } else {
+          if (!Array.isArray(q.options) || q.options.length === 0) {
+            toast.error('Each question must have at least one option.');
+            return;
+          }
+          if (!q.correctanswer || !q.options.includes(q.correctanswer)) {
+            toast.error('Each question must have a correct answer that is in the options list.');
+            return;
+          }
+        }
+      }
       const quizIdToUse = quizData._id || quizIdFromState;
       await updateQuizQuestions(quizIdToUse, editedQuestions);
-      alert('Questions updated successfully');
+      toast.success('Questions updated successfully');
       setIsEditing(false);
+      // Update local quiz data to reflect changes
+      setLocalQuizData({
+        ...quizData,
+        questions: editedQuestions
+      });
     } catch (error) {
-      alert('Failed to update questions: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to update questions: ' + (error.message || 'Unknown error'));
     }
   };
 
@@ -267,8 +307,7 @@ export default function QuizPreview() {
       <div className="flex justify-between">
         <button
           onClick={() => navigate('/professor/quizzes')}
-          className="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
-        >
+          className="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
           View All Quizzes
         </button>
         <button
