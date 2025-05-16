@@ -28,6 +28,7 @@ flashcards_prompt = """
         - Provide a brief explanation of why the correct answer is correct.
         - **Use the same language as the content**
         - Ensure that the questions are not too easy .
+        - **Respect the output format**.
 
     Output Format:
     Return a valid Python list of dictionaries as shown below:
@@ -49,6 +50,8 @@ base_prompt = {
         - Provide a brief explanation of why the correct answer is correct.
         - **Use the same language as the content**
         - Ensure that the questions are not too easy .
+        - **Respect the output format**.
+
         Output Format:
         Return a valid Python list of dictionaries as shown below:
         [
@@ -73,6 +76,7 @@ base_prompt = {
         - Provide a brief explanation of why the correct answer is correct.
         - **Use the same language as the content**
         - Ensure that the questions are not too easy .
+        - **Respect the output format**.
         
         Output Format:
         Return a valid Python list of dictionaries in the format below:
@@ -95,6 +99,7 @@ base_prompt = {
         - Provide a brief explanation of why the correct answer is correct.
         - **Use the same language as the content**
         - Ensure that the questions are not too easy .
+        - **Respect the output format and the number of blanks**.
 
         Output Format:
         Return a valid Python list of dictionaries in the format below:
