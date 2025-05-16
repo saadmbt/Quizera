@@ -968,13 +968,12 @@ def fetch_Prof_quizzes ():
 
 # get quiz info for join quiz by invitaion link 
 @app.route('/api/quiz_info/<quiz_id>', methods=['GET'])
-def fetch_quiz(quiz_id):
+def fetch_quiz_info(quiz_id):
     quiz = Fetch_Quizzes(ObjectId(quiz_id))
     if quiz is None:
         return jsonify({"error": "Quiz not found"}), 404
     if isinstance(quiz, str) and "error" in quiz.lower():
         return jsonify({"error": str(quiz)}), 404
-
     return jsonify(quiz), 200
 
 
