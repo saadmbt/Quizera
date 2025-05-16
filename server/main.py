@@ -966,6 +966,18 @@ def fetch_Prof_quizzes ():
         
     return jsonify(quizzes), 200
 
+# get quiz info for join quiz by invitaion link 
+@app.route('/api/quiz_info/<quiz_id>', methods=['GET'])
+def fetch_quiz(quiz_id):
+    quiz = Fetch_Quizzes(ObjectId(quiz_id))
+    if quiz is None:
+        return jsonify({"error": "Quiz not found"}), 404
+    if isinstance(quiz, str) and "error" in quiz.lower():
+        return jsonify({"error": str(quiz)}), 404
+
+    return jsonify(quiz), 200
+
+
 @app.route('/api/refresh_token', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
