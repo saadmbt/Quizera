@@ -17,12 +17,11 @@ const JoinQuiz = () => {
     const [show, setshow] = useState(true);
 
     const { user, isAuthenticated } = useContext(AuthContext); 
-    console.log("User:", user); // Log the user state
-    console.log("Is Authenticated:", isAuthenticated);
+    localStorage.setItem('isResultSaved',false)
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const response = await axios.get(`https://prepgenius-backend.vercel.app/api/quizzes/${Quiz_id}`);
+                const response = await axios.get(`/api/quiz_info/${Quiz_id}`);
                 setQuiz(response.data);
                 setLoading(false);
             } catch (err) {

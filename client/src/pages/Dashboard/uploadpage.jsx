@@ -14,6 +14,7 @@ export default function Upload({ onComplete }) {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const navigate=useNavigate();
+  localStorage.setItem('isResultSaved',false)
   const handleSubmit = async (e) => {
     e.preventDefault();
     if  (activeTab === 'file' && file && file.size > 10 * 1024 * 1024) {

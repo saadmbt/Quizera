@@ -6,7 +6,7 @@ import { AuthContext } from "../components/Auth/AuthContext";
 
 export default function UserRoleSelection() {
   const [username, setUsername] = useState("");
-  const [role, setRole] = useState("student"); // Default role
+  const [role, setRole] = useState("Student"); // Default role
   const navigate = useNavigate();
   const { setUser , user } = useContext(AuthContext);
 
@@ -73,11 +73,11 @@ export default function UserRoleSelection() {
               <div className="space-y-3">
                 <div 
                   className={`p-4 border rounded-md flex justify-between items-center cursor-pointer ${role === "student" ? "border-blue-500 bg-blue-50" : "border-gray-300"}`}
-                  onClick={() => setRole("student")}
+                  onClick={() => setRole("Student")}
                 >
                   <span className="text-gray-800">Student</span>
-                  <div className={`w-6 h-6 rounded-full border-2 ${role === "student" ? "border-blue-500" : "border-gray-300"}`}>
-                    {role === "student" && <div className="w-4 h-4 bg-blue-500 rounded-full m-[3px]"></div>}
+                  <div className={`w-6 h-6 rounded-full border-2 ${role === "Student" ? "border-blue-500" : "border-gray-300"}`}>
+                    {role === "Student" && <div className="w-4 h-4 bg-blue-500 rounded-full m-[3px]"></div>}
                   </div>
                 </div>
                 

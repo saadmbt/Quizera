@@ -6,34 +6,49 @@ const ProgressOverviewSection = () => {
   const [Loading, setLoading] = useState(true);
   const [stats, setstats] = useState([]);
 
-  const x = [
-    { title: 'Completed Quizzes', value: '24', color: 'bg-blue-500', icon: BookOpen },
-    { title: 'Average Score', value: '92%', color: 'bg-green-500', icon: BrainCircuit },
-    { title: 'Study Streak', value: '7 days', color: 'bg-orange-500', icon: Crown }
-  ];
   useEffect(() => {
     let isMounted = true;
+    setLoading(true); // Set loading state at the start
 
     const fetchData = async () => {
       try {
         const data = await fetchStudentPerformance();
-        if (isMounted) {
-          console.log('Student Performance:', data);
-          setstats([
-            { title: 'Completed Quizzes', value: data.totalQuizzes, color: 'bg-blue-500', icon: BookOpen },
-            { title: 'Average Score', value: `${data.averageScore}%`, color: 'bg-green-500', icon: BrainCircuit },
-            { title: 'Study Streak', value: '7 days', color: 'bg-orange-500', icon: Crown }
-          ]);
-        }
+        if (!isMounted) return;
+
+        if (!data) throw new Error('No data received');
+
+        const formattedStats = [
+          { 
+            title: 'Completed Quizzes', 
+            value: data.totalQuizzes || 0, 
+            color: 'bg-blue-500', 
+            icon: BookOpen 
+          },
+          { 
+            title: 'Average Score', 
+            value: `${Math.round(data.averageScore || 0)}%`, 
+            color: 'bg-green-500', 
+            icon: BrainCircuit 
+          },
+          { 
+            title: 'Study Streak', 
+            value: `${data.streak || 5} days`, 
+            color: 'bg-orange-500', 
+            icon: Crown 
+          }
+        ];
+
+        setstats(formattedStats);
       } catch (error) {
-        console.error('Error fetching student performance:', error);
-        if (isMounted) setstats(x); // Fallback to default stats
+        console.error('Error fetching student performance:', error.message);
+        if (isMounted) setstats(x);
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
     fetchData();
+
     return () => {
       isMounted = false;
     };

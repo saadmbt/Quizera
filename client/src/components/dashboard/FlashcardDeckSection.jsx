@@ -7,26 +7,31 @@ import { getFlashcards } from '../../services/StudentService';
 
 function FlashcardsSection({ limit }) {
    const [DECKS, setDECKS] = useState([]);
-   const [loading, setloading] = useState(false);
+   const [loading, setloading] = useState(true);
 
    const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
    const userId = user.uid
-    const fetchflashcards = useCallback(async () => {
-      try{
-        setloading(true);
-        const history = await getFlashcards(userId);
-        setDECKS(history);
-      }catch (error) {
-        console.error("Error fetching Flashcards:", error);
-      } finally {
-        setloading(false);
+    const fetchflashcards = useCallback(async (retryCount = 3) => {
+      try {
+      setloading(true);
+      const history = await getFlashcards(userId);
+      setDECKS(history);
+      } catch (error) {
+      console.error("Error fetching Flashcards:", error);
+      if (retryCount > 0) {
+        console.log(`Retrying... ${retryCount} attempts left`);
+        // Wait for 1 second before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return fetchflashcards(retryCount - 1);
       }
-
+      } finally {
+      setloading(false);
+      }
     }, [userId]);
 
     useEffect(() => {
       fetchflashcards();
-    }, []); 
+    }, [fetchflashcards]); 
 
   if (loading) return (
     <div className="flex justify-center items-center min-h-[80vh]">
