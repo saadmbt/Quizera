@@ -483,6 +483,16 @@ def insert_quiz_assignment(assignment_data):
 
 #  get group IDs with quiz assignments for a student
 def get_quiz_assignment_group_ids_for_student(student_uid):
+    """
+    Fetch group IDs that have quiz assignments for a specific student.
+
+    Args:
+        student_uid (str): The unique identifier of the student.
+
+    Returns:
+        list: A list of group IDs (as strings) that have quiz assignments for the student.
+        dict: An error message if an exception occurs.
+    """
     try:
         # Find groups the student belongs to
         groups = list(groups_collection.find({"students.uid": student_uid}, {"_id": 1}))
@@ -512,9 +522,18 @@ def get_quiz_assignment_group_ids_for_student(student_uid):
 #  Get assignments for a group
 def get_quizzs_Assignments_by_group_id(group_id):
     try:
-        current_date = datetime.now(timezone.utc)
+        current_date = datetime.now(timezone.utc).isoformat()
         collection = db["quiz_assignments"]
-        quizzes_ids = list(collection.find({"groupIds":{"$in":[ObjectId(group_id)]},"startTime":{"$gte":current_date},"dueDate":{"$lt":current_date} },{"_id":0,"quizId": 1}))
+        # Define query conditions for better readability
+        group_condition = {"groupIds": {"$in": [ObjectId(group_id)]}}
+        start_time_condition = {"startTime": {"$lte": current_date}}
+        due_date_condition = {"dueDate": {"$gte": current_date}}
+        
+        # Combine conditions into a single query
+        query = {**group_condition, **start_time_condition, **due_date_condition}
+        
+        # Execute the query
+        quizzes_ids = list(collection.find(query, {"_id": 0, "quizId": 1}))
         # Check if quizzes are found
         if not quizzes_ids:
             return "error: No quizzes found for the provided group ID"  
