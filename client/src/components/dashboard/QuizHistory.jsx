@@ -7,28 +7,39 @@ import { getQuizResults } from '../../services/StudentService';
 function QuizHistory(props) {
   
    const [quizHistory, setQuizHistory] = useState([]);
-   const [loading, setloading] = useState(false);
+   const [loading, setloading] = useState(true);
    const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
 
   // const { userId } = useContext(AuthContext);
    const userId = user.uid
-    const fetchQuizHistory = useCallback(async () => {
-      try{
-        setloading(true);
-        const history = await getQuizResults(userId);
-        setQuizHistory(history);
-      }catch (error) {
-        console.error("Error fetching quiz history:", error);
+    const fetchQuizHistory = useCallback(async (retryCount = 0) => {
+      try {
+      setloading(true);
+      const history = await getQuizResults(userId);
+      setQuizHistory(history);
+      setloading(false);
+      } catch (error) {
+      console.error("Error fetching quiz history:", error);
+      if (retryCount < 3) { // Retry up to 3 times
+        console.log(`Retrying... Attempt ${retryCount + 1}`);
+        setTimeout(() => {
+        fetchQuizHistory(retryCount + 1);
+        }, 2000); // Wait 2 seconds before retrying
+      } else {
+        setloading(false);
+        console.error("Failed to fetch quiz history after 3 attempts");
+      }
       }
     }, [userId]);
 
     useEffect(() => {
       fetchQuizHistory();
-      //  set a time out of 20 seconds to show the loading animation
-      const timer = setTimeout(() => {
-        setloading(false);
-      }, 8000);
-    }, []); 
+      
+      // Cleanup function
+      return () => {
+      setloading(false);
+      };
+    }, [fetchQuizHistory]); 
 
 
   const quizzes = props.limit ? quizHistory.slice(0, props.limit) : quizHistory
