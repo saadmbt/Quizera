@@ -227,6 +227,7 @@ def insert_group(group_data):
             "group_name": group_data["group_name"],
             "description": group_data.get("description", ""),
             "prof_id": group_data["prof_id"],
+            "prof_name": group_data["prof_name"],
             "created_at": datetime.now(timezone.utc).isoformat(),
             "students": []
         }
@@ -248,7 +249,7 @@ def insert_group(group_data):
             "error": str(e)
         }
 
-def add_student_to_group(group_id, student_uid):
+def add_student_to_group(group_id, student_uid,username):
     """Add a student to a group"""
     try:
         print(f"Adding student {student_uid} to group {group_id}")
@@ -267,7 +268,8 @@ def add_student_to_group(group_id, student_uid):
         # Add student
         student_data = {
             "uid": student_uid,
-            "joined_at": datetime.now(timezone.utc).isoformat()
+            "joined_at": datetime.now(timezone.utc).isoformat(),
+            "username": username
         }
         
         result = groups_collection.update_one(
@@ -384,13 +386,11 @@ def get_students_with_average_scores_for_group(group_id):
                 total_score = sum([res.get("score", 0) for res in quiz_results])
                 avg_score = total_score / len(quiz_results)
 
-            # Fetch user info from users collection
-            user_info = user.find_one({"uid": uid})
-            name = user_info.get("name") if user_info else "Unnamed Student"
+            name = student["username"] 
 
             results.append({
                 "uid": uid,
-                "name": name,
+                "username": name,
                 "averageScore": avg_score
             })
 

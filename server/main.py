@@ -701,6 +701,7 @@ def join_group():
 
         student_uid =data['uid']
         token = data['token']
+        username = data['username']
         
         try:
             # Decode token and get group_id directly
@@ -716,7 +717,7 @@ def join_group():
                 return jsonify({"error": "Group not found"}), 404
             
             # Add student to group
-            result = add_student_to_group(group_id, student_uid)
+            result = add_student_to_group(group_id, student_uid,username)
             if isinstance(result, str) and "error" in result.lower():
                 return jsonify({"error": result}), 500
             if not result:
