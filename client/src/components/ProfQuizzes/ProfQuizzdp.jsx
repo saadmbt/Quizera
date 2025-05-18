@@ -11,6 +11,7 @@ function ProfQuizzdp() {
     const [attempts, setAttempts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(null);
 
     useEffect(() => {
         const fetchQuizData = async () => {
