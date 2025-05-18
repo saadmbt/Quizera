@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { UserCircleIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import StatCard from './StatCard';
 import GroupCard from './GroupCard';
 import { fetchProfessorGroups } from '../../services/ProfServices';
+import { useNavigate } from 'react-router-dom';
+import { PlusIcon } from 'lucide-react';
 
 const ProfDashboard = () => {
-  const [user, setUser] = useState(null);
+  const user= JSON.parse(localStorage.getItem('_us_unr')) || {};
   const [groups, setGroups] = useState([]);
   const [stats, setStats] = useState({
     activeGroups: 0,
     totalStudents: 0,
     averageScore: 0,
   });
-
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('_us_unr')) || null;
-    setUser(storedUser);
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,9 +52,11 @@ const ProfDashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center">
-          <UserCircleIcon className="w-12 h-12 text-gray-400" />
+        <div className="bg-gray-200 w-12 h-12 px-4 py-2 rounded-full font-semibold text-2xl flex items-center justify-center text-gray-600">
+            {user.username?.[0] || 'P'}
+          </div>
           <div className="ml-4">
-            <h1 className="text-2xl font-bold">Welcome back, Professor</h1>
+            <h1 className="text-2xl font-bold">Welcome back, {user.username}</h1>
             <p className="text-gray-600">Manage your classes and content</p>
           </div>
         </div>
@@ -88,6 +87,22 @@ const ProfDashboard = () => {
       {/* Groups */}
       <div>
         <h2 className="text-xl font-bold mb-4">Your Groups</h2>
+        {groups.length === 0 && (
+          <div className="text-center py-12">
+            <div className="mx-auto w-24 h-24 text-gray-300 mb-4">
+              <UserGroupIcon className="w-full h-full" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">No groups yet</h3>
+            <p className="text-gray-500 mb-6">Get started by creating your first group</p>
+            <button
+              onClick={()=>{navigate('/professor/groups')}}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <PlusIcon className="w-5 h-5 mr-2" />
+              Create Group
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {groups.map((group) => (
             <GroupCard

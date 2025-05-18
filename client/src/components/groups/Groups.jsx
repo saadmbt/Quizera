@@ -33,7 +33,7 @@ const Groups = () => {
         }
       } catch (error) {
         console.error('Error fetching groups:', error);
-        toast.error('Failed to fetch groups');
+        toast.error("Seems like you haven't created any groups yet");
       } finally {
         setIsLoading(false);
       }
@@ -123,11 +123,11 @@ const Groups = () => {
       </div>
 
       {/* Display user ID for debugging if needed */}
-      {user && user.uid && (
+      {/* {user && user.uid && (
         <div className="mb-4 text-xs sm:text-sm text-gray-500">
           Professor ID: {user.uid}
         </div>
-      )}
+      )} */}
 
       {/* Group List or Loading Message */}
       {isLoading ? (
