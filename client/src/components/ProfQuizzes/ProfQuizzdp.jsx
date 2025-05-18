@@ -204,7 +204,7 @@ function ProfQuizzdp() {
                             <option value="" disabled>Select an attempt</option>
                             {attempts.map((attempt, index) => (
                                 <option key={attempt._id} value={index}>
-                                    {attempt.studentId} - {new Date(attempt.submittedAt).toLocaleString()}
+                                    {attempt.username} - {new Date(attempt.submittedAt).toLocaleString()}
                                 </option>
                             ))}
                         </select>
