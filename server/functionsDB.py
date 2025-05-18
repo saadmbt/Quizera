@@ -530,10 +530,11 @@ def get_quizzs_Assignments_by_group_id(group_id):
         due_date_condition = {"dueDate": {"$gte": current_date}}
         
         # Combine conditions into a single query
-        query = {**group_condition, **start_time_condition, **due_date_condition}
+        query = {**group_condition,**start_time_condition,**due_date_condition}
         
         # Execute the query
         quizzes_ids = list(collection.find(query, {"_id": 0, "quizId": 1}))
+        print("arrLen :",len(quizzes_ids))
         # Check if quizzes are found
         if not quizzes_ids:
             return "error: No quizzes found for the provided group ID"  
@@ -555,7 +556,7 @@ def get_quizzes_by_ids(quiz_ids,student_id):
     try:
         collection = db["quizzes"]
         quiz_object_ids = [ObjectId(qid.get("quizId")) for qid in quiz_ids if isinstance(qid, dict)]
-        quizzes = list(collection.find({"_id": {"$in": quiz_object_ids} }, {"_id": 1, "title": 1,"createdAt": 1}))
+        quizzes = list(collection.find({"_id":{"$in": quiz_object_ids}},{"_id": 1, "title": 1,"createdAt": 1}))
         # Check if quizzes are found
         if not quizzes:
             return "error: No quizzes found for the provided IDs"
