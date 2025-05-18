@@ -522,7 +522,7 @@ def get_quiz_assignment_group_ids_for_student(student_uid):
 #  Get assignments for a group
 def get_quizzs_Assignments_by_group_id(group_id):
     try:
-        current_date = datetime.now(timezone.utc).isoformat()
+        current_date = datetime.now(timezone.utc)
         collection = db["quiz_assignments"]
         # Define query conditions for better readability
         group_condition = {"groupIds": {"$in": [ObjectId(group_id)]}}
