@@ -23,8 +23,11 @@ export default function ProtectedRoute({allowedRoles,children}){
     if(!user.role){
         return <Navigate to="/auth/UserRoleSelection"/>
     }
-    if(!allowedRoles.includes(user.role)){
-        return <Navigate to=""/>; 
+    const userRole = user.role.toLowerCase();
+    const allowedRolesLower = allowedRoles.map(role => role.toLowerCase());
+
+    if(!allowedRolesLower.includes(userRole)){
+        return <Navigate to="/"/>; 
     }
     return children;
 
