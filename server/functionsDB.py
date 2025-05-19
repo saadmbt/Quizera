@@ -421,6 +421,18 @@ def update_group_info(group_id, update_data):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+def delete_group(group_id):
+    try:
+        if not ObjectId.is_valid(group_id):
+            return {"success": False, "error": "Invalid group_id format"}
+        obj_id = ObjectId(group_id)
+        result = groups_collection.delete_one({"_id": obj_id})
+        if result.deleted_count > 0:
+            return {"success": True, "message": "Group deleted successfully"}
+        else:
+            return {"success": False, "error": "Group not found"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 # Insert a quiz assignment document
 def insert_quiz_assignment(assignment_data):
     try:

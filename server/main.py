@@ -15,7 +15,7 @@ from functionsDB import (
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
     Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id,
     insert_quiz_assignment,get_quiz_assignment_group_ids_for_student,get_quizzs_Assignments_by_group_id,get_quizzes_by_ids,
-    get_students_with_average_scores_for_group,getStudentPerformance, get_quiz_attempts_by_quiz_id, get_professor_quizzes
+    get_students_with_average_scores_for_group,getStudentPerformance, get_quiz_attempts_by_quiz_id, get_professor_quizzes,delete_group
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -1052,6 +1052,18 @@ def update_quiz_questions_route(quiz_id):
         return jsonify({"message": result.get("message")}), 200
     else:
         return jsonify({"error": result.get("error", "Failed to update questions")}), 400
+
+# Delete group endpoint (DELETE /api/groups/<group_id>)
+@app.route('/api/groups/<group_id>', methods=['DELETE'])
+def delete_group_route(group_id):
+    try:
+        result = delete_group(group_id)
+        if result.get("success"):
+            return jsonify({"success": True, "message": "Group deleted successfully"}), 200
+        else:
+            return jsonify({"success": False, "error": result.get("error", "Failed to delete group")}), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run()

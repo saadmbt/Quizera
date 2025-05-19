@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { PlusIcon, MagnifyingGlassIcon,UserGroupIcon } from '@heroicons/react/24/outline';
 import GroupList from './GroupList';
 import GroupForm from './GroupForm';
-import { fetchProfessorGroups, createGroup } from '../../services/ProfServices';
+import { fetchProfessorGroups, createGroup, deleteGroup } from '../../services/ProfServices';
 import { AuthContext } from "../Auth/AuthContext";
 
 const Groups = () => {
@@ -91,6 +91,16 @@ const Groups = () => {
       console.error('Error creating group:', error);
     } finally {
       setIsModalOpen(false);
+    }
+  };
+
+  const handleDeleteGroup = async (groupId) => {
+    try {
+      await deleteGroup(groupId);
+      setGroups((prevGroups) => prevGroups.filter((group) => group._id !== groupId));
+      toast.success('Group deleted successfully');
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete group');
     }
   };
 

@@ -141,6 +141,22 @@ export const updateGroup = async (groupId, profId, updateData) => {
   }
 };
 
+// Delete group
+export const deleteGroup = async (groupId) => {
+  try {
+    const response = await axios.delete(
+      `https://prepgenius-backend.vercel.app/api/groups/${groupId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error deleting group:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
 // Generate and return an invitation link for a group
 export const generateInviteLink = async (user, groupId) => {
   try {

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { copyInviteLink } from '../../services/ProfServices';
 import { Link } from 'react-router-dom';
 
-const GroupCard = ({ group }) => {
+const GroupCard = ({ group, onDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
   const user=localStorage.getItem("access_token")
   const handleCopyLink = async () => {
@@ -24,6 +24,22 @@ const GroupCard = ({ group }) => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete the group "${group.group_name}"? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      setIsLoading(true);
+      await onDelete(group._id);
+      toast.success('Group deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete group:', error);
+      toast.error(error.message || 'Failed to delete group');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5">
       <div className="flex flex-col">
@@ -35,6 +51,14 @@ const GroupCard = ({ group }) => {
               <span className="text-sm">{group.students?.length || 0} students</span>
             </div>
           </div>
+          <button
+            onClick={handleDelete}
+            disabled={isLoading}
+            className="text-red-600 hover:text-red-700 text-sm font-semibold ml-4"
+            title="Delete Group"
+          >
+            Delete
+          </button>
         </div>
         
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">
@@ -46,6 +70,7 @@ const GroupCard = ({ group }) => {
             onClick={handleCopyLink}
             disabled={isLoading}
             className={`text-sm text-blue-600 hover:text-blue-700 flex items-center transition-colors ${
+
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
