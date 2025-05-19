@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { UserCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import StatCard from './StatCard';
 import GroupCard from './GroupCard';
-import { fetchProfessorGroups } from '../../services/ProfServices';
+import { fetchProfessorGroups, fetchGroupStudentsWithScores } from '../../services/ProfServices';
 import { useNavigate } from 'react-router-dom';
 import { PlusIcon } from 'lucide-react';
 
@@ -20,19 +20,34 @@ const ProfDashboard = () => {
       if (!user) return;
       try {
         const groupsData = await fetchProfessorGroups(user);
-        console.log('Groups data fetched in ProfDashboard:', groupsData);
+        // Removed console.log to prevent clutter and potential loop
         setGroups(groupsData);
 
         // Calculate stats from groupsData
         const activeGroups = groupsData.length;
         const totalStudents = groupsData.reduce((acc, group) => {
-          // Sum the length of students array if present
           return acc + (group.students ? group.students.length : 0);
         }, 0);
-        // For averageScore, assuming groupsData has averageScore property or calculate accordingly
-        const averageScore = groupsData.length > 0
-          ? groupsData.reduce((acc, group) => acc + (group.averageScore || 0), 0) / groupsData.length
-          : 0;
+
+        // Fetch students with scores for each group and calculate average scores
+        let totalScoreSum = 0;
+        let totalScoreCount = 0;
+
+        await Promise.all(groupsData.map(async (group) => {
+          try {
+            const studentsWithScores = await fetchGroupStudentsWithScores(group._id);
+            const groupScoreSum = studentsWithScores.reduce((sum, student) => sum + (student.averageScore || 0), 0);
+            const groupScoreCount = studentsWithScores.length;
+            if (groupScoreCount > 0) {
+              totalScoreSum += groupScoreSum;
+              totalScoreCount += groupScoreCount;
+            }
+          } catch (error) {
+            console.error(`Error fetching scores for group ${group._id}:`, error);
+          }
+        }));
+
+        const averageScore = totalScoreCount > 0 ? totalScoreSum / totalScoreCount : 0;
 
         setStats({
           activeGroups,
@@ -45,7 +60,7 @@ const ProfDashboard = () => {
     };
 
     fetchData();
-  }, [user]);
+  }, []); 
 
   return (
     <div className="p-8">
@@ -80,7 +95,7 @@ const ProfDashboard = () => {
           title="Average Score"
           value={stats.averageScore}
           color="yellow"
-          percentage={stats.averageScore * 10}
+          percentage={Math.min(stats.averageScore * 10, 100)}
         />
       </div>
 

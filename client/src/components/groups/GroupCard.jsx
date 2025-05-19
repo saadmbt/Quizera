@@ -3,9 +3,9 @@ import { UsersIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { copyInviteLink } from '../../services/ProfServices';
 import { AuthContext } from '../Auth/AuthContext';
+import { Link } from 'react-router-dom';
 
 const GroupCard = ({ group }) => {
-  const { user } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   
   const handleCopyLink = async () => {
@@ -67,13 +67,19 @@ const GroupCard = ({ group }) => {
               </>
             )}
           </button>
-          <div className="space-x-2">
-            <button className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors">
+          <div className="space-x-3">
+            <Link
+              to={`/professor/group/${group._id}/statistics?groupName=${encodeURIComponent(group.group_name)}`}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200"
+            >
               View
-            </button>
-            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors">
+            </Link>
+            <Link
+              to={`/professor/group/${group._id}/edit`}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200"
+            >
               Edit
-            </button>
+            </Link>
           </div>
         </div>
       </div>
