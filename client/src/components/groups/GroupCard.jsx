@@ -2,12 +2,11 @@ import React, { useContext, useState } from 'react';
 import { UsersIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { copyInviteLink } from '../../services/ProfServices';
-import { AuthContext } from '../Auth/AuthContext';
 import { Link } from 'react-router-dom';
 
 const GroupCard = ({ group }) => {
   const [isLoading, setIsLoading] = useState(false);
-  
+  const user=localStorage.getItem("access_token")
   const handleCopyLink = async () => {
     try {
       if (!group._id) {

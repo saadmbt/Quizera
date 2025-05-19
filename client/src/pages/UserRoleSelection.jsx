@@ -1,4 +1,4 @@
-import { useState ,useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { db } from "../firebase-config";
 import { useNavigate } from "react-router-dom";
 import { doc, updateDoc } from "firebase/firestore";
@@ -7,9 +7,17 @@ import { AuthContext } from "../components/Auth/AuthContext";
 export default function UserRoleSelection() {
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("Student"); // Default role
+  const [isRedirectedFromJoinGroup, setIsRedirectedFromJoinGroup] = useState(false);
   const navigate = useNavigate();
   const { setUser , user } = useContext(AuthContext);
 
+  useEffect(() => {
+    const redirect = localStorage.getItem("redirectAfterLogin");
+    if (redirect && redirect.includes("/Student/join-group")) {
+      setIsRedirectedFromJoinGroup(true);
+      setRole("Student");
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +41,7 @@ export default function UserRoleSelection() {
      if (redirect) {
        // Remove redirect path from localStorage and navigate to it
        localStorage.removeItem("redirectAfterLogin");
+       // Navigate to redirect link after username input
        navigate(redirect);
      } else {
       // Redirect to the corresponding dashboard based on role
@@ -65,6 +74,7 @@ export default function UserRoleSelection() {
                 placeholder="Enter your username"
               />
             </div>
+            {!isRedirectedFromJoinGroup && (
             <div className="mb-6">
               <label className="block text-gray-800 font-lg mb-4">
                 Which best describes you?
@@ -73,7 +83,7 @@ export default function UserRoleSelection() {
               <div className="space-y-3">
                 <div 
                   className={`p-4 border rounded-md flex justify-between items-center cursor-pointer ${role === "student" ? "border-blue-500 bg-blue-50" : "border-gray-300"}`}
-                  onClick={() => setRole("Student")}
+                  onClick={() => !isRedirectedFromJoinGroup && setRole("Student")}
                 >
                   <span className="text-gray-800">Student</span>
                   <div className={`w-6 h-6 rounded-full border-2 ${role === "Student" ? "border-blue-500" : "border-gray-300"}`}>
@@ -83,7 +93,8 @@ export default function UserRoleSelection() {
                 
                 <div 
                   className={`p-4 border rounded-md flex justify-between items-center cursor-pointer ${role === "professor" ? "border-blue-500 bg-blue-50" : "border-gray-300"}`}
-                  onClick={() => setRole("professor")}
+                  onClick={() => !isRedirectedFromJoinGroup && setRole("professor")}
+                  style={{ pointerEvents: isRedirectedFromJoinGroup ? "none" : "auto", opacity: isRedirectedFromJoinGroup ? 0.5 : 1 }}
                 >
                   <span className="text-gray-800">Teacher</span>
                   <div className={`w-6 h-6 rounded-full border-2 ${role === "professor" ? "border-blue-500" : "border-gray-300"}`}>
@@ -93,6 +104,7 @@ export default function UserRoleSelection() {
                 
               </div>
             </div>
+            )}
             
             <div className="flex justify-end mt-8">
               <button
