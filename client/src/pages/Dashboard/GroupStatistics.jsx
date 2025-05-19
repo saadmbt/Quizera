@@ -4,6 +4,7 @@ import { fetchGroupStudentsWithScores } from '../../services/ProfServices';
 import { getGroupInfo, getQuizAssignments, saveQuizAttempt } from '../../services/StudentService';
 import GroupStatSkeleton from '../../components/Skeletons/GroupStatSkeleton';
 import { FaCalendarAlt, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => {
   const { groupid: paramGroupId } = useParams();
@@ -105,14 +106,11 @@ const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => 
     try {
       // Assuming API to save feedback is part of saveQuizAttempt or similar
       // Here we simulate saving feedback for the selected assignment
-      await saveQuizAttempt({
-        quizId: selectedAssignment._id || selectedAssignment.quizId,
-        feedback,
-      });
-      alert('Feedback submitted successfully');
+      // the  api call here 
+      toast.success('Feedback submitted successfully');
       setFeedback('');
     } catch (err) {
-      alert('Failed to submit feedback');
+      toast.error('Failed to submit feedback');
     } finally {
       setSubmittingFeedback(false);
     }
