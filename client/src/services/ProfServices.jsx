@@ -51,13 +51,9 @@ export const fetchStudentGroups = async (studentUid) => {
   }
 };
 
-export const createGroup = async (groupData, user) => {
+export const createGroup = async (groupData) => {
   try {
-    const response = await axios.post('https://prepgenius-backend.vercel.app/api/groups', {
-      group_name: groupData.name,
-      description: groupData.description,
-      prof_id: user.uid
-    });
+    const response = await axios.post('https://prepgenius-backend.vercel.app/api/groups', groupData);
 
     if (!response.data.success) {
       throw new Error(response.data.error || 'Failed to create group');

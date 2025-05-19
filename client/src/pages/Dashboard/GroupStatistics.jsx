@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { fetchGroupStudentsWithScores } from '../../services/ProfServices';
-import { db } from '../../firebase-config';
-import { doc, getDoc } from 'firebase/firestore';
+import { getGroupInfo, getQuizAssignments, saveQuizAttempt } from '../../services/StudentService';
+import GroupStatSkeleton from '../../components/Skeletons/GroupStatSkeleton';
+import { FaCalendarAlt, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
 
 const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => {
   const { groupid: paramGroupId } = useParams();
@@ -11,55 +12,114 @@ const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => 
   const paramGroupName = queryParams.get('groupName');
   const groupid = propGroupId || paramGroupId;
   const groupName = propGroupName || paramGroupName;
-  const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Helper to fetch student info from Firebase by uid
-  const fetchStudentInfo = async (uid) => {
-    try {
-      const docRef = doc(db, 'users', uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        return docSnap.data();
-      } else {
-        return null;
-      }
-    } catch (err) {
-      console.error('Error fetching student info from Firebase:', err);
-      return null;
-    }
-  };
+  const [groupInfo, setGroupInfo] = useState(null);
+  const [students, setStudents] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [attemptDetails, setAttemptDetails] = useState(null);
+  const [loadingGroup, setLoadingGroup] = useState(true);
+  const [loadingStudents, setLoadingStudents] = useState(true);
+  const [loadingAssignments, setLoadingAssignments] = useState(true);
+  const [loadingAttempt, setLoadingAttempt] = useState(false);
+  const [error, setError] = useState(null);
+  const [feedback, setFeedback] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   useEffect(() => {
-    const fetchStudentsWithFirebaseInfo = async () => {
+    const fetchGroupData = async () => {
       try {
-        setLoading(true);
-        const studentsData = await fetchGroupStudentsWithScores(groupid);
-        // For each student, fetch additional info from Firebase
-        const studentsWithFirebase = await Promise.all(
-          studentsData.map(async (student) => {
-            const firebaseInfo = await fetchStudentInfo(student.uid);
-            return {
-              ...student,
-              name: firebaseInfo?.name || student.name || 'Unnamed Student',
-            };
-          })
-        );
-        setStudents(studentsWithFirebase);
+        setLoadingGroup(true);
+        const info = await getGroupInfo(groupid);
+        setGroupInfo(info);
       } catch (err) {
-        console.error(err);
-        setError('Failed to load group students and scores.');
+        setError('Failed to load group info.');
       } finally {
-        setLoading(false);
+        setLoadingGroup(false);
       }
     };
 
-    fetchStudentsWithFirebaseInfo();
+    const fetchStudents = async () => {
+      try {
+        setLoadingStudents(true);
+        const studentsData = await fetchGroupStudentsWithScores(groupid);
+        setStudents(studentsData);
+      } catch (err) {
+        setError('Failed to load group students and scores.');
+      } finally {
+        setLoadingStudents(false);
+      }
+    };
+
+    const fetchAssignments = async () => {
+      try {
+        setLoadingAssignments(true);
+        const assignmentsData = await getQuizAssignments(groupid);
+        console.log(assignmentsData)
+        setAssignments(assignmentsData);
+      } catch (err) {
+        setError('Failed to load group assignments.');
+      } finally {
+        setLoadingAssignments(false);
+      }
+    };
+
+    if (groupid) {
+      fetchGroupData();
+      fetchStudents();
+      fetchAssignments();
+    }
   }, [groupid]);
 
-  if (loading) {
-    return <div>Loading group statistics...</div>;
+  const handleAssignmentClick = async (assignment) => {
+    setSelectedAssignment(assignment);
+    setLoadingAttempt(true);
+    setAttemptDetails(null);
+    setError(null);
+    try {
+      // Assuming assignment has a quizId or _id field to fetch attempts
+      const response = await fetch(`/api/quiz-attempts?quiz_id=${assignment._id || assignment.quizId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch attempt details');
+      }
+      const data = await response.json();
+      setAttemptDetails(data);
+    } catch (err) {
+      setError('Failed to load attempt details.');
+    } finally {
+      setLoadingAttempt(false);
+    }
+  };
+
+  const handleFeedbackChange = (e) => {
+    setFeedback(e.target.value);
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!feedback.trim()) return;
+    setSubmittingFeedback(true);
+    try {
+      // Assuming API to save feedback is part of saveQuizAttempt or similar
+      // Here we simulate saving feedback for the selected assignment
+      await saveQuizAttempt({
+        quizId: selectedAssignment._id || selectedAssignment.quizId,
+        feedback,
+      });
+      alert('Feedback submitted successfully');
+      setFeedback('');
+    } catch (err) {
+      alert('Failed to submit feedback');
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
+
+  if (loadingGroup || loadingStudents || loadingAssignments) {
+    return <GroupStatSkeleton/>
   }
 
   if (error) {
@@ -67,32 +127,166 @@ const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => 
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Statistics for Group: {groupName || groupid}</h1>
-      <table className="min-w-full bg-white border border-gray-300 rounded-md">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b border-gray-300 text-left">Student Name</th>
-            <th className="py-2 px-4 border-b border-gray-300 text-left">Average Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.length === 0 ? (
-            <tr>
-              <td colSpan="2" className="py-4 px-4 text-center text-gray-500">
-                No students found in this group.
-              </td>
-            </tr>
-          ) : (
-            students.map((student) => (
-              <tr key={student.uid}>
-                <td className="py-2 px-4 border-b border-gray-300">{student.name}</td>
-                <td className="py-2 px-4 border-b border-gray-300">{student.averageScore !== undefined ? student.averageScore.toFixed(2) : 'N/A'}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+    <div className="p-8 max-w-7xl mx-auto">
+      <p>Submit feedBack is not working yet</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        {/* Group Info Section - Full Width */}
+          <div className="lg:col-span-3">
+            {groupInfo && (
+              <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <h1 className="text-3xl font-bold mb-2">{groupInfo.group_name || groupName || groupid}</h1>
+                <p className="text-gray-600 mb-4">{groupInfo.description}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-gray-700">
+            <div className="bg-gray-50 p-3 rounded-md flex items-center space-x-2">
+              <FaCalendarAlt className="text-blue-500" />
+              <span className="font-semibold">Created:</span>{' '}
+              {new Date(groupInfo.created_at).toLocaleDateString()}
+            </div>
+            <div className="bg-gray-50 p-3 rounded-md flex items-center space-x-2">
+              <FaUsers className="text-green-500" />
+              <span className="font-semibold">Members:</span> {groupInfo.students?.length || 0}
+            </div>
+            <div className="bg-gray-50 p-3 rounded-md flex items-center space-x-2">
+              <FaChalkboardTeacher className="text-purple-500" />
+              <span className="font-semibold">Professor:</span> {groupInfo.prof_name || 'N/A'}
+            </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Student Leaderboard - 2 Columns */}
+            <div className="lg:col-span-2">
+              <div className="bg-white p-6 rounded-lg shadow-md h-full">
+                <h2 className="text-2xl font-semibold mb-6 text-center border-b pb-3">Student Leaderboard</h2>
+                {students.length === 0 ? (
+                  <p className="text-center text-gray-500">No students found in this group.</p>
+                ) : (
+                  <div className="grid gap-4 max-h-[600px] overflow-y-auto">
+              {students
+                .sort((a, b) => (b.averageScore || 0) - (a.averageScore || 0))
+                .map((student, index) => (
+                  <div
+                    key={student.uid}
+                    className={`p-4 md:mx-6 md:my-2  rounded-lg shadow-sm transition-all hover:scale-[1.02] cursor-pointer
+                ${index === 0 ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-2 border-yellow-400' :
+                  index === 1 ? 'bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-400' :
+                  index === 2 ? 'bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-orange-400' :
+                  'bg-white border border-gray-200'}`}
+                  >
+                    <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg
+                    ${index === 0 ? 'bg-yellow-400 text-white' :
+                      index === 1 ? 'bg-gray-400 text-white' :
+                      index === 2 ? 'bg-orange-400 text-white' :
+                      'bg-blue-100 text-blue-800'}`}
+                  >
+                    {index + 1}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">{student.username}</h3>
+                    <p className="text-sm text-gray-500">
+                      {student.assignments?.length || 0} assignments completed
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">
+                      {student.averageScore !== undefined ? `${student.averageScore.toFixed(1)}%` : 'N/A'}
+                    </div>
+                    <div className="text-sm text-gray-500">Average Score</div>
+                  </div>
+                </div>
+                    </div>
+                  </div>
+                ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Assignments Section - 1 Column */}
+            <div className="lg:col-span-1">
+              <div className="bg-white p-6 rounded-lg shadow-md h-full">
+                <h2 className="text-2xl font-semibold mb-6 text-center border-b pb-3">Group Assignments</h2>
+                {assignments.length === 0 ? (
+                  <p className="text-center text-gray-500">No assignments found for this group.</p>
+                ) : (
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto">
+              {assignments.map((assignment) => (
+                <div
+                  key={assignment._id || assignment.quizId}
+                  className="p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors"
+                  onClick={() => handleAssignmentClick(assignment)}
+                >
+                  <div className="space-y-2">
+                    <span className="font-medium text-lg block">{assignment.title}</span>
+                    <span className="text-sm text-gray-600 block">
+                    createdAt: {assignment.createdAt ? new Date(assignment.createdAt).toLocaleDateString() : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+        {/* Attempt Details  */}
+        {selectedAssignment && (
+          <div className="lg:col-span-3">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-6 pb-3 border-b">
+                Attempt Details: {selectedAssignment.title || selectedAssignment.quizTitle}
+              </h3>
+              {loadingAttempt ? (
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              ) : attemptDetails && attemptDetails.length > 0 ? (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    {attemptDetails.map((attempt, idx) => (
+                      <div key={idx} className="bg-gray-50 p-4 rounded-lg">
+                        <p className="font-medium">{attempt.studentName || attempt.username || 'Unknown'}</p>
+                        <p className="text-sm text-gray-600">Score: {attempt.score !== undefined ? `${attempt.score}%` : 'N/A'}</p>
+                        <p className="text-sm text-gray-600">Date: {attempt.attemptDate ? new Date(attempt.attemptDate).toLocaleString() : 'N/A'}</p>
+                        {attempt.feedback && (
+                          <p className="mt-2 text-blue-700 text-sm">{attempt.feedback}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-semibold mb-3">Add Feedback</h4>
+                    <textarea
+                      className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows={4}
+                      placeholder="Add feedback here..."
+                      value={feedback}
+                      onChange={handleFeedbackChange}
+                      disabled={submittingFeedback}
+                    />
+                    <button
+                      className="mt-3 w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 
+                        disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      onClick={handleSubmitFeedback}
+                      disabled={submittingFeedback}
+                    >
+                      {submittingFeedback ? 'Submitting...' : 'Submit Feedback'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-center text-gray-500">No attempt details available.</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

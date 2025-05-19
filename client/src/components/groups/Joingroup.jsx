@@ -10,6 +10,8 @@ const JoinGroup = () => {
   const [groupInfo, setGroupInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const user= JSON.parse(localStorage.getItem('_us_unr')) || {};
+
 
   useEffect(() => {
     const validateInvitation = async () => {
@@ -100,7 +102,8 @@ const JoinGroup = () => {
           'https://prepgenius-backend.vercel.app/api/groups/join',
           {
             token: token,
-            uid: decodedToken.uid || decodedToken.user_id || decodedToken.sub
+            uid: decodedToken.uid || decodedToken.user_id || decodedToken.sub,
+            username:user.username,
           },
           {
             headers: {
