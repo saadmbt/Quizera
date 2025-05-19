@@ -24,7 +24,6 @@ const GroupCard = ({ name, count, groupId }) => {
           </div>
         </div>
         <div className="space-x-3">
-          {console.log('GroupCard link:', isProfessor ? `/professor/group/${groupId}/statistics?groupName=${encodeURIComponent(name)}` : `/student/group/${groupId}`)}
           <Link
             to={isProfessor ? `/professor/group/${groupId}/statistics?groupName=${encodeURIComponent(name)}` : `/Student/groups/${groupId}`}
             className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200
