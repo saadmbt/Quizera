@@ -172,23 +172,28 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         # Afficher la réponse complète de l'API pour le débogage
         questions_text = completion.choices[0].message.content.strip()
         # Parse the response to extract the list of questions
-        try:
-            # Find the start and end of the JSON-like structure
-            start_index = questions_text.find('[')
-            end_index = questions_text.rfind(']') + 1
+        print(questions_text)
+        # Check if the response is a type of array 
+        if isinstance(questions_text, list):
+            questions = questions_text
+        else:
+            try:
+                # Find the start and end of the JSON-like structure
+                start_index = questions_text.find('[')
+                end_index = questions_text.rfind(']') + 1
 
-            if start_index == -1 or end_index == 0:
-                raise ValueError("Invalid response format - no list found")
-            # Extract the JSON-like string
-            questions_json = questions_text[start_index:end_index]
+                if start_index == -1 or end_index == 0:
+                    raise ValueError("Invalid response format - no list found")
+                # Extract the JSON-like string
+                questions_json = questions_text[start_index:end_index]
 
-            # Parse the JSON-like string into a Python list of dictionaries
-            questions = json.loads(questions_json)
-            print(questions)
+                # Parse the JSON-like string into a Python list of dictionaries
+                questions = json.loads(questions_json)
+                print(questions)
 
-        except Exception as e:
-            print(f"Error parsing the response: {e}")
-            return None
+            except Exception as e:
+                print(f"Error parsing the response: {e}")
+                return None
         # Insérer les questions dans MongoDB
         question_id = lastID('quizzes')
         if not isinstance(question_id, int):
@@ -243,14 +248,25 @@ def generate_flashcards(lesson_id):
             max_tokens=1500,
         )
         response_text = completion.choices[0].message.content.strip()
-        # Extract JSON list from response
-        start_index = response_text.find('[')
-        end_index = response_text.rfind(']') + 1
-        if start_index == -1 or end_index == 0:
-            raise ValueError("Invalid response format - no list found")
-        json_str = response_text[start_index:end_index]
-        flashcards = json.loads(json_str)
-        print(len(flashcards))
+        # Print the full response for debugging
+        print(response_text)
+        # Check if the response is a type of array
+        if isinstance(response_text, list):
+            flashcards = response_text
+        else:
+            try:
+                # Find the start and end of the JSON-like structure
+                start_index = response_text.find('[')
+                end_index = response_text.rfind(']') + 1
+
+                if start_index == -1 or end_index == 0:
+                    raise ValueError("Invalid response format - no list found")
+                # Extract the JSON-like string
+                json_str = response_text[start_index:end_index]
+                flashcards = json.loads(json_str)
+            except Exception as e:
+                print(f"Error parsing the response: {e}")
+                return None
         # Validate flashcards structure
         if not isinstance(flashcards, list):
             raise ValueError("Flashcards data is not a list")
