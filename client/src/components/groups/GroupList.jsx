@@ -1,7 +1,7 @@
 import React from 'react';
 import GroupCard from './GroupCard';
 
-const GroupList = ({ groups, searchQuery }) => {
+const GroupList = ({ groups, searchQuery, onDelete }) => {
   // Filter groups based on the search query
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -18,7 +18,7 @@ const GroupList = ({ groups, searchQuery }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {filteredGroups.map((group) => (
-        <GroupCard key={group._id} group={group} />
+        <GroupCard key={group._id} group={group} onDelete={onDelete} />
       ))}
     </div>
   );

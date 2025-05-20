@@ -164,7 +164,7 @@ const Groups = () => {
           ))}
         </div>
       ) : groups.length > 0 ? (
-        <GroupList groups={groups} searchQuery={searchQuery} />
+      <GroupList groups={groups} searchQuery={searchQuery} onDelete={handleDeleteGroup} />
       ) : (
         <div className="text-center py-12">
           <div className="mx-auto w-24 h-24 text-gray-300 mb-4">

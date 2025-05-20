@@ -1,18 +1,18 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { UsersIcon } from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { copyInviteLink } from '../../services/ProfServices';
-import { Link } from 'react-router-dom';
 
 const GroupCard = ({ group, onDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const user=localStorage.getItem("access_token")
+  const user = localStorage.getItem("access_token");
+
   const handleCopyLink = async () => {
     try {
       if (!group._id) {
         throw new Error('Group ID is missing');
       }
-      
       setIsLoading(true);
       await copyInviteLink(user, group._id);
       toast.success('Invitation link copied to clipboard!');
@@ -25,13 +25,49 @@ const GroupCard = ({ group, onDelete }) => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete the group "${group.group_name}"? This action cannot be undone.`)) {
+    const confirmDelete = await new Promise((resolve) => {
+      toast((t) => (
+        <div className="bg-white p-4 rounded shadow-lg max-w-xs">
+          <p className="mb-4">Are you sure you want to delete the group <strong>{group.group_name}</strong>? This action cannot be undone.</p>
+          <div className="flex justify-end space-x-2">
+            <button
+              className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => {
+                toast.dismiss(t.id);
+                resolve(false);
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
+              onClick={() => {
+                toast.dismiss(t.id);
+                resolve(true);
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4" />
+              </svg>
+              Delete
+            </button>
+          </div>
+        </div>
+      ));
+    });
+
+    if (!confirmDelete) {
       return;
     }
+
     try {
       setIsLoading(true);
-      await onDelete(group._id);
-      toast.success('Group deleted successfully');
+      if (onDelete) {
+        await onDelete(group._id);
+        // Removed toast.success here to avoid duplicate toasts
+      } else {
+        toast.error('Delete function not provided');
+      }
     } catch (error) {
       console.error('Failed to delete group:', error);
       toast.error(error.message || 'Failed to delete group');
@@ -39,6 +75,9 @@ const GroupCard = ({ group, onDelete }) => {
       setIsLoading(false);
     }
   };
+
+  const userData = JSON.parse(localStorage.getItem("_us_unr")) || {};
+  const isProfessor = userData.role === 'professor';
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5">
@@ -51,26 +90,45 @@ const GroupCard = ({ group, onDelete }) => {
               <span className="text-sm">{group.students?.length || 0} students</span>
             </div>
           </div>
-          <button
-            onClick={handleDelete}
-            disabled={isLoading}
-            className="text-red-600 hover:text-red-700 text-sm font-semibold ml-4"
-            title="Delete Group"
-          >
-            Delete
-          </button>
+          <div className="flex space-x-2 items-center">
+            <Link
+              to={`/professor/group/${group._id}/statistics?groupName=${encodeURIComponent(group.group_name)}`}
+              className="text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md px-3 py-1"
+            >
+              View
+            </Link>
+            {isProfessor && (
+              <>
+                <Link
+                  to={`/professor/group/${group._id}/edit`}
+                  className="text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-1"
+                >
+                  Edit
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  disabled={isLoading}
+                  className="text-sm text-red-600 bg-red-100 hover:bg-red-200 rounded-md px-3 py-1"
+                  title="Delete Group"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4" />
+                  </svg>
+                </button>
+              </>
+            )}
+          </div>
         </div>
-        
+
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">
           {group.description || 'No description provided'}
         </p>
 
         <div className="flex justify-between items-center mt-auto">
-          <button 
+          <button
             onClick={handleCopyLink}
             disabled={isLoading}
             className={`text-sm text-blue-600 hover:text-blue-700 flex items-center transition-colors ${
-
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
@@ -91,20 +149,6 @@ const GroupCard = ({ group, onDelete }) => {
               </>
             )}
           </button>
-          <div className="space-x-3">
-            <Link
-              to={`/professor/group/${group._id}/statistics?groupName=${encodeURIComponent(group.group_name)}`}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200"
-            >
-              View
-            </Link>
-            <Link
-              to={`/professor/group/${group._id}/edit`}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200"
-            >
-              Edit
-            </Link>
-          </div>
         </div>
       </div>
     </div>
