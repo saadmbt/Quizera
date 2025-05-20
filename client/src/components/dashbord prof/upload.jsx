@@ -86,8 +86,11 @@ export default function ProfUpload({ onComplete }) {
         return;
       }
 
+      // Get username from localStorage or other source
+      const username = JSON.parse(localStorage.getItem('_us_unr')).username || 'unknown';
+
       // uploadLesson reads token from localStorage, so token is updated there
-      const response = await uploadLesson(data, title, activeTab);
+      const response = await uploadLesson(data, title, activeTab, username);
 
       const LessonID = response && response.lesson_id ? response.lesson_id : null;
       if (!LessonID) {
@@ -111,7 +114,7 @@ export default function ProfUpload({ onComplete }) {
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
         <div className="flex items-start justify-center gap-4">
-          <h1 className="text-2xl font-bold text-gray-900  mb-2">Upload Learning Material</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Upload Learning Material</h1>
         </div>
         <p className="text-gray-600 text-center">Add new content to your learning library</p>
       </div>
@@ -127,7 +130,7 @@ export default function ProfUpload({ onComplete }) {
 
         <div className="space-y-4">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700  mb-2">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
               Title
             </label>
             <input
@@ -136,9 +139,7 @@ export default function ProfUpload({ onComplete }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Your Lesson Title"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white  text-gray-900 
-                placeholder-gray-500 
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -146,14 +147,14 @@ export default function ProfUpload({ onComplete }) {
         <button
           type="submit"
           disabled={isUploading || (!file && !text) || !title}
-          className={`
-            w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg
+          className={
+            `w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg
             text-white font-medium transition-colors duration-200
             ${isUploading || (!file && !text) || !title
               ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700'
-            }
-          `}
+            }`
+          }
         >
           {isUploading ? (
             <>

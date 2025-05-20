@@ -1,20 +1,19 @@
 import axios from "axios";
 // token
 const token = localStorage.getItem("access_token") || null;
-const user = JSON.parse(localStorage.getItem("_us_unr")) || {};
 // uploade file or image or text to the server and create a lesson in the database , 
 // return the lesson objectID
-export const uploadLesson = async (data, title, type) => {
+export const uploadLesson = async (data, title, type, username) => {
   const formData = new FormData();
   // Add common fields
   formData.append('title', title); 
-  formData.append('username', user.username); 
+  formData.append('username', username); 
   // Add content based on type
   if (type === 'file') {
-    formData.append('file', data, data.name); 
+    formData.append('file', data, data.name);
   } 
   else if (type === 'text') {
-    formData.append('text', data); 
+    formData.append('text', data);
   }
 
   // Log form data for debugging

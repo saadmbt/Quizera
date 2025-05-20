@@ -13,6 +13,7 @@ export default function Upload({ onComplete }) {
   const [text, setText] = useState('');
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const user =JSON.parse(localStorage.getItem('_us_unr')) || {}
   const navigate=useNavigate();
   localStorage.setItem('isResultSaved',false)
   const handleSubmit = async (e) => {
@@ -52,7 +53,7 @@ export default function Upload({ onComplete }) {
         setIsUploading(false);
         return;
       }
-      const response = await uploadLesson(data, title, activeTab);
+      const response = await uploadLesson(data, title, activeTab,user.username);
 
       const LessonID = response && response.lesson_id ? response.lesson_id : null;
       if (!LessonID) {
