@@ -22,6 +22,7 @@ const JoinQuiz = () => {
         const checkAuth = async () => {
             try {
                 const response = await axios.get(`/api/quiz_info/${Quiz_id}`);
+                console.log("response", response.data);
                 setQuiz(response.data);
                 setLoading(false);
             } catch (err) {
@@ -78,7 +79,7 @@ const JoinQuiz = () => {
                         <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
                         </svg>
-                        <span className="font-semibold pr-2">Created by: </span> {quiz.generated_by}
+                        <span className="font-semibold pr-2">Created by: </span> {quiz.generated_by_name}
                     </span>
                    
                     <span> <span className='pr-3'>•</span><span className="font-semibold pr-2">Created on: </span> { new Date(quiz?.createdAt).toLocaleDateString()}</span>

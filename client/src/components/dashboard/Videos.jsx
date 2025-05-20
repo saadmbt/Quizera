@@ -2,8 +2,8 @@ import React from 'react';
 import { Play, ArrowLeft, Youtube } from 'lucide-react';
 import VideoCard from './VideoCard';
 
-export default function Videos({ videos, onBack }) {
-
+export default function Videos({ videos=[], onBack }) {
+  console.log("Videos:", videos);
     // If videos array is empty, show message
     if (!videos?.length) {
       return (

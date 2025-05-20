@@ -1,12 +1,14 @@
 import axios from "axios";
 // token
 const token = localStorage.getItem("access_token") || null;
+const user = JSON.parse(localStorage.getItem("_us_unr")) || {};
 // uploade file or image or text to the server and create a lesson in the database , 
 // return the lesson objectID
 export const uploadLesson = async (data, title, type) => {
   const formData = new FormData();
   // Add common fields
-  formData.append('title', title);  
+  formData.append('title', title); 
+  formData.append('username', user.username); 
   // Add content based on type
   if (type === 'file') {
     formData.append('file', data, data.name); 
@@ -286,6 +288,23 @@ export const fetchStudentPerformance = async () => {
   }
   catch (error) {
     console.error("Error fetching student performance:", error);
+    throw error;
+  }
+}
+
+// fetch notifications for the authenticated user
+export const fetchNotifications = async () => {
+  try {
+    const response = await axios.get('/api/notification', {
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`
+      },
+    });
+    console.log('Notifications fetched:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
     throw error;
   }
 }

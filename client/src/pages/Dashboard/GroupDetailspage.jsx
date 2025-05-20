@@ -247,7 +247,7 @@ function GroupDetailspage() {
                                             {quiz.isCompleted ? 'Completed' : 'Pending'}
                                         </span>
                                     </div>
-                                    {quiz.isCompleted && quiz.feedback && (
+                                    {/* {quiz.isCompleted && quiz.feedback && (
                                         <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                                             <p className="font-medium text-blue-800 mb-2 flex items-center gap-2">
                                                 <Award className="w-5 h-5" />
@@ -255,9 +255,9 @@ function GroupDetailspage() {
                                             </p>
                                             <p className="text-blue-700 text-sm leading-relaxed">{quiz.feedback}</p>
                                         </div>
-                                    )}
+                                    )} */}
 
-                                    {/* action buttons will be handled by the existing code */}
+                                    {/* action buttons will be handled  */}
                                 <div>
                                     {quiz.isCompleted ? (
                                         <button className="bg-gray-200 hover:bg-gray-300 text-gray-600 py-1 px-3 rounded mt-5 w-40"

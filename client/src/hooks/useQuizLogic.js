@@ -120,26 +120,22 @@ export default function useQuizLogic(settings,params) {
 
   const getQuizResult = useCallback(
     (quiz_res_id) => {
-      if (hasCalledApis) return; // Skip if already called
-      setHasCalledApis(true);
+      if (hasCalledApis) return;
+      setHasCalledApis(true);      
       Promise.all([
         generateFlashcards(Lesson__id, quiz_res_id),
         fetchVideos(Lesson__id, quiz_res_id),
       ])
         .then(([flashcardsResponse, videosResponse]) => {
-          if (flashcardsResponse && flashcardsResponse.flashcards) {
-            setListFlashcards(flashcardsResponse.flashcards);
-          }
-          if (videosResponse ) {
-            console.log("Videos fetched:", videosResponse.youtube_suggestions.length);
-            setyoutubevideos(videosResponse.youtube_suggestions);
-          }
+          setyoutubevideos(videosResponse.youtube_suggestions);
+          setListFlashcards(flashcardsResponse.flashcards);
         })
         .catch((error) => {
           console.error("Error fetching flashcards or videos:", error);
-        });
+          setError("Failed to load quiz resources"); // Add error state
+        })
     },
-    [Lesson__id,hasCalledApis]
+    [Lesson__id, hasCalledApis]
   );
 
   return {

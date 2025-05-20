@@ -72,49 +72,6 @@ const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => 
     }
   }, [groupid]);
 
-  const handleAssignmentClick = async (assignment) => {
-    setSelectedAssignment(assignment);
-    setLoadingAttempt(true);
-    setAttemptDetails(null);
-    setError(null);
-    try {
-      // Assuming assignment has a quizId or _id field to fetch attempts
-      const response = await fetch(`/api/quiz-attempts?quiz_id=${assignment._id || assignment.quizId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch attempt details');
-      }
-      const data = await response.json();
-      setAttemptDetails(data);
-    } catch (err) {
-      setError('Failed to load attempt details.');
-    } finally {
-      setLoadingAttempt(false);
-    }
-  };
-
-  const handleFeedbackChange = (e) => {
-    setFeedback(e.target.value);
-  };
-
-  const handleSubmitFeedback = async () => {
-    if (!feedback.trim()) return;
-    setSubmittingFeedback(true);
-    try {
-      // Assuming API to save feedback is part of saveQuizAttempt or similar
-      // Here we simulate saving feedback for the selected assignment
-      // the  api call here 
-      toast.success('Feedback submitted successfully');
-      setFeedback('');
-    } catch (err) {
-      toast.error('Failed to submit feedback');
-    } finally {
-      setSubmittingFeedback(false);
-    }
-  };
 
   if (loadingGroup || loadingStudents || loadingAssignments) {
     return <GroupStatSkeleton/>
@@ -186,7 +143,7 @@ const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => 
                   <div>
                     <h3 className="font-semibold text-lg">{student.username}</h3>
                     <p className="text-sm text-gray-500">
-                      {student.assignments?.length || 0} assignments completed
+                      {student?.totalAttempts || 0} assignments completed
                     </p>
                   </div>
                 </div>
@@ -218,7 +175,7 @@ const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => 
                 <div
                   key={assignment._id || assignment.quizId}
                   className="p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors"
-                  onClick={() => handleAssignmentClick(assignment)}
+                  // onClick={() => handleAssignmentClick(assignment)}
                 >
                   <div className="space-y-2">
                     <span className="font-medium text-lg block">{assignment.title}</span>
@@ -234,56 +191,7 @@ const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => 
             </div>
 
         {/* Attempt Details  */}
-        {selectedAssignment && (
-          <div className="lg:col-span-3">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold mb-6 pb-3 border-b">
-                Attempt Details: {selectedAssignment.title || selectedAssignment.quizTitle}
-              </h3>
-              {loadingAttempt ? (
-                <div className="flex justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                </div>
-              ) : attemptDetails && attemptDetails.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    {attemptDetails.map((attempt, idx) => (
-                      <div key={idx} className="bg-gray-50 p-4 rounded-lg">
-                        <p className="font-medium">{attempt.studentName || attempt.username || 'Unknown'}</p>
-                        <p className="text-sm text-gray-600">Score: {attempt.score !== undefined ? `${attempt.score}%` : 'N/A'}</p>
-                        <p className="text-sm text-gray-600">Date: {attempt.attemptDate ? new Date(attempt.attemptDate).toLocaleString() : 'N/A'}</p>
-                        {attempt.feedback && (
-                          <p className="mt-2 text-blue-700 text-sm">{attempt.feedback}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-semibold mb-3">Add Feedback</h4>
-                    <textarea
-                      className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      rows={4}
-                      placeholder="Add feedback here..."
-                      value={feedback}
-                      onChange={handleFeedbackChange}
-                      disabled={submittingFeedback}
-                    />
-                    <button
-                      className="mt-3 w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 
-                        disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      onClick={handleSubmitFeedback}
-                      disabled={submittingFeedback}
-                    >
-                      {submittingFeedback ? 'Submitting...' : 'Submit Feedback'}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-center text-gray-500">No attempt details available.</p>
-              )}
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );

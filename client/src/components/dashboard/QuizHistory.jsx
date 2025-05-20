@@ -66,7 +66,7 @@ function QuizHistory(props) {
               </div>
           ))
       
-      ):quizzes.map((quiz,i) => (
+      ):quizzes.sort((a, b) => (b.score || 0) - (a.score || 0)).map((quiz,i) => (
         <div
           key={i}
           className="bg-white  rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
