@@ -251,7 +251,6 @@ def generate_flashcards(lesson_id):
         )
         response_text = completion.choices[0].message.content.strip()
         # Print the full response for debugging
-        print(response_text)
         # Check if the response is a type of array
         if isinstance(response_text, list):
             flashcards = response_text

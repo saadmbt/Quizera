@@ -379,7 +379,7 @@ def get_students_with_average_scores_for_group(group_id):
             uid = student.get("uid")
             if not uid:
                 continue
-            quiz_results = list(db["quizzResult"].find({"generated_by": uid}))
+            quiz_results = list(db["QuizAttempts"].find({"studentId": uid}))
             if not quiz_results:
                 avg_score = 0
             else:
@@ -391,6 +391,7 @@ def get_students_with_average_scores_for_group(group_id):
             results.append({
                 "uid": uid,
                 "username": name,
+                "totalAttempts": len(quiz_results),
                 "averageScore": avg_score
             })
 
@@ -703,3 +704,70 @@ def update_quiz_questions(quiz_id, questions):
             return {"success": False, "message": "No changes made or quiz not found"}
     except PyMongoError as e:
         return {"success": False, "error": f"Error updating quiz questions: {str(e)}"}
+
+def check_quiz_assignment_completion(student_uid):
+    try:
+        # Find groups the student belongs to
+        groups = list(groups_collection.find({"students.uid": student_uid}, {"_id": 1}))
+        
+        if not groups:
+            return {
+                "status": "info",
+                "message": "You are not enrolled in any groups",
+                "data": []
+            }
+
+        notifications = []
+        current_time = datetime.now(timezone.utc)
+        group_ids = [group["_id"] for group in groups]
+
+        for group_id in group_ids:
+            # Find active assignments for the group
+            assignments = list(db["quiz_assignments"].find({
+                "groupIds": group_id,
+                "startTime": {"$lte": current_time},
+                "dueDate": {"$gte": current_time}
+            }))
+
+            for assignment in assignments:
+                quiz_id = assignment.get("quizId")
+                quiz = db["quizzes"].find_one({"_id": quiz_id})
+                quiz_attempt = db["QuizAttempts"].find_one({
+                    "quizId": quiz_id,
+                    "studentId": student_uid
+                })
+
+                if not quiz_attempt:
+                    group = groups_collection.find_one({"_id": group_id})
+                    due_date = assignment.get("dueDate")
+                    time_left = due_date - current_time if due_date else None
+
+                    notifications.append({
+                        "type": "warning",
+                        "title": "Pending Quiz",
+                        "message": f"You have an uncompleted quiz '{quiz.get('title')}' in group '{group.get('group_name')}'",
+                        "time_left": str(time_left) if time_left else "No deadline",
+                        "quiz_id": str(quiz_id),
+                        "group_id": str(group_id),
+                        "assignment_id": str(assignment["_id"])
+                    })
+
+        if notifications:
+            return {
+                "status": "warning",
+                "message": f"You have {len(notifications)} pending quizzes",
+                "data": notifications
+            }
+        else:
+            return {
+                "status": "success",
+                "message": "All assigned quizzes are completed",
+                "data": []
+            }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error checking quiz assignments: {str(e)}",
+            "data": []
+        }
