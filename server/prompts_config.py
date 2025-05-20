@@ -42,12 +42,12 @@ flashcards_prompt = """
 
     ### OUTPUT VALIDATION:
     Before responding, verify:
-    ✓ All brackets/quotes are properly closed
-    ✓ No trailing commas
-    ✓ "front" and "back" fields exist for every card
-    ✓ Total of EXACTLY 10 flashcards
-    ✓ All text is in content's language
-    ✓ The format and structure of the output is correct
+    - [ ] All brackets/quotes are properly closed
+    - [ ] No trailing commas
+    - [ ] "front" and "back" fields exist for every card
+    - [ ] Total of EXACTLY 10 flashcards
+    - [ ] All text is in content's language
+    - [ ] The format and structure of the output is correct
 
     ### OUTPUT FORMAT (PYTHON LIST):
     [{{"front": "Concise question in content's language?","back": "Complete answer using content's exact terminology"}},
@@ -66,126 +66,112 @@ flashcards_prompt = """
 
 base_prompt = {
     "multiple-choice": """
-        You are an expert question generator. Generate {num} {difficulty} multiple-choice questions based on this content:
-        ---
+        Generate {num} {difficulty} multiple-choice questions from the provided content. Follow ALL requirements strictly.
+
+        ### CONTENT:
         {content}
-        ---
 
-        STRICT REQUIREMENTS:
-        1. Language: Use EXACTLY the same language as the content
-        2. Format: MUST return valid Python list of dictionaries
-        3. Quality: Questions must test comprehension, not just recall
+        ### INSTRUCTIONS:
+        1. **Language**: Use the EXACT terminology and language style of the content.
+        2. **Format**: Output MUST be a **valid Python list of dictionaries** (no trailing commas, proper quotes).
+        3. **Quality**: 
+           - 40% factual, 40% conceptual, 20% applied questions.
+           - No trick questions or ambiguous phrasing.
+           - All distractors must be plausible.
 
-        QUESTION GUIDELINES:
-        - Each question must have exactly 4 options
-        - Only one 100% correct option (others plausible but not clearly wrong)
-        - Avoid trick questions or ambiguous wording
-        - Mix factual (40%), conceptual (40%), and applied (20%) questions
-
-        OUTPUT VALIDATION:
-        Before responding, validate that:
-        ✓ All brackets and quotes are properly closed
-        ✓ "correctanswer" EXACTLY matches one option
-        ✓ No trailing commas in lists
-        ✓ All text is in content's language
-
-        OUTPUT FORMAT (PYTHON LIST):
+        ### OUTPUT TEMPLATE (PYTHON):
         [
             {{
-                "question": "Clear question in content's language?",
+                "question": "Clear question phrased as a complete sentence?",
                 "options": [
-                    "Option 1 (correct)",
-                    "Plausible distractor",
-                    "Related but wrong",
+                    "Correct answer (exactly matches content)",
+                    "Plausible distractor 1",
+                    "Plausible distractor 2",
                     "Common misconception"
                 ],
-                "correctanswer": "Option 1 (correct)",  # EXACT match
-                "explanation": "1-sentence justification in content's language"
-            }},
-            # ... more questions
+                "correctanswer": "Correct answer (exactly matches content)",  # CASE-SENSITIVE
+                "explanation": "1-sentence justification referencing content."
+            }}
         ]
 
-        FAILURE TO FOLLOW FORMAT WILL RESULT IN REJECTION.
-        Begin now with: [
+        ### VALIDATION CHECKS (REQUIRED):
+        - [ ] Verify `correctanswer` is an EXACT match to one option.
+        - [ ] Ensure all brackets/quotes are closed.
+        - [ ] Confirm explanations derive from content.
+        - [ ] No trailing commas or syntax errors.
+        - [ ] Confirm the output Text Language is the same as the content.
+        - [ ] if the language of the content in french the out put should e in french too.
+
+        ### BEGIN OUTPUT:
+        [
     """,
 
     "true-false": """
-        Generate {num} {difficulty} true/false questions from:
-        ---
+        Generate {num} {difficulty} true/false questions from the content. Follow ALL rules.
+
+        ### CONTENT:
         {content}
-        ---
 
-        STRICT REQUIREMENTS:
-        1. Language: Mirror the content's language exactly
-        2. Balance: 50% True, 50% False statements
-        3. Format: Valid Python list with proper syntax
+        ### INSTRUCTIONS:
+        1. **Balance**: 50% True, 50% False statements.
+        2. **Clarity**: Statements must be directly verifiable from content (no opinions).
+        3. **Format**: Valid Python list with EXACT options ["True", "False"].
 
-        QUESTION RULES:
-        - Statements must be absolutely verifiable from content
-        - No double negatives or ambiguous phrasing
-        - Focus on key concepts, not trivial details
-
-        OUTPUT VALIDATION:
-        Before responding, confirm:
-        ✓ All options are EXACTLY ["True", "False"]
-        ✓ correctanswer is either "True" or "False" (case-sensitive)
-        ✓ No nested quotes in questions
-        ✓ All text is in content's language
-
-        OUTPUT FORMAT (PYTHON LIST):
+        ### OUTPUT TEMPLATE (PYTHON):
         [
-            {{
-                "question": "Definitive statement from content.",
-                "options": ["True", "False"],  # Exactly these
-                "correctanswer": "True",  # or "False"
-                "explanation": "Evidence from content proving correctness"
-            }},
-            # ... more questions
+           {{
+                "question": "Definitive statement that is objectively True/False.",
+                "options": ["True", "False"],  # EXACTLY these values
+                "correctanswer": "True",  # or "False" (case-sensitive)
+                "explanation": "Direct evidence from content."
+            }}
         ]
 
-        WARNING: Malformed JSON will be rejected.
-        Start with: [
+        ### VALIDATION CHECKS:
+        - [ ] `correctanswer` is either "True" or "False" (case-sensitive).
+        - [ ] No nested quotes or JSON syntax errors.
+        - [ ] All questions are fact-based (no generalizations).
+        - [ ] Confirm the output Text Language is the same as the content.
+        - [ ] if the language of the content in french the out put should e in french too.
+
+        ### BEGIN OUTPUT:
+        [
     """,
 
     "fill-blank": """
-        Create {num} {difficulty} fill-in-blank questions from:
-        ---
+        Create {num} {difficulty} fill-in-the-blank questions. Follow ALL guidelines.
+
+        ### CONTENT:
         {content}
-        ---
 
-        STRICT REQUIREMENTS:
-        1. Language: Match content's terminology exactly
-        2. Blanks: 1-3 per question (based on difficulty)
-        3. Answers: Single correct answer per blank (2-4 words max)
+        ### INSTRUCTIONS:
+        1. **Blanks**: Use 1 blank for easy, 2 for medium, 3 for hard.
+        2. **Answers**: Provide 1 correct + 2 incorrect options per blank.
+        3. **Context**: Ensure blanks are inferable from surrounding text.
 
-        QUESTION RULES:
-        - Context must make answer inferable
-        - Provide 1 correct + 2 incorrect answers per blank
-        - Incorrect answers must be plausible but wrong
-
-        OUTPUT VALIDATION:
-        Verify:
-        ✓ Each blank marked with ___ 
-        ✓ "correctanswer" exists in "answers" list
-        ✓ Blank count matches answer count
-        ✓ All text is in content's language
-
-        OUTPUT FORMAT (PYTHON LIST):
+        ### OUTPUT TEMPLATE (PYTHON):
         [
             {{
-                "question": "Complete sentence with ___ blank(s).",
-                "blanks": ["___"],  # 1-3 blanks
+                "question": "Sentence with ___ blank(s) placed where key terms belong.",
+                "blanks": ["___"],  # 1-3 blanks max
                 "answers": [
-                    "Correct answer",
-                    "Plausible wrong",
-                    "Another wrong"
+                    "Correct term (exact match to content)",
+                    "Plausible but incorrect term",
+                    "Another incorrect term"
                 ],
-                "correctanswer": "Correct answer",  # Exact match
-                "explanation": "Why this fills the blank correctly"
-            }},
-            # ... more questions
+                "correctanswer": "Correct term (exact match to content)",
+                "explanation": "Why this term fits contextually."
+            }}
         ]
 
-        NOTE: Your response must be valid Python starting with [
+        ### VALIDATION CHECKS:
+        - [ ] Each blank marked with `___`.
+        - [ ] `correctanswer` exists in `answers` list.
+        - [ ] No missing/extra blanks or answers.
+        - [ ] Confirm the output Text Language is the same as the content.
+        - [ ] if the language of the content in french the out put should e in french too.
+
+        ### BEGIN OUTPUT:
+        [
     """
 }

@@ -161,19 +161,19 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         )
         # Appeler l'API Groq pour générer les questions
         completion = groq_client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama3-70b-8192",
             messages=[
                 {"role": "system", "content": "Tu es un professeur expert. Génère des questions de qualité pour un quiz."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7,
+            temperature=0.3,
             max_tokens=1500,
         )
 
         # Afficher la réponse complète de l'API pour le débogage
         questions_text = completion.choices[0].message.content.strip()
         # Parse the response to extract the list of questions
-        print(questions_text)
+        print("res",questions_text)
         # Check if the response is a type of array 
         if isinstance(questions_text, list):
             questions = questions_text
