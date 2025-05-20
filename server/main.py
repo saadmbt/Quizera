@@ -135,6 +135,7 @@ def handle_theuploaded():
             "title": request.form["title"],
             "id": New_id,
             "author": get_jwt_identity(),
+            "username": request.form["username"],
             "content": request.form['text'],
             "uploadedAt": datetime.now(dt.timezone.utc).isoformat(),
         }
@@ -162,6 +163,7 @@ def handle_theuploaded():
                 "title": request.form["title"],
                 "id": New_id,
                 "author": get_jwt_identity(),
+                "username": request.form["username"],
                 "content": file_extracted_text,
                 "uploadedAt":  datetime.now(dt.timezone.utc).isoformat(),
             }
@@ -196,6 +198,7 @@ def handle_theuploaded():
                 "title":request.form["title"],
                 "id":New_id,
                 "author":get_jwt_identity(),
+                "username": request.form["username"],
                 "content" :extracted_text,
                 "uploadedAt":  datetime.now(dt.timezone.utc).isoformat(),
             }

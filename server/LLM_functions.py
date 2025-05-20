@@ -142,6 +142,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         content = lesson.get('content')
         title = lesson.get('title')
         author = lesson.get('author')
+        username = lesson.get('username')
         if not title:
             raise ValueError("Le titre de la leçon est vide")
 
@@ -203,6 +204,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             "title": title,
             "lesson_id": lesson_id,
             "generated_by": author,
+            "generated_by_name": username,
             "type": question_type,
             "questions": questions,
             "createdAt": datetime.now()
