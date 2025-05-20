@@ -15,7 +15,7 @@ from functionsDB import (
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
     Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id,
     insert_quiz_assignment,get_quiz_assignment_group_ids_for_student,get_quizzs_Assignments_by_group_id,get_quizzes_by_ids,
-    get_students_with_average_scores_for_group,getStudentPerformance, get_quiz_attempts_by_quiz_id, get_professor_quizzes,delete_group
+    get_students_with_average_scores_for_group,getStudentPerformance, get_quiz_attempts_by_quiz_id, get_professor_quizzes,delete_group,check_quiz_assignment_completion
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -432,8 +432,7 @@ def generate_yt_suggestions(lesson_id, quiz_ress_id):
         youtube_suggestions = generate_youtube_suggestions(keywords)
         if youtube_suggestions is None or not isinstance(youtube_suggestions, (list, dict)):
             return jsonify({"error": f"Error generating YouTube suggestions: {youtube_suggestions}"}), 400
-        print(youtube_suggestions)
-        
+                
         # Insert the YouTube suggestions into the database 
         inserted_youtube_suggestions_id = Update_Quiz_Results(quiz_res_id,youtube_suggestions,"youtube")
         if isinstance(inserted_youtube_suggestions_id, ObjectId):
@@ -1067,6 +1066,24 @@ def delete_group_route(group_id):
             return jsonify({"success": False, "error": result.get("error", "Failed to delete group")}), 400
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+# notification route
+@app.route('/api/notification', methods=['GET'])
+@jwt_required()
+def fetch_notification():
+    """
+    Fetch notifications for the authenticated user.
+    Returns:
+        Response: JSON response containing the notifications or an error message.
+    """
+    student_id = get_jwt_identity()
+    try:
+        auth.get_user(student_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+    
+    notifications = check_quiz_assignment_completion(student_id)
+    return jsonify(notifications), 200
+
 
 if __name__ == "__main__":
     app.run()

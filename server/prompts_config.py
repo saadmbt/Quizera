@@ -46,17 +46,12 @@ flashcards_prompt = """
     ✓ No trailing commas
     ✓ "front" and "back" fields exist for every card
     ✓ Total of EXACTLY 10 flashcards
+    ✓ All text is in content's language
+    ✓ The format and structure of the output is correct
 
     ### OUTPUT FORMAT (PYTHON LIST):
-    [
-        {
-            "front": "Concise question in content's language?",
-            "back": "Complete answer using content's exact terminology"
-        },
-        {
-            "front": "Another question covering different concept",
-            "back": "Precise answer with key details"
-        }
+    [{{"front": "Concise question in content's language?","back": "Complete answer using content's exact terminology"}},
+    {{"front": "Another question covering different concept","back": "Precise answer with key details"}}
         # ... 8 more cards
     ]
 
