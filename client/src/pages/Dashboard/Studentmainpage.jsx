@@ -10,25 +10,25 @@ import { fetchNotifications } from '../../services/StudentService';
 
 function Studentmainpage() {
     const isNew= JSON.parse(localStorage.getItem("isNew")) || false;
-    const [notifications, setNotifications] = useState([]);
-    const [error, setError] = useState(null);
+    // const [notifications, setNotifications] = useState([]);
+    // const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const getNotifications = async () => {
-            try {
-                const data = await fetchNotifications();
-                if (data && data.data) {
-                    setNotifications(data.data);
-                } else {
-                    setNotifications([]);
-                }
-            } catch (err) {
-                setError('Failed to load notifications');
-                console.error(err);
-            }
-        };
-        getNotifications();
-    }, []);
+    // useEffect(() => {
+    //     const getNotifications = async () => {
+    //         try {
+    //             const data = await fetchNotifications();
+    //             if (data && data.data) {
+    //                 setNotifications(data.data);
+    //             } else {
+    //                 setNotifications([]);
+    //             }
+    //         } catch (err) {
+    //             setError('Failed to load notifications');
+    //             console.error(err);
+    //         }
+    //     };
+    //     getNotifications();
+    // }, []);
 
     return (
         <>
@@ -36,7 +36,7 @@ function Studentmainpage() {
             {isNew ? <StartComponent /> : (
                 <>
                 {/* Notification Section */}
-                {error && <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">{error}</div>}
+                {/* {error && <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">{error}</div>}
                 {notifications.length > 0 && (
                     <div className="mb-6 p-4 bg-yellow-100 border border-yellow-400 rounded">
                         <h3 className="font-semibold mb-2">Notifications</h3>
@@ -48,7 +48,7 @@ function Studentmainpage() {
                             ))}
                         </ul>
                     </div>
-                )}
+                )} */}
                 {/* Progress Overview section  */}
                 <ProgressOverviewSection />
                 {/* Recent Quizzes */}
