@@ -386,7 +386,7 @@ def get_students_with_average_scores_for_group(group_id):
                 total_score = sum([res.get("score", 0) for res in quiz_results])
                 avg_score = total_score / len(quiz_results)
 
-            name = student["username"] 
+            name = student.get("username", "Unknown")
 
             results.append({
                 "uid": uid,
