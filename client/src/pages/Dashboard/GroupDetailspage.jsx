@@ -42,12 +42,12 @@ function GroupDetailspage() {
       } finally {
         setAssinloading(false);
       }
-    }, []);
+    }, [id]);
 
     useEffect(() => {
         fetchGroup();
         fetchAssignments();
-    }, []); 
+    }, [id]); 
 
     // Memoize filtered assignments to prevent unnecessary recalculations
     const filteredAssignments = React.useMemo(() => {

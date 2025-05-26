@@ -225,7 +225,7 @@ function ProfQuizzdp() {
                                                 </h3>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     {answer.options.map((option, optionIndex) => {
-                                                        const isOptionCorrect = option === answer.correct_answer;
+                                                        const isOptionCorrect = option === answer.correctAnswer;
                                                         const isSelected = option === userAnswer;
                                                         const isIncorrectSelected = isSelected && !isOptionCorrect;
                                                         return (
