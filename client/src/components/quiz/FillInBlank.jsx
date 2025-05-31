@@ -41,22 +41,15 @@ export default function FillInBlank({ question, answers, blanks, onAnswer }) {
       newFilledBlanks[index] = draggedItem;
       setFilledBlanks(newFilledBlanks);
 
-      // Check if all blanks are filled and unique
-      if (newFilledBlanks.every(blank => blank !== '') && 
-          new Set(newFilledBlanks).size === newFilledBlanks.length) {
-        setIsCompleted(true);
-        // if all blanks are filled and unique, call the onAnswer function
-
-      }
+      // Check if all blanks are filled
+      const allFilled = newFilledBlanks.every(blank => blank !== '');
+      setIsCompleted(allFilled);
     }
   };
 
   const handleNext = () => {
-    if (isCompleted) {
-      // Call the onAnswer function with the filled blanks
-      console.log(filledBlanks.join(','))
+    if (filledBlanks.every(blank => blank !== '')) {
       onAnswer(filledBlanks.join(','));
-      // Reset the state for next question
       setFilledBlanks(new Array(blanks.length).fill(''));
       setIsCompleted(false);
     }
@@ -96,9 +89,9 @@ export default function FillInBlank({ question, answers, blanks, onAnswer }) {
 
       <button
         onClick={handleNext}
-        disabled={!isCompleted}
+        disabled={!filledBlanks.every(blank => blank !== '')}
         className={`mt-4 px-6 py-2 rounded-lg ${
-          isCompleted 
+          filledBlanks.every(blank => blank !== '') 
             ? 'bg-blue-500 text-white hover:bg-blue-600' 
             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
         }`}

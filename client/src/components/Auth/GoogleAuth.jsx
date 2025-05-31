@@ -10,8 +10,10 @@ import getJWT from "../../services/authService";
 export const GoogleAuthButton = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const {setUser} = useContext(AuthContext);
-
+  const {setUser} = useContext(AuthContext) || {};
+  if (!setUser) {
+    navigate("/")
+  }
   const handleGoogleLogin = async (credentialResponse) => {
     if (!credentialResponse || !credentialResponse.credential) {
       console.error("Invalid credential response");

@@ -63,42 +63,43 @@ const GroupCard = ({ name, count, groupId, onDelete }) => {
 
   return (
     <div
-      className="relative bg-white min-h-[150px] rounded-lg p-6 shadow-lg transition-all duration-300 border border-gray-100"
+      className="relative bg-white min-h-[150px] rounded-xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl border border-gray-200 hover:border-blue-300"
     >
-      <div className="flex items-center justify-between space-x-4 py-4 gap-3">
-        <div>
-          <h3 className="text-lg font-bold text-gray-800">
+      <div className="flex  gap-4 flex-col md:flex-col md:items-start sm:flex-row sm:items-center  justify-between space-y-4 sm:space-y-0 sm:space-x-4 py-4">
+        <div className="flex-1">
+          <h3 className="text-xl font-bold text-gray-800 mb-2 hover:text-blue-600 transition-colors">
             {name}
           </h3>
-          <div className="flex items-center mt-3 text-gray-600">
+          <div className="flex items-center text-gray-600 bg-gray-50 rounded-lg p-2 w-fit">
             <UserGroupIcon className="w-5 h-5 mr-2 text-blue-500" />
             <span className="text-sm font-medium">{count} members</span>
           </div>
         </div>
-        <div className="space-x-3 flex items-center">
+        <div className="flex flex-row md:items-start gap-2 mt-4">
           <Link
             to={isProfessor ? `/professor/group/${groupId}/statistics?groupName=${encodeURIComponent(name)}` : `/Student/groups/${groupId}`}
-            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200
-              ${isProfessor ? 'text-white bg-blue-600 hover:bg-blue-700' : 'text-blue-600 bg-blue-100 hover:bg-blue-200'}`}
+            className={`inline-flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 transform hover:scale-105
+              ${isProfessor ? 'text-white bg-blue-600 hover:bg-blue-700 shadow-sm hover:shadow' : 'text-blue-600 bg-blue-50 hover:bg-blue-100'}`}
           >
-            View
+            View Details
           </Link>
           {isProfessor && (
             <>
               <Link
                 to={`/professor/group/${groupId}/edit`}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200"
+                className="inline-flex items-center px-3 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow"
               >
-                Edit
+                Edit Group
               </Link>
               <button
                 onClick={handleDelete}
                 disabled={isLoading}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 bg-red-100 rounded-md hover:bg-red-200 transition-colors duration-200"
+                className={`inline-flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 transform hover:scale-105
+                  ${isLoading ? 'bg-red-100 text-red-400 cursor-not-allowed' : 'text-red-600 bg-red-50 hover:bg-red-100'}`}
                 title="Delete Group"
               >
                 <TrashIcon className="h-5 w-5 mr-1" />
-                Delete
+                {isLoading ? 'Deleting...' : 'Delete'}
               </button>
             </>
           )}

@@ -227,7 +227,7 @@ export default function QuizPreview() {
                     <div className="grid grid-cols-2 gap-2">
                       {(q.answers || []).map((answer, i) => (
                         <div key={i} className={`p-2 rounded border ${
-                          answer === q.correctanswer ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'
+                          answer === q.correctanswer ? 'border-green-500 bg-green-50' : 'border-gray-500 bg-gray-100'
                         }`}>
                           {answer}
                           {answer === q.correctanswer && (
@@ -240,7 +240,7 @@ export default function QuizPreview() {
                     <div className="grid grid-cols-2 gap-2">
                       {(q.options || []).map((option, i) => (
                         <div key={i} className={`p-2 rounded border ${
-                          option === q.correctanswer ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'
+                          option === q.correctanswer ? 'border-green-500 bg-green-50' : 'border-gray-500 bg-gray-50'
                         }`}>
                           {option}
                           {option === q.correctanswer && (

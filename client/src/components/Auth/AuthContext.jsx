@@ -72,8 +72,7 @@ export const AuthProvider = ({ children }) => {
     auth.signOut()
       .then(() => {
         setUser(null);
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("_us_unr");
+        localStorage.clear();
         Navigate("/");
       })
       .catch((error) => {

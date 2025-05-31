@@ -8,9 +8,9 @@ const ProgressOverviewSection = () => {
 
   useEffect(() => {
     let isMounted = true;
-    setLoading(true); // Set loading state at the start
+    setLoading(true);
 
-    const fetchData = async () => {
+    const fetchWithRetry = async (retryCount = 1) => {
       try {
         const data = await fetchStudentPerformance();
         if (!isMounted) return;
@@ -32,7 +32,7 @@ const ProgressOverviewSection = () => {
           },
           { 
             title: 'Study Streak', 
-            value: `${data.streak || 5} days`, 
+            value: `${data.totalQuizzes<5?data.streak || 0 : 5} days`, 
             color: 'bg-orange-500', 
             icon: Crown 
           }
@@ -40,14 +40,20 @@ const ProgressOverviewSection = () => {
 
         setstats(formattedStats);
       } catch (error) {
-        console.error('Error fetching student performance:', error.message);
-        if (isMounted) setstats(x);
+        console.error(`Attempt ${retryCount} failed:`, error.message);
+        if (retryCount < 3 && isMounted) {
+          // Wait 1 second before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          return fetchWithRetry(retryCount + 1);
+        }
+        // If all retries fail, set empty stats
+        if (isMounted) setstats([]);
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    fetchData();
+    fetchWithRetry();
 
     return () => {
       isMounted = false;
