@@ -380,13 +380,14 @@ def get_students_with_average_scores_for_group(group_id):
             if not uid:
                 continue
             quiz_results = list(db["QuizAttempts"].find({"studentId": uid}))
+            avg_score=0
             if not quiz_results:
                 avg_score = 0
             else:
-                total_score = sum([res.get("score", 0) for res in quiz_results])
-                avg_score = total_score / len(quiz_results)
+                total_score = sum(res.get("score", 0) for res in quiz_results)
+                avg_score = total_score / len(quiz_results) if len(quiz_results) > 0 else 0
 
-            name = student.get("username", "Unknown")
+            name = student.get("username", "Unknown User")
 
             results.append({
                 "uid": uid,
