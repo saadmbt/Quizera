@@ -373,26 +373,43 @@ def get_students_with_average_scores_for_group(group_id):
         if not students:
             return []
 
-        # For each student, fetch quiz results and calculate average score
+        # Get all student uids in the group
+        student_uids = [student.get("uid") for student in students if student.get("uid")]
+
+        # Fetch all quiz attempts for these students in one query
+        quiz_attempts = list(db["QuizAttempts"].find({"studentId": {"$in": student_uids}}))
+
+        # Calculate average score per student
+        student_scores = {}
+        for uid in student_uids:
+            student_scores[uid] = {
+                "totalScore": 0,
+                "attemptCount": 0
+            }
+
+        for attempt in quiz_attempts:
+            sid = attempt.get("studentId")
+            score = attempt.get("score", 0)
+            if sid in student_scores:
+                student_scores[sid]["totalScore"] += score
+                student_scores[sid]["attemptCount"] += 1
+
         results = []
         for student in students:
             uid = student.get("uid")
             if not uid:
                 continue
-            quiz_results = list(db["QuizAttempts"].find({"studentId": uid}))
-            avg_score=0
-            if not quiz_results:
-                avg_score = 0
-            else:
-                total_score = sum(res.get("score", 0) for res in quiz_results)
-                avg_score = total_score / len(quiz_results) if len(quiz_results) > 0 else 0
+            scores = student_scores.get(uid, {"totalScore": 0, "attemptCount": 0})
+            avg_score = 0
+            if scores["attemptCount"] > 0:
+                avg_score = scores["totalScore"] / scores["attemptCount"]
 
             name = student.get("username", "Unknown User")
 
             results.append({
                 "uid": uid,
                 "username": name,
-                "totalAttempts": len(quiz_results),
+                "totalAttempts": scores["attemptCount"],
                 "averageScore": avg_score
             })
 

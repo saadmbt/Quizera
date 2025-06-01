@@ -36,6 +36,7 @@ const ProfDashboard = () => {
         await Promise.all(groupsData.map(async (group) => {
           try {
             const studentsWithScores = await fetchGroupStudentsWithScores(group._id);
+            console.log(`Group ${group._id} studentsWithScores:`, studentsWithScores);
             const groupScoreSum = studentsWithScores.reduce((sum, student) => sum + (student.averageScore || 0), 0);
             const groupScoreCount = studentsWithScores.length;
             if (groupScoreCount > 0) {
