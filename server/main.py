@@ -842,13 +842,13 @@ def validate_invite_token():
 @jwt_required()
 def get_group_assignments(group_id):
     """
-    Fetch all quiz assignments for a specific group.
+    Fetch group info and quiz assignments for a specific group.
     
     Args:
-        group_id (str): The ID of the group to fetch assignments for.
+        group_id (str): The ID of the group to fetch info and assignments for.
         
     Returns:
-        Response: JSON response containing the quiz assignments or an error message.
+        Response: JSON response containing the group info and quiz assignments.
     """
     try:
         group_obj_id = ObjectId(group_id)
@@ -857,38 +857,41 @@ def get_group_assignments(group_id):
         return jsonify({"error": "Invalid group_id"}), 400
 
     try:
-        student_id= get_jwt_identity()
+        student_id = get_jwt_identity()
 
-        # Check if group exists
+        # Fetch group info
         group = get_group_by_id(group_id)
         if not group or (isinstance(group, dict) and "error" in group):
             print(f"Group not found for group_id: {group_id}")
             return jsonify({"error": "Group not found"}), 404
 
-        # Fetch all quiz assignments for the specified group
+        # Fetch quiz assignments for the group
         list_quizzes_ids = get_quizzs_Assignments_by_group_id(group_obj_id)
 
+        quizzes = []
         if isinstance(list_quizzes_ids, str) and "error" in list_quizzes_ids.lower():
             print(f"Error fetching quiz assignments for group_id {group_id}: {list_quizzes_ids}")
-            # Return 404 instead of 500 for no quizzes found
+            # If no quizzes found, just return empty list
             if "no quizzes found" in list_quizzes_ids.lower():
-                return jsonify({"error": list_quizzes_ids}), 404
-            return jsonify({"error": list_quizzes_ids}), 500
-        if not list_quizzes_ids:
-            return jsonify({"error": "No quiz assignments found for this group"}), 404
-        
-        # Fetch quizzes by IDs
-        quizzes = get_quizzes_by_ids(list_quizzes_ids,student_id)
-        if isinstance(quizzes, dict) and "error" in quizzes.get("error", "").lower():
-            print(f"Error fetching quizzes by IDs for group_id {group_id}: {quizzes}")
-            # Return 404 instead of 500 for no quizzes found
-            if "no quizzes found" in quizzes.get("error", "").lower():
-                return jsonify({"error": quizzes["error"]}), 404
-            return jsonify({"error": quizzes["error"]}), 500
-        if not quizzes:
-            return jsonify({"error": "No quizzes found for the provided IDs"}), 404
-        
-        return jsonify(quizzes), 200
+                quizzes = []
+            else:
+                return jsonify({"error": list_quizzes_ids}), 500
+        elif list_quizzes_ids:
+            quizzes = get_quizzes_by_ids(list_quizzes_ids, student_id)
+            if isinstance(quizzes, dict) and "error" in quizzes.get("error", "").lower():
+                print(f"Error fetching quizzes by IDs for group_id {group_id}: {quizzes}")
+                if "no quizzes found" in quizzes.get("error", "").lower():
+                    quizzes = []
+                else:
+                    return jsonify({"error": quizzes["error"]}), 500
+            if not quizzes:
+                quizzes = []
+
+        return jsonify({
+            "group": group,
+            "quiz_assignments": quizzes
+        }), 200
+
     except Exception as e:
         print(f"Exception in get_group_assignments for group_id {group_id}: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
