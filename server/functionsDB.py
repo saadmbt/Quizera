@@ -389,7 +389,7 @@ def get_students_with_average_scores_for_group(group_id):
 
         for attempt in quiz_attempts:
             sid = attempt.get("studentId")
-            score = attempt.get("score", 0)
+            score = attempt.get("totalScore", 0)
             if sid in student_scores:
                 student_scores[sid]["totalScore"] += score
                 student_scores[sid]["attemptCount"] += 1
