@@ -870,15 +870,21 @@ def get_group_assignments(group_id):
 
         if isinstance(list_quizzes_ids, str) and "error" in list_quizzes_ids.lower():
             print(f"Error fetching quiz assignments for group_id {group_id}: {list_quizzes_ids}")
+            # Return 404 instead of 500 for no quizzes found
+            if "no quizzes found" in list_quizzes_ids.lower():
+                return jsonify({"error": list_quizzes_ids}), 404
             return jsonify({"error": list_quizzes_ids}), 500
         if not list_quizzes_ids:
             return jsonify({"error": "No quiz assignments found for this group"}), 404
         
         # Fetch quizzes by IDs
         quizzes = get_quizzes_by_ids(list_quizzes_ids,student_id)
-        if isinstance(quizzes, str) and "error" in quizzes.lower():
+        if isinstance(quizzes, dict) and "error" in quizzes.get("error", "").lower():
             print(f"Error fetching quizzes by IDs for group_id {group_id}: {quizzes}")
-            return jsonify({"error": quizzes}), 500
+            # Return 404 instead of 500 for no quizzes found
+            if "no quizzes found" in quizzes.get("error", "").lower():
+                return jsonify({"error": quizzes["error"]}), 404
+            return jsonify({"error": quizzes["error"]}), 500
         if not quizzes:
             return jsonify({"error": "No quizzes found for the provided IDs"}), 404
         
