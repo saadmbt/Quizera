@@ -623,7 +623,7 @@ def getStudentPerformance(studentId):
             { "$group": {
                 "_id": None,
                 "totalAttempts": { "$sum": 1 },
-                "averageScore": { "$avg": "$score" }
+                "averageScore": { "$avg": "$totalScore" }
             }}
         ]))
 
