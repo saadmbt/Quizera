@@ -63,6 +63,8 @@ const ProfDashboard = () => {
     fetchData();
   }, []); 
 
+  const navigate = useNavigate(); // Initialize navigate here
+
   return (
     <div className="p-8">
       {/* Header */}
@@ -126,6 +128,8 @@ const ProfDashboard = () => {
               name={group.group_name || group.name}
               count={`${group.students ? group.students.length : 0} students`}
               groupId={group._id}
+              isReadOnly={true} // Change to isReadOnly prop
+              onClick={() => navigate(`/professor/group/${group._id}`)} // Add onClick handler to make whole card clickable
             />
           ))}
         </div>

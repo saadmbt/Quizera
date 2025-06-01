@@ -27,9 +27,11 @@ function QuizzHistoryProf({ limit }) {
     return <div className="text-center py-8">Loading quizzes...</div>;
   }
 
+  const sortedQuizzes = [...quizzes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
   return (
     <div className="space-y-4 mb-8 px-4 md:px-0">
-      {quizzes.map((quiz) => (
+      {sortedQuizzes.map((quiz) => (
         <div
           key={quiz._id}
           className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"

@@ -57,7 +57,8 @@ const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => 
         setLoadingAssignments(true);
         const assignmentsData = await getQuizAssignments(groupid);
         console.log(assignmentsData)
-        setAssignments(assignmentsData);
+        // Set assignments to the quiz_assignments array from the response
+        setAssignments(assignmentsData.quiz_assignments || []);
       } catch (err) {
         setError('Failed to load group assignments.');
       } finally {

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../Auth/AuthContext';
 import toast from 'react-hot-toast';
 
-const GroupCard = ({ name, count, groupId, onDelete }) => {
+const GroupCard = ({ name, count, groupId, onDelete, isReadOnly }) => {
   const user = JSON.parse(localStorage.getItem("_us_unr")) || {};
   const [isLoading, setIsLoading] = useState(false);
 
@@ -83,7 +83,7 @@ const GroupCard = ({ name, count, groupId, onDelete }) => {
           >
             View Details
           </Link>
-          {isProfessor && (
+          {isProfessor && !isReadOnly && (
             <>
               <Link
                 to={`/professor/group/${groupId}/edit`}

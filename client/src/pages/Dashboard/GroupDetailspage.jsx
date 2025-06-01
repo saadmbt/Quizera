@@ -35,8 +35,9 @@ function GroupDetailspage() {
       try{
         setAssinloading(true);
         const assignments = await getQuizAssignments(id);
-        setAssignments(assignments);
-        setquizzes(assignments);
+        // Set Assignments and quizzes to the quiz_assignments array from the response
+        setAssignments(assignments.quiz_assignments || []);
+        setquizzes(assignments.quiz_assignments || []);
       }catch (error) {
         console.error("Error fetching Group assignments:", error);
       } finally {

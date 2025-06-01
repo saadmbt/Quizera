@@ -58,7 +58,7 @@ const Groups = () => {
   };
 
   // Handle group creation
-  const handleCreateGroup = async (groupData) => {
+    const handleCreateGroup = async (groupData) => {
     if (!user || !user.uid) {
       toast.error('You must be logged in to create a group');
       return;
@@ -66,7 +66,7 @@ const Groups = () => {
 
     try {
       const newGroup = {
-        name: groupData.name,
+        group_name: groupData.name,
         description: groupData.description,
         prof_id: user.uid,
         prof_name: user.username,

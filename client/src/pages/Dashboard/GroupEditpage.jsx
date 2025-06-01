@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getGroupById, updateGroup } from '../../services/ProfServices';
 import { AuthContext } from '../../components/Auth/AuthContext';
+import toast, { Toaster } from 'react-hot-toast';
 
 const GroupEditpage = () => {
   const { groupid } = useParams();
@@ -55,26 +56,70 @@ const GroupEditpage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) {
-      alert('User not logged in');
+      toast.error('Please log in to continue', {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#FEE2E2',
+          color: '#DC2626',
+          border: '1px solid #DC2626',
+        },
+      });
       return;
     }
+
     try {
       const response = await updateGroup(groupid, user.uid, formData);
       if (response.success) {
-        alert('Group updated successfully');
+        toast.success('Group updated successfully!', {
+          duration: 3000,
+          position: 'top-center',
+          style: {
+            background: '#ECFDF5',
+            color: '#059669',
+            border: '1px solid #059669',
+          },
+        });
+        // Optionally navigate after success
+        setTimeout(() => navigate('/professor'), 1500);
       } else {
-        alert('Failed to update group: ' + (response.error || 'Unknown error'));
+        throw new Error(response.error || 'Failed to update group');
       }
     } catch (error) {
-      alert('Error updating group: ' + error.message);
+      toast.error(`Error: ${error.message}`, {
+        duration: 4000,
+        position: 'top-center',
+        style: {
+          background: '#FEE2E2',
+          color: '#DC2626',
+          border: '1px solid #DC2626',
+        },
+      });
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-600">Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto p-6">
+      <Toaster /> {/* Add this to render the toasts */}
       <Link to="/professor" className="text-blue-600 hover:underline mb-4 inline-block">
         &larr; Back to Accueil
       </Link>

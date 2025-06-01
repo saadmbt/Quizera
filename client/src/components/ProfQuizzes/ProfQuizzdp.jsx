@@ -12,6 +12,7 @@ function ProfQuizzdp() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(null);
+    const [showQuestions, setShowQuestions] = useState(false);
 
     useEffect(() => {
         const fetchQuizData = async () => {
@@ -39,6 +40,7 @@ function ProfQuizzdp() {
                             question: ans.question,
                             options: ans.options,
                             correctAnswer: ans.correctAnswer,
+                            explanation: ans.explanation,
                             userAnswers: attemptsData.map(attempt => attempt.answers[idx]?.selectedAnswer)
                         }))
                     };
@@ -82,7 +84,8 @@ function ProfQuizzdp() {
         );
     }
 
-    const totalQuestions = quiz?.questions?.length || 0;
+    // Update the totalQuestions calculation
+    const totalQuestions = quizInfo?.questions?.length || 0;
     const totalAttempts = attempts.length;
 
     return ( 
@@ -99,40 +102,6 @@ function ProfQuizzdp() {
                 <div className="flex items-center gap-2">
                     <Brain className="h-6 w-6 text-blue-500" />
                     <h1 className="text-2xl font-bold text-gray-900">{quizInfo.title}</h1>
-                </div>
-            </div>
-
-            {/* General Information */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="flex items-center gap-3">
-                        <Calendar className="h-5 w-5 text-gray-400" />
-                        <div>
-                            <p className="text-sm text-gray-500">Date</p>
-                            <p className="font-medium">{new Date(quizInfo.createdAt || quizInfo.date).toLocaleDateString()}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Clock className="h-5 w-5 text-gray-400" />
-                        <div>
-                            <p className="text-sm text-gray-500">Total Attempts</p>
-                            <p className="font-medium">{totalAttempts}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Award className="h-5 w-5 text-gray-400" />
-                        <div>
-                            <p className="text-sm text-gray-500">Average Score</p>
-                            <p className="font-medium">{quiz?.score || 0}%</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Brain className="h-5 w-5 text-gray-400" />
-                        <div>
-                            <p className="text-sm text-gray-500">Questions</p>
-                            <p className="font-medium">{totalQuestions}</p>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -168,15 +137,86 @@ function ProfQuizzdp() {
                             <p className="text-lg font-semibold">{totalAttempts}</p>
                         </div>
                     </div>
+                    {/* Replace the Total Questions section in the grid */}
                     <div className="flex items-center gap-3">
                         <Award className="h-6 w-6" />
-                        <div>
+                        <div className="flex items-center justify-between w-full">
                             <p className="text-sm font-medium">Total Questions</p>
-                            <p className="text-lg font-semibold">{totalQuestions}</p>
+                            <button
+                                onClick={() => setShowQuestions(!showQuestions)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                                    showQuestions 
+                                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                                    : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                                }`}
+                                aria-expanded={showQuestions}
+                                aria-controls="questions-panel"
+                            >
+                                <span className="font-semibold">{totalQuestions}</span>
+                                <span className="text-sm">
+                                    {showQuestions ? 'Hide Questions' : 'View Questions'}
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {showQuestions && (
+                <div id="questions-panel" className="bg-white rounded-xl p-6 shadow-md border border-gray-300 mt-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-semibold">Questions</h2>
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                <span>Correct Answer</span>
+                            </div>
+                        </div>
+                    </div>
+                    {quizInfo.questions?.map((question, index) => (
+                        <div key={index} className="mb-8 bg-gray-50 rounded-xl p-6 border border-gray-200">
+                            <div className="flex items-start justify-between mb-4">
+                                <h3 className="text-lg font-medium flex-1">
+                                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold mr-3">
+                                        {index + 1}
+                                    </span>
+                                    {question.question}
+                                </h3>
+                            </div>
+                            
+                            <div className="space-y-3 mt-4">
+                                <div className="grid grid-cols-1 gap-3">
+                                    {question.options?.map((option, optionIndex) => {
+                                        const isCorrect = option === question.correctanswer; // Changed from correctAnswer to correctanswer
+                                        return (
+                                            <div
+                                                key={optionIndex}
+                                                className={`p-4 rounded-lg border-2 ${
+                                                    isCorrect 
+                                                        ? 'border-green-500 bg-green-50' 
+                                                        : 'border-gray-200 bg-white'
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <span className={isCorrect ? 'text-green-700 font-medium' : 'text-gray-700'}>
+                                                        {option}
+                                                    </span>
+                                                    {isCorrect && (
+                                                        <div className="flex items-center gap-2 text-green-600">
+                                                            <CheckCircle className="h-5 w-5" />
+                                                            <span className="text-sm font-medium">Correct Answer</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* Score Summary */}
             {totalAttempts > 0 ? (
