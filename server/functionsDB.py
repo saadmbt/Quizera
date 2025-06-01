@@ -617,41 +617,70 @@ def getStudentPerformance(studentId):
         quizzResult_collection = db["quizzResult"]
         QuizAttempts_collection = db["QuizAttempts"]
 
-        quiz_attempts=list(QuizAttempts_collection.aggregate([
+        # Get quiz attempts stats
+        quiz_attempts = list(QuizAttempts_collection.aggregate([
             { "$match": { "studentId": studentId} },
             { "$group": {
                 "_id": None,
                 "totalAttempts": { "$sum": 1 },
                 "averageScore": { "$avg": "$score" }
-                
-                    }}
-                ])
-            )
+            }}
+        ]))
 
-        quizz_Result=list(quizzResult_collection.aggregate([
-        { "$match": { "generated_by": studentId} },
-        { "$group": {
-            "_id": None,
-            "totalQuizzes": { "$sum": 1 },
-            "averageScore": { "$avg": "$score" }
-            
-                }}
-            ])
-        )
-        # check if the user has any quiz results 
+        # Get latest quiz attempt score
+        latest_attempt_cursor = QuizAttempts_collection.find({"studentId": studentId}
+                        ).sort([("createdAt", -1)]).limit(1)
+        latest_attempt = next(latest_attempt_cursor, None)
+        
+        # Get quiz results stats
+        quizz_Result = list(quizzResult_collection.aggregate([
+            { "$match": { "generated_by": studentId} },
+            { "$group": {
+                "_id": None,
+                "totalQuizzes": { "$sum": 1 },
+                "averageScore": { "$avg": "$score" }
+            }}
+        ]))
+
+        # Get latest quiz result score
+        latest_result_cursor = quizzResult_collection.find(
+            {"generated_by": studentId}
+        ).sort("createdAt", -1).limit(1)
+        latest_result = next(latest_result_cursor, None)
+
+        # Default values if no data found
         if not quizz_Result:
-            quizz_Result=[{"totalQuizzes": 0, "averageScore": 0}]
-        # check if the user has any quiz attempts
+            quizz_Result = [{"totalQuizzes": 0, "averageScore": 0}]
         if not quiz_attempts:
-            quiz_attempts=[{"totalAttempts": 0, "averageScore": 0}]
+            quiz_attempts = [{"totalAttempts": 0, "averageScore": 0}]
 
-           
+        # Calculate averages
         quiz_result_avg = quizz_Result[0]["averageScore"] or 0
         quiz_attempts_avg = quiz_attempts[0]["averageScore"] or 0
         
+        # Get last score from either source
+        last_score = 0
+        if latest_attempt and latest_result:
+            last_score = latest_attempt.get("score", 0) if latest_attempt.get("createdAt", 0) > latest_result.get("createdAt", 0) else latest_result.get("score", 0)
+        elif latest_attempt:
+            last_score = latest_attempt.get("score", 0)
+        elif latest_result:
+            last_score = latest_result.get("score", 0)
+
+        # Calculate average score 
+        if quiz_result_avg == 0 and quiz_attempts_avg > 0:
+            average_score = quiz_attempts_avg
+        elif quiz_result_avg > 0 and quiz_attempts_avg == 0:
+            average_score = quiz_result_avg
+        elif quiz_result_avg > 0 and quiz_attempts_avg > 0:
+            average_score = (quiz_result_avg + quiz_attempts_avg) / 2
+        else:
+            average_score = 0
+
         final_result = {
             "totalQuizzes": quizz_Result[0]["totalQuizzes"] + quiz_attempts[0]["totalAttempts"],
-            "averageScore": (quiz_result_avg + quiz_attempts_avg) / 2 if (quiz_result_avg or quiz_attempts_avg) else 0,
+            "averageScore": average_score,
+            "lastScore": last_score
         }
 
         return final_result
