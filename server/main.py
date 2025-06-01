@@ -853,15 +853,23 @@ def get_group_assignments(group_id):
     try:
         group_obj_id = ObjectId(group_id)
     except Exception as e:
+        print(f"Invalid group_id: {group_id} - {str(e)}")
         return jsonify({"error": "Invalid group_id"}), 400
 
     try:
         student_id= get_jwt_identity()
 
+        # Check if group exists
+        group = get_group_by_id(group_id)
+        if not group or (isinstance(group, dict) and "error" in group):
+            print(f"Group not found for group_id: {group_id}")
+            return jsonify({"error": "Group not found"}), 404
+
         # Fetch all quiz assignments for the specified group
         list_quizzes_ids = get_quizzs_Assignments_by_group_id(group_obj_id)
 
         if isinstance(list_quizzes_ids, str) and "error" in list_quizzes_ids.lower():
+            print(f"Error fetching quiz assignments for group_id {group_id}: {list_quizzes_ids}")
             return jsonify({"error": list_quizzes_ids}), 500
         if not list_quizzes_ids:
             return jsonify({"error": "No quiz assignments found for this group"}), 404
@@ -869,13 +877,15 @@ def get_group_assignments(group_id):
         # Fetch quizzes by IDs
         quizzes = get_quizzes_by_ids(list_quizzes_ids,student_id)
         if isinstance(quizzes, str) and "error" in quizzes.lower():
+            print(f"Error fetching quizzes by IDs for group_id {group_id}: {quizzes}")
             return jsonify({"error": quizzes}), 500
         if not quizzes:
             return jsonify({"error": "No quizzes found for the provided IDs"}), 404
         
         return jsonify(quizzes), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 404
+        print(f"Exception in get_group_assignments for group_id {group_id}: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
 # create a quiz attempt for student in group
 @app.route('/api/student-quiz-attempt', methods=['POST'])
