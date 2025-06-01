@@ -3,6 +3,8 @@ import { ArrowLeft, Copy, Share2, Settings, Check, X, Edit2, Save, XCircle } fro
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { updateQuizQuestions } from '../../services/ProfServices.jsx';
 import toast from 'react-hot-toast';
+import { generateFlashcards, fetchVideos } from '../../services/StudentService.jsx';
+import { useCallback } from 'react';
 
 export default function QuizPreview() {
   const [isCopied, setIsCopied] = useState(false);
@@ -10,10 +12,13 @@ export default function QuizPreview() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedQuestions, setEditedQuestions] = useState([]);
   const [localQuizData, setLocalQuizData] = useState(null);
+  const [flashcardsLoading, setFlashcardsLoading] = useState(false);
+  const [videosLoading, setVideosLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const quiz = location.state?.quiz;
   const quizIdFromState = location.state?.quizId;
+  const lessonIDFromState = location.state?.lessonID;
   console.log(quizIdFromState)
 
   // Initialize localQuizData state with quiz from location state
@@ -140,6 +145,51 @@ export default function QuizPreview() {
     setIsShared(true);
     setTimeout(() => setIsShared(false), 2000);
   };
+
+  // Add handlers for generating flashcards and fetching videos
+  const handleGenerateFlashcards = useCallback(async () => {
+    if (!localQuizData) {
+      toast.error("Quiz data not loaded");
+      return;
+    }
+    const lesson_id = lessonIDFromState;
+    const quiz_result_id = quizIdFromState || (localQuizData && localQuizData._id);
+    if (!lesson_id || !quiz_result_id) {
+      toast.error("Missing lesson_id or quiz_result_id in quiz data");
+      return;
+    }
+    try {
+      setFlashcardsLoading(true);
+      await generateFlashcards(lesson_id, quiz_result_id,true);
+      toast.success("Flashcards generated successfully");
+    } catch (error) {
+      toast.error("Failed to generate flashcards: " + (error.message || error));
+    } finally {
+      setFlashcardsLoading(false);
+    }
+  }, [localQuizData, lessonIDFromState, quizIdFromState]);
+
+  const handleFetchVideos = useCallback(async () => {
+    if (!localQuizData) {
+      toast.error("Quiz data not loaded");
+      return;
+    }
+    const lesson_id = lessonIDFromState;
+    const quiz_result_id = quizIdFromState || (localQuizData && localQuizData._id);
+    if (!lesson_id || !quiz_result_id) {
+      toast.error("Missing lesson_id or quiz_result_id in quiz data");
+      return;
+    }
+    try {
+      setVideosLoading(true);
+      await fetchVideos(lesson_id, quiz_result_id,true);
+      toast.success("YouTube videos fetched successfully");
+    } catch (error) {
+      toast.error("Failed to fetch videos: " + (error.message || error));
+    } finally {
+      setVideosLoading(false);
+    }
+  }, [localQuizData, lessonIDFromState, quizIdFromState]);
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -301,10 +351,27 @@ export default function QuizPreview() {
             </div>
           ))}
         </div>
+        {/* New buttons for flashcards and videos */}
+        <div className="mt-6 flex space-x-4">
+          <button
+            onClick={handleGenerateFlashcards}
+            disabled={flashcardsLoading}
+            className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+          >
+            {flashcardsLoading ? "Generating Flashcards..." : "Generate Flashcards"}
+          </button>
+          <button
+            onClick={handleFetchVideos}
+            disabled={videosLoading}
+            className="px-6 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
+          >
+            {videosLoading ? "Generating Videos..." : "Generate YouTube Videos"}
+          </button>
+        </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-between">
+      <div className="flex justify-between mt-6">
         <button
           onClick={() => navigate('/professor/quizzes')}
           className="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">

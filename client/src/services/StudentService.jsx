@@ -92,10 +92,11 @@ export const saveQuizResult = async (result) => {
   }
 }
 // generate flashcards 
-export const generateFlashcards = async (lesson_id,quiz_ress_id) => {
+export const generateFlashcards = async (lesson_id,quiz_ress_id,isProfessor) => {
   const token = localStorage.getItem("access_token") || null;
   try {
     const response = await axios.get(`/api/flashcards/${lesson_id}/${quiz_ress_id}`, {
+      params: isProfessor ? { isFromProf: true } : {},
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -112,10 +113,11 @@ export const generateFlashcards = async (lesson_id,quiz_ress_id) => {
 }
 // fetch the videos from the backend
 
-export const fetchVideos = async (lesson_id,quiz_ress_id)  => {
+export const fetchVideos = async (lesson_id,quiz_ress_id,isProfessor)  => {
   const token = localStorage.getItem("access_token") || null;
   try {
     const response = await axios.get(`/api/youtube/${lesson_id}/${quiz_ress_id}`, {
+      params: isProfessor ? { isFromProf: true } : {},
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -124,9 +126,7 @@ export const fetchVideos = async (lesson_id,quiz_ress_id)  => {
     // Log the response for debugging
     console.log('Videos fetched:', response.data);
     return response.data;
-
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error fetching videos:", error);
     throw error;
   }
