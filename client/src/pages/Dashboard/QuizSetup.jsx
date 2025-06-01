@@ -128,7 +128,7 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
             type: quizSetupData.type 
           }
         };
-        navigate('/professor/upload/quizpreview', { state: { quiz: refinedQuiz, quizId: quizId } });
+        navigate('/professor/upload/quizpreview', { state: { quiz: refinedQuiz, quizId: quizId ,lessonID: lessonID } });
       } else {
         onStartQuiz(quizSetupData);
         navigate('/student/quiz');
