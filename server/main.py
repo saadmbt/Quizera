@@ -344,12 +344,10 @@ def generatee_flashcards(lesson_id, quiz_ress_id):
         if flashcards is None:
             return jsonify({"error": "Error generating flashcards"}), 400
             
-        # Only update quiz results if not from professor
-        if not is_from_prof:
-            # Insert the flashcard into the database
-            inserted_flashcard_id = Update_Quiz_Results(quiz_res_id,flashcards,"flashcards",is_from_prof)
-            if not isinstance(inserted_flashcard_id, ObjectId):
-                raise ValueError("Error inserting flashcards.")
+        # Insert the flashcard into the database
+        inserted_flashcard_id = Update_Quiz_Results(quiz_res_id,flashcards,"flashcards",is_from_prof)
+        if not isinstance(inserted_flashcard_id, ObjectId):
+            raise ValueError("Error inserting flashcards.")
                 
         return jsonify({"flashcards":flashcards})
     except Exception as e:
