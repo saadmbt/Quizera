@@ -31,9 +31,9 @@ const ProgressOverviewSection = () => {
             icon: BrainCircuit 
           },
           { 
-            title: 'Study Streak', 
-            value: `${data.totalQuizzes<5?data.streak || 0 : 5} days`, 
-            color: 'bg-orange-500', 
+            title: 'Last Score', 
+            value: data.lastScore != 0 ?`${data.lastScore} %`: 'Try take a quiz',
+            color: 'bg-purple-500', 
             icon: Crown 
           }
         ];

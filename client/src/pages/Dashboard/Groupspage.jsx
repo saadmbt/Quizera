@@ -40,38 +40,7 @@ function Groupspage() {
         </div>
       );
 
-    if (error) {
-        return (
-            <div className="flex flex-col items-center justify-center py-12">
-                {error === "No groups found for this student" ? (
-                    <>
-                        <div className="mb-4">
-                            <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-700 mb-2">No Groups Yet</h3>
-                        <p className="text-gray-500 text-center max-w-md">
-                            You haven't joined any groups at this moment. Join a group to start collaborating with others!
-                        </p>
-                    </>
-                ) : (
-                    <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                        <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                            <div className="ml-3">
-                                <p className="text-red-700">{error}</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-        );
-    }
+    
 
     return (
         <div className="container mx-auto p-4 max-w-6xl">
@@ -103,7 +72,7 @@ function Groupspage() {
             {/* Groups Container with Animation */}
             <div className="  p-6 ">
                 {/* Group List or Empty State */}
-                {groups.length > 0 ? (
+                {groups.length > 0 && !error ? (
                     <div className="animate-fadeIn">
                         <ListGroups groups={groups} searchQuery={searchQuery} />
                     </div>

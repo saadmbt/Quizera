@@ -123,8 +123,8 @@ export default function useQuizLogic(settings,params) {
       if (hasCalledApis) return;
       setHasCalledApis(true);      
       Promise.all([
-        generateFlashcards(Lesson__id, quiz_res_id),
-        fetchVideos(Lesson__id, quiz_res_id),
+        generateFlashcards(Lesson__id, quiz_res_id,false),
+        fetchVideos(Lesson__id, quiz_res_id,false),
       ])
         .then(([flashcardsResponse, videosResponse]) => {
           setyoutubevideos(videosResponse.youtube_suggestions);

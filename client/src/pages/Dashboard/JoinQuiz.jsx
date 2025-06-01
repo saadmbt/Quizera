@@ -16,7 +16,8 @@ const JoinQuiz = () => {
     const [error, setError] = useState(null);
     const [show, setshow] = useState(true);
 
-    const { user, isAuthenticated } = useContext(AuthContext); 
+    const {isAuthenticated } = useContext(AuthContext); 
+    const user = JSON.parse(localStorage.getItem("_us_unr"));
     localStorage.setItem('isResultSaved',false)
     useEffect(() => {
         const checkAuth = async () => {
@@ -39,7 +40,7 @@ const JoinQuiz = () => {
     }, [isAuthenticated, navigate, Quiz_id]); // Check if the user is authenticated
 
     const handleJoinQuiz = () => {
-        navigate(`/student/quiz/${Quiz_id}`);
+        navigate(`/Student/quiz/${Quiz_id}`);
     };
 
     if (loading) return (
@@ -126,7 +127,7 @@ const JoinQuiz = () => {
                         onClick={handleJoinQuiz}
                         className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 font-medium flex items-center shadow-lg"
                     >
-                        Start Quiz
+                        Start Quiz Now
                         <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>

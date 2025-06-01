@@ -14,7 +14,7 @@ export default function MultipleChoice({ question, options, onAnswer }) {
         const letter = String.fromCharCode(65 + index);
         return (
           <button
-            key={option}
+            key={index}
             onClick={() => onAnswer(option)}
             className="w-full text-left p-4 rounded-lg border-2 border-gray-200  hover:border-blue-500 transition-colors"
           >
