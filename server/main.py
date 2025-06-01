@@ -325,8 +325,8 @@ def fetch_quiz(quiz_id):
 @app.route('/api/flashcards/<lesson_id>/<quiz_ress_id>', methods=['GET'])
 @jwt_required()
 def generatee_flashcards(lesson_id, quiz_ress_id):
-    # Get the optional isFromProf parameter from query string
-    is_from_prof = request.args.get('isFromProf', 'false').lower() == 'true'
+    # Get the optional isFromProf parameter from query string and check if exists
+    is_from_prof = True if request.args.get('isFromProf') else False
     
     # check if the jwt is valide 
     user_id = get_jwt_identity()
@@ -417,8 +417,8 @@ def fetch_flashcard(quiz_result_id):
 @jwt_required()
 def generate_yt_suggestions(lesson_id, quiz_ress_id):
     """ Generate YouTube suggestions for a given lesson ID and quiz result ID. """
-    # Get the optional isFromProf parameter from query string
-    is_from_prof = request.args.get('isFromProf', False) == True
+    # Get the optional isFromProf parameter from query string and check if exists
+    is_from_prof = True if request.args.get('isFromProf') else False
     # check if the jwt is valide 
     user_id = get_jwt_identity()
     # Check if the user ID exists in Firestore
