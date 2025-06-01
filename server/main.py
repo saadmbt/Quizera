@@ -338,7 +338,7 @@ def generatee_flashcards(lesson_id, quiz_ress_id):
         
     try:
         lesson_obj_id = ObjectId(lesson_id)
-        quiz_res_id = ObjectId(quiz_ress_id) if not is_from_prof else None
+        quiz_res_id = ObjectId(quiz_ress_id) 
         print(lesson_obj_id,quiz_res_id)
         flashcards = generate_flashcards(lesson_obj_id)
         if flashcards is None:
