@@ -143,9 +143,9 @@ def Insert_Quiz_Results(Quiz_res ,collection_name):
         return f"Error: inserting quiz result {str(e)}"
     
 # update quiz result with flashcards and youtube videos array  
-def Update_Quiz_Results(Quiz_res_id, data,type):
+def Update_Quiz_Results(Quiz_res_id, data,type,is_from_prof):
     try:
-        collection=db["quizzResult"]
+        collection = db["quizzes"] if is_from_prof == True else db["quizzResult"]
         # Update the quiz result with the flashcards array
         if type=="youtube":
             result = collection.update_one(

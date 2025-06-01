@@ -325,30 +325,36 @@ def fetch_quiz(quiz_id):
 @app.route('/api/flashcards/<lesson_id>/<quiz_ress_id>', methods=['GET'])
 @jwt_required()
 def generatee_flashcards(lesson_id, quiz_ress_id):
+    # Get the optional isFromProf parameter from query string
+    is_from_prof = request.args.get('isFromProf', 'false').lower() == 'true'
+    
     # check if the jwt is valide 
     user_id = get_jwt_identity()
-    # Check if the user ID exists in Firestore
+    # Check if the user ID exists in Firestore 
     try:
         auth.get_user(user_id)
     except auth.UserNotFoundError:
         return jsonify({"error": "Invalid or unknown UID"}), 401
-    try:
         
+    try:
         lesson_obj_id = ObjectId(lesson_id)
-        quiz_res_id = ObjectId(quiz_ress_id)
+        quiz_res_id = ObjectId(quiz_ress_id) if not is_from_prof else None
         print(lesson_obj_id,quiz_res_id)
-        flashcards =generate_flashcards(lesson_obj_id)
+        flashcards = generate_flashcards(lesson_obj_id)
         if flashcards is None:
             return jsonify({"error": "Error generating flashcards"}), 400
-        # Insert the flashcard into the database
-        inserted_flashcard_id = Update_Quiz_Results(quiz_res_id,flashcards,"flashcards")
-        if isinstance(inserted_flashcard_id, ObjectId):
-            return jsonify({"flashcards":flashcards})
-        else:
-            raise ValueError("Error inserting flashcards.")
+            
+        # Only update quiz results if not from professor
+        if not is_from_prof:
+            # Insert the flashcard into the database
+            inserted_flashcard_id = Update_Quiz_Results(quiz_res_id,flashcards,"flashcards",is_from_prof)
+            if not isinstance(inserted_flashcard_id, ObjectId):
+                raise ValueError("Error inserting flashcards.")
+                
+        return jsonify({"flashcards":flashcards})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
 # fetch  All geneareted Flashcards by user
 @app.route('/api/flashcards/Fetch_All/<user_id>', methods=['GET'])
 @jwt_required()
@@ -411,6 +417,8 @@ def fetch_flashcard(quiz_result_id):
 @jwt_required()
 def generate_yt_suggestions(lesson_id, quiz_ress_id):
     """ Generate YouTube suggestions for a given lesson ID and quiz result ID. """
+    # Get the optional isFromProf parameter from query string
+    is_from_prof = request.args.get('isFromProf', False) == True
     # check if the jwt is valide 
     user_id = get_jwt_identity()
     # Check if the user ID exists in Firestore
@@ -434,7 +442,7 @@ def generate_yt_suggestions(lesson_id, quiz_ress_id):
             return jsonify({"error": f"Error generating YouTube suggestions: {youtube_suggestions}"}), 400
                 
         # Insert the YouTube suggestions into the database 
-        inserted_youtube_suggestions_id = Update_Quiz_Results(quiz_res_id,youtube_suggestions,"youtube")
+        inserted_youtube_suggestions_id = Update_Quiz_Results(quiz_res_id,youtube_suggestions,"youtube",is_from_prof)
         if isinstance(inserted_youtube_suggestions_id, ObjectId):
             return jsonify({"youtube_suggestions":youtube_suggestions})
         else:
