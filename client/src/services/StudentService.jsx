@@ -322,3 +322,21 @@ export const fetchNotifications = async () => {
     throw error;
   }
 }
+
+// get quiz attempt by id
+export const getQuizAttemptById = async (attempt_id) => {
+  const token = localStorage.getItem("access_token") || null;
+  try {
+    const response = await axios.get(`/api/quiz-attempts/get/${attempt_id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`
+      },
+    });
+    console.log('Quiz attempt fetched:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching quiz attempt:", error);
+    throw error;
+  }
+}

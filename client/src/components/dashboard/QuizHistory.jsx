@@ -13,12 +13,25 @@ function QuizHistory(props) {
   const fetchQuizHistory = useCallback(async (retryCount = 0) => {
     setloading(true);
     try {
-      // Fetch quiz results
-      const results = await getQuizResults(userId);
+      let results = [];
+      let attempts = [];
 
-      // Fetch quiz attempts by studentId from new API endpoint
-      const attemptsResponse = await axios.get(`/api/quiz-attempts/student/${userId}`);
-      const attempts = attemptsResponse.data && !attemptsResponse.data.error ? attemptsResponse.data : [];
+      // Fetch quiz results independently
+      try {
+        results = await getQuizResults(userId);
+      } catch (error) {
+        console.error("Error fetching quiz results:", error);
+      }
+
+      // Fetch quiz attempts independently
+      try {
+        const token = localStorage.getItem('access_token'); 
+        const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+        const attemptsResponse = await axios.get(`/api/quiz-attempts/student/${userId}`, config);
+        attempts = attemptsResponse.data && !attemptsResponse.data.error ? attemptsResponse.data : [];
+      } catch (error) {
+        console.error("Error fetching quiz attempts:", error);
+      }
 
       // Combine results and attempts, avoiding duplicates
       const combined = [...results];
@@ -111,15 +124,19 @@ function QuizHistory(props) {
                 </span>
               </div>
               <div className={`
-                px-4 py-1.5 rounded-full text-sm font-medium
-                ${(quiz.score || quiz.totalScore) >= 90 ? 'bg-green-100 text-green-800' :
+                px-4 py-1.5 rounded-full text-sm font-medium ${
+                  (quiz.score || quiz.totalScore) >= 90 ? 'bg-green-100 text-green-800' :
                   (quiz.score || quiz.totalScore) >= 70 ? 'bg-blue-100 text-blue-800' :
-                  'bg-orange-100 text-orange-800'}
-              `}>
+                  'bg-orange-100 text-orange-800'
+                }`}>
                 {quiz.questions ? quiz.questions.length : (quiz.answers ? quiz.answers.length : 0)} Questions
               </div>
               <Link
-                to={`/Student/quizzes/${quiz._id ? quiz._id.$oid : (quiz.quizId ? quiz.quizId.$oid : '')}`}
+                to={`/Student/quizzes/${
+                  quiz._id ? (typeof quiz._id === 'string' ? quiz._id : quiz._id.$oid) :
+                  quiz.quizId ? (typeof quiz.quizId === 'string' ? quiz.quizId : quiz.quizId.$oid) :
+                  ''
+                }`}
                 className="flex items-center px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               >
                 View Details
