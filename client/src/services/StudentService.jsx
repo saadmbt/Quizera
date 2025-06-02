@@ -265,11 +265,30 @@ export const getQuizAssignments = async (group_id) => {
     throw error;
   }
 }
-//  save quiz attempt for a student
 export const saveQuizAttempt = async (attempt) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.post("/api/student-quiz-attempt", { attempt }, {
+    // Fetch quiz title before saving attempt
+    let title = '';
+    if (attempt.quizId) {
+      try {
+        const quizResponse = await axios.get(`/api/quizzes/${attempt.quizId}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${token}`
+          },
+        });
+        if (quizResponse.data && quizResponse.data.title) {
+          title = quizResponse.data.title;
+        }
+      } catch (error) {
+        console.error("Error fetching quiz title:", error);
+      }
+    }
+    // Add title to attempt
+    const attemptWithTitle = { ...attempt, title };
+
+    const response = await axios.post("/api/student-quiz-attempt", { attempt: attemptWithTitle }, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`

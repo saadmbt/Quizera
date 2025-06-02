@@ -927,6 +927,15 @@ def create_group_quiz_attempt():
     quiz_result["studentId"]=student_id
     quiz_result["quizId"]=ObjectId(quiz_result["quizId"])
 
+    # Fetch quiz title from quizzes collection
+    try:
+        from functionsDB import Fetch_Quizzes
+        quiz = Fetch_Quizzes(quiz_result["quizId"])
+        if quiz and isinstance(quiz, dict) and "title" in quiz:
+            quiz_result["title"] = quiz["title"]
+    except Exception as e:
+        print(f"Error fetching quiz title: {str(e)}")
+
     # Insert the quiz result into the database
     quiz_result_id = Insert_Quiz_Results(quiz_result,"QuizAttempts")
     if "error" in str(quiz_result_id).lower():
