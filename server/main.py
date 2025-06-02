@@ -945,23 +945,20 @@ def get_student_performance():
         Response: JSON response containing the student's performance data or an error message.
     """
     student_id = get_jwt_identity()
-    # check if student_id is valid (firestore uid)
+    # check if student_id is valide (firestone uid)
     # Check if the student ID exists in Firestore
     try:
         auth.get_user(student_id)
     except auth.UserNotFoundError:
         return jsonify({"error": "Invalid or unknown UID"}), 401
     
-    try:
-        performance_data = getStudentPerformance(str(student_id))
-        if isinstance(performance_data, str) and "error" in performance_data.lower():
-            return jsonify({"error": performance_data}), 500
-        if not performance_data:
-            return jsonify({"error": "No performance data found for this student"}), 404
+    performance_data = getStudentPerformance(str(student_id))
+    if isinstance(performance_data, str) and "error" in performance_data.lower():
+        return jsonify({"error": performance_data}), 500
+    if not performance_data:
+        return jsonify({"error": "No performance data found for this student"}), 404
 
-        return jsonify(performance_data), 200
-    except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
+    return jsonify(performance_data), 200
 
 @app.route('/api/quiz-attempts/student/<student_id>', methods=['GET'])
 @jwt_required()
