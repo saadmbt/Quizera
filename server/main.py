@@ -15,7 +15,7 @@ from functionsDB import (
     get_professor_groups, get_student_groups, Fetch_Groups, get_group_by_id, get_professor_by_id,Update_Quiz_Results,
     Fetch_Flashcard_by_id,Fetch_Flashcards_by_user,Fetch_Quiz_Results_by_user,update_group_info,get_group_by_id,
     insert_quiz_assignment,get_quiz_assignment_group_ids_for_student,get_quizzs_Assignments_by_group_id,get_quizzes_by_ids,
-    get_students_with_average_scores_for_group,getStudentPerformance, get_quiz_attempts_by_quiz_id, get_professor_quizzes,delete_group,check_quiz_assignment_completion
+    get_students_with_average_scores_for_group,getStudentPerformance, get_quiz_attempts_by_quiz_id, get_professor_quizzes,delete_group,check_quiz_assignment_completion,get_quiz_attempts_by_student_id
 )
 from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
 from file_handling import file_handler
@@ -959,6 +959,30 @@ def get_student_performance():
         return jsonify({"error": "No performance data found for this student"}), 404
 
     return jsonify(performance_data), 200
+
+@app.route('/api/quiz-attempts/student/<student_id>', methods=['GET'])
+@jwt_required()
+def get_quiz_attempts_by_student(student_id):
+    # Check if the jwt is valid
+    user_id = get_jwt_identity()
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+
+    # Validate student_id matches the authenticated user or has permission
+    if student_id != user_id:
+        return jsonify({"error": "Unauthorized access"}), 403
+
+    try:
+        # Fetch quiz attempts by studentId from DB function
+        quiz_attempts = get_quiz_attempts_by_student_id(student_id)
+        if quiz_attempts is None or len(quiz_attempts) == 0:
+            return jsonify({"error": "No quiz attempts found"}), 404
+        return jsonify(quiz_attempts), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/quiz-attempts', methods=['GET'])
 @jwt_required()
