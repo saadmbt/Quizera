@@ -819,3 +819,22 @@ def check_quiz_assignment_completion(student_uid):
             "message": f"Error checking quiz assignments: {str(e)}",
             "data": []
         }
+
+def Fetch_Quiz_Attempt(attempt_id):
+    try:
+        collection = db["QuizAttempts"]
+        attempt = collection.find_one({"_id": attempt_id})
+        if attempt is None:
+            return "error : Quiz attempt not found"
+        else:
+            attempt["_id"] = str(attempt["_id"])
+            attempt["quizId"] = str(attempt["quizId"])
+            attempt["studentId"] = str(attempt["studentId"])
+            attempt["submittedAt"] = attempt.get("submittedAt")
+            attempt["username"] = attempt.get("username")
+            attempt["answers"] = attempt.get("answers")
+            attempt["totalScore"] = attempt.get("totalScore")
+            attempt["feedback"] = attempt.get("feedback")
+            return attempt
+    except Exception as e:
+        return f"Error fetching quiz attempt: {str(e)}"

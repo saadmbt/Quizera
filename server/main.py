@@ -983,6 +983,37 @@ def get_quiz_attempts_by_student(student_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/quiz-attempts/get/<attempt_id>', methods=['GET'])
+@jwt_required()
+def get_quiz_attempt_by_id(attempt_id):
+    """
+    Fetch a quiz attempt by its ID.
+    """
+    user_id = get_jwt_identity()
+    try:
+        auth.get_user(user_id)
+    except auth.UserNotFoundError:
+        return jsonify({"error": "Invalid or unknown UID"}), 401
+
+    try:
+        attempt_obj_id = ObjectId(attempt_id)
+    except Exception as e:
+        return jsonify({"error": "Invalid attempt_id"}), 400
+
+    try:
+        from functionsDB import Fetch_Quiz_Attempt  # Assuming this function exists
+        quiz_attempt = Fetch_Quiz_Attempt(attempt_obj_id)
+        if quiz_attempt is None:
+            return jsonify({"error": "Quiz attempt not found"}), 404
+        if isinstance(quiz_attempt, str) and "error" in quiz_attempt.lower():
+            return jsonify({"error": str(quiz_attempt)}), 404
+
+        return jsonify(quiz_attempt), 200
+    except ImportError:
+        return jsonify({"error": "Fetch_Quiz_Attempt function not implemented"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/quiz-attempts', methods=['GET'])
 @jwt_required()
