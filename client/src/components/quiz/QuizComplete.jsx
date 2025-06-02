@@ -24,6 +24,8 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
   const navigate = useNavigate();
   // add a varible in localstorage to check if the quiz result is saved  or not
   const isResultSavedIn = JSON.parse(localStorage.getItem('isResultSaved')) || false;
+  const isNew= JSON.parse(localStorage.getItem('isNew')) ;
+  isNew? localStorage.setItem('isNew',false) : ""
   console.log("isResultSavedIn",isResultSavedIn)
     useEffect(() => {
       if (isLowScore && quiz_res_id) {        
@@ -167,7 +169,7 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
             </ul>
           </div>
 
-          {!fromGroup &&( <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={onShowFlashcards}
                 className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border-2 border-blue-500 text-blue-500 hover:bg-blue-50 transition-all duration-300 transform hover:scale-105"
@@ -182,7 +184,7 @@ export default function QuizComplete({ quizResult , score , totalQuestions , onS
                 <Youtube className="h-5 w-5" />
                 Watch Videos
               </button>
-            </div>)}
+            </div>
         </div>
       )}
        <div>

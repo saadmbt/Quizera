@@ -31,8 +31,8 @@ const ProgressOverviewSection = () => {
             icon: BrainCircuit 
           },
           { 
-            title: 'Last Score', 
-            value: data.lastScore != 0 ?`${data.lastScore} %`: 'Try take a quiz',
+            title: 'Top Score', 
+            value: data.MaxScore != 0 ?`${data.MaxScore} %`: 'Try take a quiz',
             color: 'bg-purple-500', 
             icon: Crown 
           }

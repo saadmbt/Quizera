@@ -74,17 +74,19 @@ export default function Quiz({settings, params, fromGroup}) {
   }
 
   if (showFlashcards) {
+    const newlistflashcards= fromGroup? quiz.flashcards : ListFlashcards;
     return (
       <Flashcards
-        flashcards={ListFlashcards}
+        flashcards={newlistflashcards}
         onBack={() => setShowFlashcards(false)}
       />
     );
   }
 
   if (showVideos) {
+    const listvidoesyt=fromGroup? quiz.youtube : youtubevideos;
     return (
-      <Videos videos={youtubevideos} onBack={() => setShowVideos(false)} />
+      <Videos videos={listvidoesyt} onBack={() => setShowVideos(false)} />
     );
   }
 

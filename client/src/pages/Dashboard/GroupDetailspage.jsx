@@ -15,7 +15,7 @@ function GroupDetailspage() {
     const [quizzes, setquizzes] = useState([]);
     const { id } = useParams();
     const navigate=useNavigate()
-
+    localStorage.setItem('isResultSaved',false)
     // fetch group info
     const fetchGroup = useCallback(async () => {
       try{
