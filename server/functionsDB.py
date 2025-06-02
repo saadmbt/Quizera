@@ -626,11 +626,6 @@ def getStudentPerformance(studentId):
                 "averageScore": { "$avg": "$totalScore" }
             }}
         ]))
-
-        # Get latest quiz attempt score
-        latest_attempt_cursor = QuizAttempts_collection.find({"studentId": studentId}
-                        ).sort([("createdAt", -1)]).limit(1)
-        latest_attempt = next(latest_attempt_cursor, None)
         
         # Get quiz results stats
         quizz_Result = list(quizzResult_collection.aggregate([
@@ -638,19 +633,14 @@ def getStudentPerformance(studentId):
             { "$group": {
                 "_id": None,
                 "totalQuizzes": { "$sum": 1 },
-                "averageScore": { "$avg": "$score" }
+                "averageScore": { "$avg": "$score" },
+                "maxScore": { "$max": "$score" },
             }}
         ]))
 
-        # Get latest quiz result score
-        latest_result_cursor = quizzResult_collection.find(
-            {"generated_by": studentId}
-        ).sort("createdAt", -1).limit(1)
-        latest_result = next(latest_result_cursor, None)
-
         # Default values if no data found
         if not quizz_Result:
-            quizz_Result = [{"totalQuizzes": 0, "averageScore": 0}]
+            quizz_Result = [{"totalQuizzes": 0, "averageScore": 0,"maxScore":0}]
         if not quiz_attempts:
             quiz_attempts = [{"totalAttempts": 0, "averageScore": 0}]
 
@@ -658,14 +648,7 @@ def getStudentPerformance(studentId):
         quiz_result_avg = quizz_Result[0]["averageScore"] or 0
         quiz_attempts_avg = quiz_attempts[0]["averageScore"] or 0
         
-        # Get last score from either source
-        last_score = 0
-        if latest_attempt and latest_result:
-            last_score = latest_attempt.get("score", 0) if latest_attempt.get("createdAt", 0) > latest_result.get("createdAt", 0) else latest_result.get("score", 0)
-        elif latest_attempt:
-            last_score = latest_attempt.get("score", 0)
-        elif latest_result:
-            last_score = latest_result.get("score", 0)
+        
 
         # Calculate average score 
         if quiz_result_avg == 0 and quiz_attempts_avg > 0:
@@ -680,7 +663,7 @@ def getStudentPerformance(studentId):
         final_result = {
             "totalQuizzes": quizz_Result[0]["totalQuizzes"] + quiz_attempts[0]["totalAttempts"],
             "averageScore": average_score,
-            "lastScore": last_score
+            "MaxScore": quizz_Result[0]["maxScore"] if quizz_Result[0]["maxScore"] else 0,
         }
 
         return final_result
