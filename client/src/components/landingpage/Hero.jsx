@@ -91,7 +91,7 @@ export default function Hero() {
             </button>
           </div>
           {/* Trust Indicators */}
-          <div className="animate-in">
+          {/* <div className="animate-in">
             <p className="text-sm text-gray-500 mb-6">
               Trusted by leading organizations worldwide
             </p>
@@ -112,7 +112,7 @@ export default function Hero() {
                 className="h-5 sm:h-6 grayscale hover:grayscale-0 transition-all duration-300"
               />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

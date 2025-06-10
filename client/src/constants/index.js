@@ -9,7 +9,7 @@ import Target from '../assets/whyusicons/Target.svg';
 import ClockArrowUp from '../assets/whyusicons/clock-arrow-up.svg';
 import BrainCog from '../assets/whyusicons/brain-cog.svg';
 import Users from '../assets/whyusicons/users.svg';
-import {BookOpen, BrainCircuit, Crown, Library, Settings, Upload } from 'lucide-react';
+import {BookOpen, BrainCircuit, Crown, Library, Settings, Sparkles, Upload, Zap } from 'lucide-react';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
 export const websiteConstants = {
     // Website URL
@@ -101,6 +101,7 @@ export const features = [
 export const pricingTiers = [
     {
         title: 'Free',
+        icon: Sparkles,
         subtitle: 'Get started with 5 exam generations.',
         price: '$0',
         features: [{text:'Create 5 Exam Generations',icon:"Check"},{text:'Share quizzes',icon:"Check"}, {text:'Access to All Features',icon:"X"},{text:'No Ads',icon:"X"},{text:'No Limit on Questions',icon:"X"} ],
@@ -110,6 +111,7 @@ export const pricingTiers = [
         title: 'Standard',
         subtitle: 'Get started with 20 exam generations.',
         old_price: '$9.99',
+        icon:Zap,
         price: '$4.99',
         features: [{text:'Create 20 Exam Generations',icon:"Check"},{text:'Share quizzes',icon:"Check"},{text:'20 Questions per Quiz',icon:"Check"}, {text:'Access to All Features',icon:"X"},{text:'No Ads',icon:"X"} ],
         cta: 'Checkout Now',
@@ -118,6 +120,7 @@ export const pricingTiers = [
         title: 'Lifetime',
         subtitle: 'Unlimited exam generations for life.',
         old_price: '$25.99',
+        icon: Crown,
         price: '$19.99',
         features: [{text:'Unlimited Exam Generations',icon:"Check"},{text:'Share quizzes',icon:"Check"},{text:'Access to All Features',icon:"Check"} ,{text:'No Ads',icon:"Check"},{text:'No Limit on Questions',icon:"Check"} ,{text:'Free Updates Forever',icon:"Check"} ],
         cta: 'Checkout Now',

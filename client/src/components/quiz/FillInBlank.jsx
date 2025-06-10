@@ -48,12 +48,11 @@ export default function FillInBlank({ question, answers, blanks, onAnswer }) {
   };
 
   const handleNext = () => {
-    if (filledBlanks.every(blank => blank !== '')) {
-      onAnswer(filledBlanks.join(','));
-      setFilledBlanks(new Array(blanks.length).fill(''));
-      setIsCompleted(false);
-    }
+    onAnswer(filledBlanks.join(','));
+    setFilledBlanks(new Array(blanks.length).fill(''));
+    setIsCompleted(false);
   };
+  
 
   return (
     <div className="space-y-6">
@@ -89,9 +88,9 @@ export default function FillInBlank({ question, answers, blanks, onAnswer }) {
 
       <button
         onClick={handleNext}
-        disabled={!filledBlanks.every(blank => blank !== '')}
+        disabled={!isCompleted}
         className={`mt-4 px-6 py-2 rounded-lg ${
-          filledBlanks.every(blank => blank !== '') 
+          isCompleted 
             ? 'bg-blue-500 text-white hover:bg-blue-600' 
             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
         }`}
