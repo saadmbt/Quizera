@@ -183,7 +183,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         )
 
         # Afficher la réponse complète de l'API pour le débogage
-        questions_text = clean_llm_response(completion.choices[0].message.content.strip())
+        questions_text = completion.choices[0].message.content.strip()
         # Parse the response to extract the list of questions
         print("res",questions_text)
 
