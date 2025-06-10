@@ -47,6 +47,7 @@ flashcards_prompt = """
     - [ ] "front" and "back" fields exist for every card
     - [ ] Total of EXACTLY 10 flashcards
     - [ ] All text is in content's language
+    - [ ] if the language of the content in french the out put should e in french too.
     - [ ] The format and structure of the output is correct
 
     ### OUTPUT FORMAT (PYTHON LIST):
@@ -90,7 +91,7 @@ base_prompt = {
                     "Common misconception"
                 ],
                 "correctanswer": "Correct answer (exactly matches content)",  # CASE-SENSITIVE
-                "explanation": "1-sentence justification referencing content."
+                "explanation": "Brief explanation in same language as content"
             }}
         ]
 
@@ -101,6 +102,8 @@ base_prompt = {
         - [ ] No trailing commas or syntax errors.
         - [ ] Confirm the output Text Language is the same as the content.
         - [ ] if the language of the content in french the out put should e in french too.
+        - [ ] Return ONLY a valid Python list, no additional text.
+        
 
         ### BEGIN OUTPUT:
         [
@@ -123,16 +126,19 @@ base_prompt = {
                 "question": "Definitive statement that is objectively True/False.",
                 "options": ["True", "False"],  # EXACTLY these values
                 "correctanswer": "True",  # or "False" (case-sensitive)
-                "explanation": "Direct evidence from content."
+                "explanation": "Brief explanation in same language as content"
             }}
         ]
 
-        ### VALIDATION CHECKS:
+        ### VALIDATION CHECKS (REQUIRED):
         - [ ] `correctanswer` is either "True" or "False" (case-sensitive).
-        - [ ] No nested quotes or JSON syntax errors.
+        - [ ] Ensure all brackets/quotes are closed.
+        - [ ] Confirm explanations derive from content.
+        - [ ] No trailing commas or syntax errors.
         - [ ] All questions are fact-based (no generalizations).
         - [ ] Confirm the output Text Language is the same as the content.
         - [ ] if the language of the content in french the out put should e in french too.
+        - [ ] Return ONLY a valid Python list, no additional text.
 
         ### BEGIN OUTPUT:
         [
@@ -148,8 +154,9 @@ base_prompt = {
         1. **Blanks**: Use 1 blank for easy, 2 for medium, 3 for hard.
         2. **Answers**: Provide 1 correct + 2 incorrect options per blank.
         3. **Context**: Ensure blanks are inferable from surrounding text.
+        4. **Format**: Return ONLY a valid JSON array, no additional text
 
-        ### OUTPUT TEMPLATE (PYTHON):
+        ### JSON STRUCTURE:
         [
             {{
                 "question": "Sentence with ___ blank(s) placed where key terms belong.",
@@ -160,16 +167,17 @@ base_prompt = {
                     "Another incorrect term"
                 ],
                 "correctanswer": "Correct term (exact match to content)",
-                "explanation": "Why this term fits contextually."
+                "explanation": "Brief explanation in same language as content"
             }}
         ]
 
-        ### VALIDATION CHECKS:
+        ### VALIDATION CHECKS (REQUIRED):
         - [ ] Each blank marked with `___`.
         - [ ] `correctanswer` exists in `answers` list.
         - [ ] No missing/extra blanks or answers.
         - [ ] Confirm the output Text Language is the same as the content.
         - [ ] if the language of the content in french the out put should e in french too.
+        - [ ] Return ONLY a valid JSON array, no additional text.
 
         ### BEGIN OUTPUT:
         [

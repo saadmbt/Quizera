@@ -3,6 +3,7 @@ from  groq import Groq
 from dotenv import load_dotenv
 import os
 import json
+import re
 from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId
@@ -124,6 +125,17 @@ def generate_youtube_suggestions(keywords):
     print(video_suggestions)    
     return video_suggestions
 
+def clean_llm_response(response):
+    # Remove common prefixes
+    response = re.sub(r'^.*?(?=\[)', '', response, flags=re.DOTALL)
+    
+    # Remove common suffixes after ]
+    response = re.sub(r'\].*?$', ']', response, flags=re.DOTALL)
+    
+    # Fix French quotes if needed
+    response = response.replace('"', '"').replace('"', '"')
+    
+    return response.strip()
 
 def generate_and_insert_questions(lesson_id, question_type, num_questions, difficulty):
     """Reads a lesson from MongoDB, generates questions using the Groq API,
@@ -171,9 +183,10 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         )
 
         # Afficher la réponse complète de l'API pour le débogage
-        questions_text = completion.choices[0].message.content.strip()
+        questions_text = clean_llm_response(completion.choices[0].message.content.strip())
         # Parse the response to extract the list of questions
         print("res",questions_text)
+
         # Check if the response is a type of array 
         if isinstance(questions_text, list):
             questions = questions_text
@@ -280,3 +293,4 @@ def generate_flashcards(lesson_id):
     except Exception as e:
         print(f"Error generating flashcards from lesson: {e}")
         return None
+    
