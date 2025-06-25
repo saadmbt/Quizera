@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import PublicRoutes from "./PublicRoutes";
-import AuthRoutes from "./AuthRoutes";
+import AuthRoutes from "./authRoutes";
 import ProfessorRoutes from "./ProfessorRoutes";
 import MainLayout from "../layouts/MainLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
