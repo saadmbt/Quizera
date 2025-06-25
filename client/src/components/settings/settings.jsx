@@ -5,8 +5,8 @@ import {
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
-import ProfileSettings from './ProfileSettings';
-import SecuritySettings from './SecuritySettings';
+import ProfileSettings from './profileSettings';
+import SecuritySettings from './securitySettings';
 
 const Settings = ({ userType = 'professor' }) => {
   const [selectedTab, setSelectedTab] = useState(0);
