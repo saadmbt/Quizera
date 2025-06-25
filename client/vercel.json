@@ -1,13 +1,27 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "^/$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/auth(?:/.*)?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/professor(?:/.*)?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/Student(?:/.*)?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/JoinQuiz(?:/.*)?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/.*$",
       "dest": "/index.html"
     }
   ]
