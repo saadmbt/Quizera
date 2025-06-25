@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { fetchGroupStudentsWithScores } from '../../services/ProfServices';
-import { getGroupInfo, getQuizAssignments, saveQuizAttempt } from '../../services/StudentService';
+import { getGroupInfo, getQuizAssignments } from '../../services/StudentService';
 import GroupStatSkeleton from '../../components/Skeletons/GroupStatSkeleton';
 import { FaCalendarAlt, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
-import toast from 'react-hot-toast';
 
 const GroupStatistics = ({ groupid: propGroupId, groupName: propGroupName }) => {
   const { groupid: paramGroupId } = useParams();

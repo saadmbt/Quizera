@@ -1,8 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import ListGroups from '../../components/dashboard/groups/ListGroups';
 import { fetchStudentGroups } from '../../services/ProfServices';
-import { AuthContext } from '../../components/Auth/AuthContext';
 
 function Groupspage() {
     const [searchQuery, setSearchQuery] = useState('');

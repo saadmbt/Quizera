@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Library, Plus, Sidebar } from 'lucide-react';
-import FlashcardDeck from './flashcarddeck';
+import FlashcardDeck from './FlashcardDeck';
 import { useOutletContext } from 'react-router-dom';
 import { getFlashcards } from '../../services/StudentService';
 
