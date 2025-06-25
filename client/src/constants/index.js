@@ -4,8 +4,8 @@
 // Website Constants
 // "dialog" and "Radio Group" and "textarea"from shadin/cn
 import Multidoc from '../assets/whyusicons/multidoc.svg';
-import Ieg from '../assets/whyusicons/Ieg.svg';
-import Target from '../assets/whyusicons/Target.svg';
+import Ieg from '../assets/whyusicons/ieg.svg';
+import Target from '../assets/whyusicons/target.svg';
 import ClockArrowUp from '../assets/whyusicons/clock-arrow-up.svg';
 import BrainCog from '../assets/whyusicons/brain-cog.svg';
 import Users from '../assets/whyusicons/users.svg';
