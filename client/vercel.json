@@ -1,6 +1,10 @@
 {
   "routes": [
     {
+      "src": "^/(.*)\\.(js|css|png|svg|ico|json|txt|woff|woff2|ttf|eot|otf|map|wasm|html|xml|webmanifest|mp4|webp|avif|gif|jpeg|jpg|bmp|pdf|csv|ts|tsx|jsx|mjs|cjs|mp3|wav|ogg|flac|aac|m4a|mpg|mpeg|avi|mov|wmv|flv|mkv|3gp|3g2|m3u8|m4v|mxf|heic|heif|indd|ai|eps|psd|svgz|cur|ani|doc|docx|xls|xlsx|ppt|pptx|odt|ods|odp|rtf|md|yml|yaml|toml|ini|conf|log|lock|env|env\\.local|env\\.development|env\\.production|env\\.test|env\\.staging|env\\.example|env\\.sample)$",
+      "dest": "/$1.$2"
+    },
+    {
       "src": "^/$",
       "dest": "/index.html"
     },
