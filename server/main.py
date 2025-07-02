@@ -17,7 +17,7 @@ from functionsDB import (
     insert_quiz_assignment,get_quiz_assignment_group_ids_for_student,get_quizzs_Assignments_by_group_id,get_quizzes_by_ids,
     get_students_with_average_scores_for_group,getStudentPerformance, get_quiz_attempts_by_quiz_id, get_professor_quizzes,delete_group,check_quiz_assignment_completion,get_quiz_attempts_by_student_id
 )
-from main_functions import (save_to_azure_storage, create_token, check_request_body, get_file_type)
+from main_functions import ( create_token, check_request_body, get_file_type)
 from file_handling import file_handler
 from image_Handling import image_handler
 from werkzeug.utils import secure_filename
