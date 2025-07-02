@@ -29,12 +29,8 @@ from flask_cors import CORS
 import json
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:5173','https://quizera-beige.vercel.app'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], headers=['Content-Type', 'Authorization'], supports_credentials=True)
+CORS(app, origins='*', headers=['Content-Type', 'Authorization'])
 
-@app.route('/api/test-cors', methods=['OPTIONS', 'GET', 'POST'])
-def test_cors():
-    response = app.make_response(('CORS test successful', 200))
-    return response
 # Load credentials from environment variables
 load_dotenv()
 # Load the service account key from the environment variable
@@ -71,15 +67,6 @@ def login():
 
         access_token = create_token(uid)
         response = jsonify({"access_token": access_token})
-
-        # Set the access token in a cookie
-        response.set_cookie(
-            'access_token', 
-            access_token, 
-            httponly=True,  # Prevent JavaScript access to the cookie
-            secure=False,    # Use secure cookies (only sent over HTTPS) - set False for localhost dev
-            samesite='Lax'  # Helps prevent CSRF attacks
-        )
         return response, 201
     except ValueError as e:
         return jsonify({'error': f'Invalid token format: {str(e)}'}), 400
@@ -1107,14 +1094,6 @@ def refresh_expiring_jwts(response):
                 data["access_token"] = new_access_token
                 response.set_data(json.dumps(data))
                 response.content_type = "application/json"
-
-            # Set the access token in a cookie
-            response.set_cookie(
-                'access_token',
-                new_access_token,
-                # Set the cookie to expire when the token expires
-                expires=dt.datetime.fromtimestamp(exp_timestamp, dt.timezone.utc)
-            )
     except Exception as e:
         # Log any exceptions that occur during token refresh
         print(f"Error refreshing token: {e}")
