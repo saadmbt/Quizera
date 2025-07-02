@@ -29,8 +29,12 @@ from flask_cors import CORS
 import json
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:5173', 'https://quizera-beige.vercel.app/'], methods=['GET', 'POST', 'PUT', 'DELETE'], headers=['Content-Type', 'Authorization'], supports_credentials=True)
+CORS(app, origins=['http://localhost:5173','https://quizera-beige.vercel.app'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], headers=['Content-Type', 'Authorization'], supports_credentials=True)
 
+@app.route('/api/test-cors', methods=['OPTIONS', 'GET', 'POST'])
+def test_cors():
+    response = app.make_response(('CORS test successful', 200))
+    return response
 # Load credentials from environment variables
 load_dotenv()
 # Load the service account key from the environment variable
