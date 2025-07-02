@@ -72,9 +72,9 @@ def login():
         response.set_cookie(
             'access_token', 
             access_token, 
-            # httponly=True,  # Prevent JavaScript access to the cookie
-            # secure=True,    # Use secure cookies (only sent over HTTPS)
-            # samesite='Lax'  # Helps prevent CSRF attacks
+            httponly=True,  # Prevent JavaScript access to the cookie
+            secure=False,    # Use secure cookies (only sent over HTTPS) - set False for localhost dev
+            samesite='Lax'  # Helps prevent CSRF attacks
         )
         return response, 201
     except ValueError as e:

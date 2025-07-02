@@ -1,11 +1,17 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
+import jwtDecode from "jwt-decode";
 
 export default function ProtectedRoute({allowedRoles,children}){
     // get the access_token from localStorage
     const token=localStorage.getItem("access_token")
-    const user  = JSON.parse(localStorage.getItem("_us_unr"))
+    const userStr = localStorage.getItem("_us_unr")
+    let user = null;
+    try {
+        user = userStr ? JSON.parse(userStr) : null;
+    } catch (e) {
+        console.error("Failed to parse user from localStorage:", e);
+    }
 
     let decodedToken = null;
     if(token){
@@ -13,14 +19,14 @@ export default function ProtectedRoute({allowedRoles,children}){
             decodedToken = jwtDecode(token)
             console.log(decodedToken)
         }catch (e){
-            console.log(e)
+            console.error("Invalid token:", e);
+            return <Navigate to="/auth/login"/>
         }
-    }
-    
-    if(!decodedToken){
+    } else {
         return <Navigate to="/auth/login"/>
     }
-    if(!user.role){
+    
+    if(!user || !user.role){
         return <Navigate to="/auth/UserRoleSelection"/>
     }
     const userRole = user.role.toLowerCase();

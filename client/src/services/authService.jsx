@@ -7,8 +7,13 @@ const getJWT = async (uid) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true, // include cookies in requests
     });
-    return response.data.access_token;
+    const token = response.data.access_token;
+    if (token) {
+      localStorage.setItem('access_token', token); // store token in localStorage
+    }
+    return token;
   } catch (error) {
     console.error(error);
   }
