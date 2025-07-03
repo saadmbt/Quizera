@@ -5,6 +5,7 @@ import { updateQuizQuestions } from '../../services/ProfServices.jsx';
 import toast from 'react-hot-toast';
 import { generateFlashcards, fetchVideos } from '../../services/StudentService.jsx';
 import { useCallback } from 'react';
+import { exportQuizToPDF } from './QuizPreviewPDFExport.jsx';
 
 export default function QuizPreview() {
   const [isCopied, setIsCopied] = useState(false);
@@ -382,6 +383,13 @@ export default function QuizPreview() {
           className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
         >
           Create Another Quiz
+        </button>
+        <button
+          onClick={() => exportQuizToPDF(quizData)}
+          className="px-6 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-900 ml-4"
+          title="Export Quiz to PDF"
+        >
+          Export to PDF
         </button>
       </div>
     </div>
