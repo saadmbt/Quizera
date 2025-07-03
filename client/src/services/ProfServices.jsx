@@ -1,5 +1,4 @@
 import axios from "axios";
-
 const token = localStorage.getItem("access_token") || null;
 
 // Fetch groups for a professor using the correct endpoint

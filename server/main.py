@@ -75,6 +75,22 @@ def login():
     except Exception as e:
         return jsonify({'error': f'Authentication failed: {str(e)}'}), 500
 
+@app.route('/api/check-email-verification/<uid>', methods=['GET'])
+def check_email_verification(uid):
+    """
+    Check if the user's email is verified using Firebase Admin SDK.
+    """
+    try:
+        user = auth.get_user(uid)
+        if user.email_verified:
+            return jsonify({"emailVerified": True}), 200
+        else:
+            return jsonify({"emailVerified": False}), 200
+    except auth.UserNotFoundError:
+        return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Failed to check email verification: {str(e)}"}), 500
+
 @app.route('/api/profile', methods=['GET'])
 @jwt_required()
 def profile():

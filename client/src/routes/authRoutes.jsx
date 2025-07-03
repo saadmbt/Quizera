@@ -3,6 +3,7 @@ import Login from '../pages/login';
 import Register from '../pages/Register';
 import UserRoleSelection from '../pages/UserRoleSelection';
 import ForgetPassword from '../components/Auth/forgetpassword';
+import EmailConfirmation from '../pages/EmailConfirmation';
 
 const AuthRoutes = [
   {
@@ -19,6 +20,9 @@ const AuthRoutes = [
   },{
     path:'forgetpassword',
     element:<ForgetPassword/>
+  },{
+    path: 'verify-email',
+    element: <EmailConfirmation />,
   }
 ]
 

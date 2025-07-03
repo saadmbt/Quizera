@@ -4,15 +4,10 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuthButton } from "../components/Auth/GoogleAuth";
 import { doc, getDoc } from "firebase/firestore";
-import  {AuthContext} from "../components/Auth/AuthContext";
+import { AuthContext } from "../components/Auth/AuthContext";
 import getJWT from "../services/authService";
-/**
- * LoginWithFirebase is a React component that provides a login form for users.
- * It allows users to log in using their email and password or via Google authentication.
- * On successful login, it retrieves user data from Firestore, generates a JWT token,
- * and navigates the user to their respective dashboard based on their role.
- *
- */
+
+
 export default function LoginWithFirebase() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +15,7 @@ export default function LoginWithFirebase() {
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const navigate = useNavigate();
-  const {setUser} = useContext(AuthContext) || {};
+  const { setUser } = useContext(AuthContext) || {};
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -42,18 +37,25 @@ export default function LoginWithFirebase() {
         localStorage.setItem("isNew", false);
         const userData = userExists.data();
         console.log("User data:", userData);
-        const userobj={uid:user.uid,username:userData.username,role:userData.role}
+        const userobj = { uid: user.uid, username: userData.username, role: userData.role };
         setUser(userobj);
         console.log("User object:", userobj);
         // generate JWT token and save it to local storage
         const token = await getJWT(user.uid);
         localStorage.setItem("access_token", token);
         localStorage.setItem("_us_unr", JSON.stringify(userobj));
+        
+      //   if (!user.emailVerified) {
+      //   setErrorMessage("Please verify your email before logging in.");
+      //   setLoading(false);
+      //   navigate("/auth/verify-email");
+      //   return;
+      // }
         // Check if there is a redirect path stored in localStorage
-        const redirect = localStorage.getItem('redirectAfterLogin');
+        const redirect = localStorage.getItem("redirectAfterLogin");
         if (redirect) {
           // Remove redirect path from localStorage and navigate to it
-          localStorage.removeItem('redirectAfterLogin');
+          localStorage.removeItem("redirectAfterLogin");
           navigate(redirect);
         } else {
           // Default navigation to user role page
@@ -75,9 +77,7 @@ export default function LoginWithFirebase() {
           setErrorMessage("Invalid email address.");
           break;
         default:
-          setErrorMessage(
-            "Failed to log in. Please check your email and password."
-          );
+          setErrorMessage("Failed to log in. Please check your email and password.");
       }
     } finally {
       setLoading(false);
@@ -99,10 +99,7 @@ export default function LoginWithFirebase() {
         )}
         <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-600"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-600">
               Email Address
             </label>
             <input
@@ -115,10 +112,7 @@ export default function LoginWithFirebase() {
             />
           </div>
           <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-600"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-600">
               Password
             </label>
             <div className="flex items-center mt-2 bg-gray-200 rounded-lg">
@@ -130,16 +124,8 @@ export default function LoginWithFirebase() {
                 required
                 className="w-full px-4 py-2 text-gray-900 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="px-3 text-gray-600 focus:outline-none"
-              >
-                {passwordVisible ? (
-                  <i className="fas fa-eye-slash"></i>
-                ) : (
-                  <i className="fas fa-eye"></i>
-                )}
+              <button type="button" onClick={togglePasswordVisibility} className="px-3 text-gray-600 focus:outline-none">
+                {passwordVisible ? <i className="fas fa-eye-slash"></i> : <i className="fas fa-eye"></i>}
               </button>
             </div>
           </div>
@@ -150,23 +136,17 @@ export default function LoginWithFirebase() {
           >
             {loading ? "Logging in..." : "Log in"}
           </button>
-           <GoogleAuthButton />        
+          <GoogleAuthButton />
         </form>
         <p className="text-sm text-center text-gray-600">
           Forgot your password?{" "}
-          <span
-            onClick={() => navigate("/auth/forgetpassword")}
-            className="text-blue-500 hover:underline cursor-pointer"
-          >
+          <span onClick={() => navigate("/auth/forgetpassword")} className="text-blue-500 hover:underline cursor-pointer">
             Reset it here
           </span>
         </p>
         <p className="text-sm text-center text-gray-600">
           Don't have an account?{" "}
-          <span
-            onClick={() => navigate("/auth/Signup")}
-            className="text-blue-500 hover:underline cursor-pointer"
-          >
+          <span onClick={() => navigate("/auth/Signup")} className="text-blue-500 hover:underline cursor-pointer">
             Sign up now
           </span>
         </p>

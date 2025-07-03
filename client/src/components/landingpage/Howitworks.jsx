@@ -113,7 +113,7 @@ const Howitworks = () => {
             Simple Process
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            How PrepGenius Works
+            How Quizera Works
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Creating quizzes has never been easier. Follow these simple steps to get started and transform your content into engaging assessments.

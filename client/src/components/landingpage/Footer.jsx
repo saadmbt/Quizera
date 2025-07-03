@@ -28,7 +28,7 @@ const Footer = () => {
                 <a href='https://www.instagram.com/'><Instagram className='size-6 font-bold '/></a>
                 <a href='https://www.linkedin.com/'><Linkedin className='size-6 font-bold text-primary'/></a>
             </div>
-            <p className='mt-6'>&copy; 2025 Prepgenius, Inc. All rights reserved</p>
+            <p className='mt-6'>&copy; 2025 Quizera, Inc. All rights reserved</p>
         </div>
   </footer>
     

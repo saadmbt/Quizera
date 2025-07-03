@@ -1,4 +1,4 @@
-// Desc: Constants for the website
+// Desc: Constants for Quizera
 // Date: 9th April 2021
 // Version: 1.0.0
 // Website Constants
@@ -13,9 +13,9 @@ import {BookOpen, BrainCircuit, Crown, Library, Settings, Sparkles, Upload, Zap 
 import { UserGroupIcon } from '@heroicons/react/24/outline';
 export const websiteConstants = {
     // Website URL
-    WEBSITE_URL: 'https://PrepGenius.com',
+    WEBSITE_URL: 'https://quizera-beige.vercel.app',
     // Website Name
-    WEBSITE_NAME: 'PrepGenius',
+    WEBSITE_NAME: 'Quizera',
     // Website Description
     WEBSITE_DESCRIPTION: 'Create a Quiz instantly, with your own files!',
     // Website Keywords
@@ -179,24 +179,24 @@ export const about = [
 ]
 export const faqs = [
     {
-        question: 'What is PrepGenius ?',
-        answer: 'PrepGenius is a tool that allows you to create multiple-choice, true or false, and short-answer exams in any subject and language. You can upload any document, including PDFs, Word files, and more, and our tool will automatically extract text and generate questions based on the content.',
+        question: 'What is Quizera ?',
+        answer: 'Quizera is a tool that allows you to create multiple-choice, true or false, and short-answer exams in any subject and language. You can upload any document, including PDFs, Word files, and more, and our tool will automatically extract text and generate questions based on the content.',
     },
     {
-        question: 'How do I use PrepGenius ?',
-        answer: 'To use PrepGenius, simply upload your document, select the type of questions you want to generate, and click "Create Quiz." Our tool will automatically extract text from your document and generate questions based on the content. You can then edit the questions as needed and share your quiz with others.',
+        question: 'How do I use Quizera ?',
+        answer: 'To use Quizera, simply upload your document, select the type of questions you want to generate, and click "Create Quiz." Our tool will automatically extract text from your document and generate questions based on the content. You can then edit the questions as needed and share your quiz with others.',
     },
     {
-        question: 'Is PrepGenius suitable for all types of exams?',
-        answer: 'Yes, PrepGenius is suitable for all types of exams, including multiple-choice, true or false, and short-answer tests. You can create quizzes in any subject and language and customize the questions to suit your needs.',
+        question: 'Is Quizera suitable for all types of exams?',
+        answer: 'Yes, Quizera is suitable for all types of exams, including multiple-choice, true or false, and short-answer tests. You can create quizzes in any subject and language and customize the questions to suit your needs.',
     },
     {
         question: 'Can I save or share the generated tests?',
         answer: 'Yes, you can save and share the generated tests with others. You can download the quizzes as PDFs or share them via email, social media, or other platforms. You can also collaborate with others on quizzes and share knowledge.',
     },
     {
-        question: 'Is PrepGenius free?',
-        answer: 'PrepGenius offers a free trial, and then it is a subscription-based service. You can choose from a free plan, a standard plan, or a lifetime plan, depending on your needs. Each plan offers different features and benefits.',
+        question: 'Is Quizera free?',
+        answer: 'Quizera offers a free trial, and then it is a subscription-based service. You can choose from a free plan, a standard plan, or a lifetime plan, depending on your needs. Each plan offers different features and benefits.',
     }
 ]
 // contact us  Constants
