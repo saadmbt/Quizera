@@ -1,6 +1,6 @@
 import { useState , useContext} from "react";
 import { auth, db } from "../firebase-config";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuthButton } from "../components/Auth/GoogleAuth";
 import { doc, setDoc } from "firebase/firestore";
@@ -53,7 +53,8 @@ export default function Register() {
         registerPassword
       );
       const user = userCredential.user;
-      console.log("Successfully registered:", user);
+      // await sendEmailVerification(user);
+      // setVerificationSent(true);
       // Add user data obj to context
       const userobj ={
         uid: user.uid,
@@ -69,16 +70,19 @@ export default function Register() {
       console.log("Successfully added user to Firestore:");
       // generate JWT token and save it to local storage
       const token = await getJWT(user.uid);
+      if (!token) {
+        setErrorMessage("Failed to register your account, please try again.");
+        return;
+        }
       localStorage.setItem("access_token", token);
-      navigate("/Auth/UserRoleSelection");
+      // navigate("/auth/verify-email");
+      navigate("/auth/UserRoleSelection");
     } catch (error) {
       handleError(error);
     } finally {
       setisLoading(false);
     }
   };
-
-
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-blue-100">

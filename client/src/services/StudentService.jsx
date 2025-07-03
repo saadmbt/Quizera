@@ -1,6 +1,4 @@
-
 import axios from "axios";
-
 // uploade file or image or text to the server and create a lesson in the database , 
 // return the lesson objectID
 export const uploadLesson = async (data, title, type, username) => {

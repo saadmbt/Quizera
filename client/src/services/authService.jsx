@@ -7,7 +7,6 @@ const getJWT = async (uid) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      withCredentials: true, // include cookies in requests
     });
     const token = response.data.access_token;
     if (token) {

@@ -137,7 +137,7 @@ export default function QuizPreview() {
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(`https://prepgenius.com/quiz/${quizData._id || 123}`);
+    navigator.clipboard.writeText(`https://quizera-beige.vercel.app/quiz/${quizData._id || 123}`);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
   };
