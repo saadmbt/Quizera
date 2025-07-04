@@ -28,7 +28,7 @@ export default function LoginWithFirebase() {
         password
       );
       const user = userCredential.user;
-      console.log("Successfully logged in:", user);
+      // console.log("Successfully logged in:", user);
       // Check if user exists in Firestore
       const userRef = doc(db, "users", user.uid);
       const userExists = await getDoc(userRef);
@@ -36,7 +36,7 @@ export default function LoginWithFirebase() {
       if (userExists.exists()) {
         localStorage.setItem("isNew", false);
         const userData = userExists.data();
-        console.log("User data:", userData);
+        // console.log("User data:", userData);
         const userobj = { uid: user.uid, username: userData.username, role: userData.role,emailVerified: user.emailVerified };
         setUser(userobj);
         // console.log("User object:", userobj);

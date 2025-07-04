@@ -11,11 +11,17 @@ function FlashcardsSection({ limit }) {
 
    const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
    const userId = user.uid
-    const fetchflashcards = useCallback(async (retryCount = 3) => {
+   const fetchflashcards = useCallback(async (retryCount = 3) => {
       try {
       setloading(true);
       const history = await getFlashcards(userId);
-      setDECKS(history);
+      // Validate that history is an array
+      if (Array.isArray(history)) {
+        setDECKS(history);
+      } else {
+        console.error("Flashcards data is not an array:", history);
+        setDECKS([]);
+      }
       } catch (error) {
       console.error("Error fetching Flashcards:", error);
       if (retryCount > 0) {
@@ -56,7 +62,7 @@ function FlashcardsSection({ limit }) {
           Create New Flashcards
         </button>
       </div>
-      {displayedDecks.length === 0 && (
+      {(!Array.isArray(displayedDecks) || displayedDecks.length === 0) && (
           <div className="flex flex-col items-center justify-center h-72 m-auto p-6">
             <Sidebar className="h-16 w-16 text-gray-400 mb-4 animate-pulse" />
             <p className="text-gray-700 text-xl font-semibold mb-2">No Flashcard  Available</p>
@@ -68,7 +74,7 @@ function FlashcardsSection({ limit }) {
         )}
       {/* Decks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayedDecks.map((deck,i) => (
+        {Array.isArray(displayedDecks) && displayedDecks.map((deck,i) => (
           <FlashcardDeck
             key={i}
             deck={deck}

@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
         if(token){
             try{
                 decodedToken = jwtDecode(token)
-                console.log("decodedToken :",decodedToken)
+                // console.log("decodedToken :",decodedToken)
             }catch (e){
                 console.log(e)
             }

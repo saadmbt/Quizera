@@ -18,7 +18,11 @@ function QuizHistory(props) {
 
       // Fetch quiz results independently
       try {
-        results = await getQuizResults(userId);
+        const res = await getQuizResults(userId);
+        results = Array.isArray(res) ? res : [];
+        if (!Array.isArray(res)) {
+          console.error("Quiz results data is not an array:", res);
+        }
       } catch (error) {
         console.error("Error fetching quiz results:", error);
       }
@@ -28,7 +32,10 @@ function QuizHistory(props) {
         const token = localStorage.getItem('access_token'); 
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
         const attemptsResponse = await axios.get(`/api/quiz-attempts/student/${userId}`, config);
-        attempts = attemptsResponse.data && !attemptsResponse.data.error ? attemptsResponse.data : [];
+        attempts = Array.isArray(attemptsResponse.data) && !attemptsResponse.data.error ? attemptsResponse.data : [];
+        if (!Array.isArray(attemptsResponse.data)) {
+          console.error("Quiz attempts data is not an array:", attemptsResponse.data);
+        }
       } catch (error) {
         console.error("Error fetching quiz attempts:", error);
       }

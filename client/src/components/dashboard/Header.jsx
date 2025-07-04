@@ -4,7 +4,7 @@ import { AuthContext } from "../Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 export default function Header({ isInMain }) {
     const user  = JSON.parse(localStorage.getItem("_us_unr")) || {}
-    console.log("user",user)
+    // console.log("user",user)
     const {logout}=useContext(AuthContext)
     const navigate=useNavigate()
     const handleLogout = () => {

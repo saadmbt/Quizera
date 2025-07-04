@@ -36,7 +36,7 @@ export const GoogleAuthButton = () => {
     if (userExists.exists()) {
       const userData = userExists.data();
       setUser(userData);
-      console.log("User data:", userData);
+      // console.log("User data:", userData);
       getJWT(uid);
       
       // After setting the user, check for redirect path
