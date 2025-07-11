@@ -167,9 +167,14 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         all_questions = []
         # If question_type is a list, generate questions for each type
         if isinstance(question_type, list):
-            for q_type in question_type:
+            num_types = len(question_type)
+            # Calculate questions per type, distribute remainder to first types
+            base_num = num_questions // num_types
+            remainder = num_questions % num_types
+            for i, q_type in enumerate(question_type):
+                num_for_type = base_num + (1 if i < remainder else 0)
                 prompt = base_prompt[q_type].format(
-                    num=num_questions,
+                    num=num_for_type,
                     difficulty=difficulty,
                     content=content
                 )
