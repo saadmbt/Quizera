@@ -302,6 +302,16 @@ def create_quiz():
     difficulty = data["difficulty"]
     if not lesson_id or not question_type or not num_questions or not difficulty:
         return jsonify({"error": "Missing required parameters"}), 400
+
+    # Accept question_type as list or string
+    if isinstance(question_type, list):
+        if len(question_type) == 0:
+            return jsonify({"error": "Empty question type list"}), 400
+        if len(question_type) > 3:
+            return jsonify({"error": "Maximum 3 question types allowed"}), 400
+    else:
+        question_type = [question_type]
+
     # function to create the quiz and insert it to the database and return the quiz id
     quiz_result=generate_and_insert_questions(lesson_id,question_type,num_questions,difficulty)
     if "error" in str(quiz_result).lower():

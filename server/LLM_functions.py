@@ -139,7 +139,7 @@ def clean_llm_response(response):
 
 def generate_and_insert_questions(lesson_id, question_type, num_questions, difficulty):
     """Reads a lesson from MongoDB, generates questions using the Groq API,
-    and inserts the generated questions into the "quizzes" collection."""
+    and inserts the generated questions into the "quizzes" collection.""" 
     try:
         # Convertir l'ID de la leçon en ObjectId si nécessaire
         if not isinstance(lesson_id, ObjectId):
@@ -164,51 +164,73 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         if len(content) > 20000:
             content= content[:19000]
         
-        # Construire la requête pour l'API Groq en fonction des paramètres
-        # Standardize prompt format
-        prompt = base_prompt[question_type].format(
-            num=num_questions,
-            difficulty=difficulty,
-            content=content
-        )
-        # Appeler l'API Groq pour générer les questions
-        completion = groq_client.chat.completions.create(
-            model="llama3-70b-8192",
-            messages=[
-                {"role": "system", "content": "Tu es un professeur expert. Génère des questions de qualité pour un quiz."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3,
-            max_tokens=1500,
-        )
-
-        # Afficher la réponse complète de l'API pour le débogage
-        questions_text = completion.choices[0].message.content.strip()
-        # Parse the response to extract the list of questions
-        print("res",questions_text)
-
-        # Check if the response is a type of array 
-        if isinstance(questions_text, list):
-            questions = questions_text
+        all_questions = []
+        # If question_type is a list, generate questions for each type
+        if isinstance(question_type, list):
+            for q_type in question_type:
+                prompt = base_prompt[q_type].format(
+                    num=num_questions,
+                    difficulty=difficulty,
+                    content=content
+                )
+                completion = groq_client.chat.completions.create(
+                    model="llama3-70b-8192",
+                    messages=[
+                        {"role": "system", "content": "Tu es un professeur expert. Génère des questions de qualité pour un quiz."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.3,
+                    max_tokens=1500,
+                )
+                questions_text = completion.choices[0].message.content.strip()
+                print(f"res for {q_type}", questions_text)
+                if isinstance(questions_text, list):
+                    questions = questions_text
+                else:
+                    try:
+                        start_index = questions_text.find('[')
+                        end_index = questions_text.rfind(']') + 1
+                        if start_index == -1 or end_index == 0:
+                            raise ValueError("Invalid response format - no list found")
+                        questions_json = questions_text[start_index:end_index]
+                        questions = json.loads(questions_json)
+                        print(questions)
+                    except Exception as e:
+                        print(f"Error parsing the response for {q_type}: {e}")
+                        return None
+                all_questions.extend(questions)
         else:
-            try:
-                # Find the start and end of the JSON-like structure
-                start_index = questions_text.find('[')
-                end_index = questions_text.rfind(']') + 1
-
-                if start_index == -1 or end_index == 0:
-                    raise ValueError("Invalid response format - no list found")
-                # Extract the JSON-like string
-                questions_json = questions_text[start_index:end_index]
-
-                # Parse the JSON-like string into a Python list of dictionaries
-                questions = json.loads(questions_json)
-                print(questions)
-
-            except Exception as e:
-                print(f"Error parsing the response: {e}")
-                return None
-        # Insérer les questions dans MongoDB
+            prompt = base_prompt[question_type].format(
+                num=num_questions,
+                difficulty=difficulty,
+                content=content
+            )
+            completion = groq_client.chat.completions.create(
+                model="llama3-70b-8192",
+                messages=[
+                    {"role": "system", "content": "Tu es un professeur expert. Génère des questions de qualité pour un quiz."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=1500,
+            )
+            questions_text = completion.choices[0].message.content.strip()
+            print("res",questions_text)
+            if isinstance(questions_text, list):
+                all_questions = questions_text
+            else:
+                try:
+                    start_index = questions_text.find('[')
+                    end_index = questions_text.rfind(']') + 1
+                    if start_index == -1 or end_index == 0:
+                        raise ValueError("Invalid response format - no list found")
+                    questions_json = questions_text[start_index:end_index]
+                    all_questions = json.loads(questions_json)
+                    print(all_questions)
+                except Exception as e:
+                    print(f"Error parsing the response: {e}")
+                    return None
+        
         question_id = lastID('quizzes')
         if not isinstance(question_id, int):
             raise ValueError(f"Invalid question ID returned by lastID: {question_id}")
@@ -219,7 +241,7 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
             "generated_by": author,
             "generated_by_name": username,
             "type": question_type,
-            "questions": questions,
+            "questions": all_questions,
             "createdAt": datetime.now()
         }
         inserted_quiz_id = insert_Quizzes(quiz)
