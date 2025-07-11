@@ -167,43 +167,54 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
         all_questions = []
         # If question_type is a list, generate questions for each type
         if isinstance(question_type, list):
+            # Build combined prompt using original prompts without changing them
+            combined_prompt_parts = []
             num_types = len(question_type)
-            # Calculate questions per type, distribute remainder to first types
             base_num = num_questions // num_types
             remainder = num_questions % num_types
             for i, q_type in enumerate(question_type):
                 num_for_type = base_num + (1 if i < remainder else 0)
-                prompt = base_prompt[q_type].format(
-                    num=num_for_type,
-                    difficulty=difficulty,
-                    content=content
-                )
-                completion = groq_client.chat.completions.create(
-                    model="llama3-70b-8192",
-                    messages=[
-                        {"role": "system", "content": "Tu es un professeur expert. Génère des questions de qualité pour un quiz."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.3,
-                    max_tokens=1500,
-                )
-                questions_text = completion.choices[0].message.content.strip()
-                print(f"res for {q_type}", questions_text)
-                if isinstance(questions_text, list):
-                    questions = questions_text
-                else:
-                    try:
-                        start_index = questions_text.find('[')
-                        end_index = questions_text.rfind(']') + 1
-                        if start_index == -1 or end_index == 0:
-                            raise ValueError("Invalid response format - no list found")
-                        questions_json = questions_text[start_index:end_index]
-                        questions = json.loads(questions_json)
-                        print(questions)
-                    except Exception as e:
-                        print(f"Error parsing the response for {q_type}: {e}")
-                        return None
-                all_questions.extend(questions)
+                # Use original prompt for each type but add number of questions info
+                part = f"For question type '{q_type}', generate {num_for_type} questions using this prompt:\n{base_prompt[q_type]}"
+                combined_prompt_parts.append(part)
+            combined_prompt = "\n\n".join(combined_prompt_parts)
+            # Enhance prompt structure and clarity
+            full_prompt = (
+                f"You are an expert quiz creator. Generate a quiz with a total of {num_questions} questions "
+                f"at {difficulty} difficulty level. The quiz should cover the following question types:\n"
+                f"{', '.join(question_type)}.\n\n"
+                f"Lesson content:\n{content}\n\n"
+                f"Instructions:\n"
+                f"- Distribute the total number of questions evenly among the question types.\n"
+                f"- For each question type, use the following prompt template exactly:\n"
+                f"{combined_prompt}\n\n"
+                f"Please provide the quiz questions as a JSON array."
+            )
+            completion = groq_client.chat.completions.create(
+                model="llama3-70b-8192",
+                messages=[
+                    {"role": "system", "content": "Tu es un professeur expert. Génère des questions de qualité pour un quiz."},
+                    {"role": "user", "content": full_prompt}
+                ],
+                temperature=0.3,
+                max_tokens=1500,
+            )
+            questions_text = completion.choices[0].message.content.strip()
+            print(f"res combined types", questions_text)
+            if isinstance(questions_text, list):
+                all_questions = questions_text
+            else:
+                try:
+                    start_index = questions_text.find('[')
+                    end_index = questions_text.rfind(']') + 1
+                    if start_index == -1 or end_index == 0:
+                        raise ValueError("Invalid response format - no list found")
+                    questions_json = questions_text[start_index:end_index]
+                    all_questions = json.loads(questions_json)
+                    print(all_questions)
+                except Exception as e:
+                    print(f"Error parsing the combined response: {e}")
+                    return None
         else:
             prompt = base_prompt[question_type].format(
                 num=num_questions,
