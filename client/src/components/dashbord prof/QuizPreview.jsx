@@ -60,7 +60,8 @@ export default function QuizPreview() {
 
   const handleAnswerChange = (qIndex, aIndex, value) => {
     const updated = [...editedQuestions];
-    if (type === "fill-blank") {
+    const isFillBlank = Array.isArray(updated[qIndex].answers);
+    if (isFillBlank) {
       updated[qIndex].answers[aIndex] = value;
     } else {
       updated[qIndex].options[aIndex] = value;
@@ -70,7 +71,8 @@ export default function QuizPreview() {
 
   const handleAddAnswer = (qIndex) => {
     const updated = [...editedQuestions];
-    if (type === "fill-blank") {
+    const isFillBlank = Array.isArray(updated[qIndex].answers);
+    if (isFillBlank) {
       updated[qIndex].answers.push("");
     } else {
       updated[qIndex].options.push("");
@@ -80,7 +82,8 @@ export default function QuizPreview() {
 
   const handleRemoveAnswer = (qIndex, aIndex) => {
     const updated = [...editedQuestions];
-    if (type === "fill-blank") {
+    const isFillBlank = Array.isArray(updated[qIndex].answers);
+    if (isFillBlank) {
       updated[qIndex].answers.splice(aIndex, 1);
     } else {
       updated[qIndex].options.splice(aIndex, 1);
@@ -102,13 +105,14 @@ export default function QuizPreview() {
           toast.error('Each question must have a non-empty question text.');
           return;
         }
-        if (type === 'fill-blank') {
+        const isFillBlank = Array.isArray(q.answers);
+        if (isFillBlank) {
           if (!Array.isArray(q.answers) || q.answers.length === 0) {
-            toast.error('Each question must have at least one answer.');
+            toast.error('Each fill-blank question must have at least one answer.');
             return;
           }
           if (!q.correctanswer || !q.answers.includes(q.correctanswer)) {
-            toast.error('Each question must have a correct answer that is in the answers list.');
+            toast.error('Each fill-blank question must have a correct answer that is in the answers list.');
             return;
           }
         } else {
@@ -269,88 +273,85 @@ export default function QuizPreview() {
         {/* Questions Preview */}
         <div className="space-y-4">
           <h3 className="font-semibold text-gray-700">Questions ({quizData.questions.length})</h3>
-          {(!isEditing ? quizData.questions : editedQuestions).map((q, idx) => (
-            <div key={idx} className="border rounded-lg p-4">
-              {!isEditing ? (
-                <>
-                  <p className="font-medium mb-2">{idx + 1}. {q.question}</p>
-                  {type === "fill-blank" ? (
+          {(!isEditing ? quizData.questions : editedQuestions).map((q, idx) => {
+            // Determine type per question
+            const isFillBlank = Array.isArray(q.answers);
+            const answersOrOptions = isFillBlank ? q.answers : q.options;
+            return (
+              <div key={idx} className="border rounded-lg p-4">
+                {!isEditing ? (
+                  <>
+                    <p className="font-medium mb-2">{idx + 1}. {q.question}</p>
                     <div className="grid grid-cols-2 gap-2">
-                      {(q.answers || []).map((answer, i) => (
-                        <div key={i} className={`p-2 rounded border ${
-                          answer === q.correctanswer ? 'border-green-500 bg-green-50' : 'border-gray-500 bg-gray-100'
-                        }`}>
-                          {answer}
-                          {answer === q.correctanswer && (
+                      {(answersOrOptions || []).map((item, i) => (
+                        <div
+                          key={i}
+                          className={`p-2 rounded border ${
+                            item === q.correctanswer
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-gray-500 bg-gray-100'
+                          }`}
+                        >
+                          {item}
+                          {item === q.correctanswer && (
                             <Check className="h-4 w-4 text-green-500 inline ml-2" />
                           )}
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-2">
-                      {(q.options || []).map((option, i) => (
-                        <div key={i} className={`p-2 rounded border ${
-                          option === q.correctanswer ? 'border-green-500 bg-green-50' : 'border-gray-500 bg-gray-50'
-                        }`}>
-                          {option}
-                          {option === q.correctanswer && (
-                            <Check className="h-4 w-4 text-green-500 inline ml-2" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <label className="block font-medium mb-1">Question {idx + 1}</label>
-                  <input
-                    type="text"
-                    className="w-full border rounded p-2 mb-2"
-                    value={q.question}
-                    onChange={(e) => handleQuestionChange(idx, e.target.value)}
-                  />
-                  <label className="block font-medium mb-1">Answers</label>
-                  {(type === "fill-blank" ? q.answers : q.options).map((answer, i) => (
-                    <div key={i} className="flex items-center mb-2">
-                      <input
-                        type="text"
-                        className="flex-grow border rounded p-2"
-                        value={answer}
-                        onChange={(e) => handleAnswerChange(idx, i, e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="ml-2 text-red-600 hover:text-red-800"
-                        onClick={() => handleRemoveAnswer(idx, i)}
-                        title="Remove Answer"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    className="mb-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    onClick={() => handleAddAnswer(idx)}
-                  >
-                    Add Answer
-                  </button>
-                  <label className="block font-medium mb-1">Correct Answer</label>
-                  <select
-                    className="w-full border rounded p-2"
-                    value={q.correctanswer}
-                    onChange={(e) => handleCorrectAnswerChange(idx, e.target.value)}
-                  >
-                    {(type === "fill-blank" ? q.answers : q.options).map((answer, i) => (
-                      <option key={i} value={answer}>{answer}</option>
+                  </>
+                ) : (
+                  <>
+                    <label className="block font-medium mb-1">Question {idx + 1}</label>
+                    <input
+                      type="text"
+                      className="w-full border rounded p-2 mb-2"
+                      value={q.question}
+                      onChange={(e) => handleQuestionChange(idx, e.target.value)}
+                    />
+                    <label className="block font-medium mb-1">
+                      {isFillBlank ? "Answers" : "Options"}
+                    </label>
+                    {(answersOrOptions || []).map((item, i) => (
+                      <div key={i} className="flex items-center mb-2">
+                        <input
+                          type="text"
+                          className="flex-grow border rounded p-2"
+                          value={item}
+                          onChange={(e) => handleAnswerChange(idx, i, e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="ml-2 text-red-600 hover:text-red-800"
+                          onClick={() => handleRemoveAnswer(idx, i)}
+                          title="Remove"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      </div>
                     ))}
-                  </select>
-                </>
-              )}
-            </div>
-          ))}
+                    <button
+                      type="button"
+                      className="mb-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      onClick={() => handleAddAnswer(idx)}
+                    >
+                      Add {isFillBlank ? "Answer" : "Option"}
+                    </button>
+                    <label className="block font-medium mb-1">Correct Answer</label>
+                    <select
+                      className="w-full border rounded p-2"
+                      value={q.correctanswer}
+                      onChange={(e) => handleCorrectAnswerChange(idx, e.target.value)}
+                    >
+                      {(answersOrOptions || []).map((item, i) => (
+                        <option key={i} value={item}>{item}</option>
+                      ))}
+                    </select>
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
         {/* New buttons for flashcards and videos */}
         <div className="mt-6 flex space-x-4">
