@@ -53,11 +53,12 @@ export default function Register() {
         registerPassword
       );
       const user = userCredential.user;
-      // await sendEmailVerification(user);
-      // setVerificationSent(true);
+      await sendEmailVerification(user);
+      setVerificationSent(true);
       // Add user data obj to context
       const userobj ={
         uid: user.uid,
+        emailVerified: user.emailVerified,
       }
       setUser(userobj);
       // Add user data obj to Firestore
@@ -67,7 +68,7 @@ export default function Register() {
         username: user.email.split("@")[0],
         createdAt: new Date().toISOString(),
       } );
-      console.log("Successfully added user to Firestore:");
+      // console.log("Successfully added user to Firestore:");
       // generate JWT token and save it to local storage
       const token = await getJWT(user.uid);
       if (!token) {
@@ -75,8 +76,7 @@ export default function Register() {
         return;
         }
       localStorage.setItem("access_token", token);
-      // navigate("/auth/verify-email");
-      navigate("/auth/UserRoleSelection");
+      navigate("/auth/verify-email");
     } catch (error) {
       handleError(error);
     } finally {

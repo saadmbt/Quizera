@@ -13,7 +13,6 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); 
   const [isexpired, setisexpired] = useState(false); 
-
   const isAuthenticated = !!user; // Determine if the user is authenticated
 
   useEffect(() => {
@@ -24,7 +23,7 @@ export const AuthProvider = ({ children }) => {
         if(token){
             try{
                 decodedToken = jwtDecode(token)
-                console.log("decodedToken :",decodedToken)
+                // console.log("decodedToken :",decodedToken)
             }catch (e){
                 console.log(e)
             }
@@ -73,11 +72,12 @@ export const AuthProvider = ({ children }) => {
       .then(() => {
         setUser(null);
         localStorage.clear();
-        Navigate("/");
+        window.location.reload(); 
       })
       .catch((error) => {
         console.error("Error signing out: ", error);
       });
+    return <Navigate to="/" />;
   }
 
   return (

@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { auth, db } from "../firebase-config";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendEmailVerification, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuthButton } from "../components/Auth/GoogleAuth";
 import { doc, getDoc } from "firebase/firestore";
@@ -28,7 +28,7 @@ export default function LoginWithFirebase() {
         password
       );
       const user = userCredential.user;
-      console.log("Successfully logged in:", user.uid);
+      // console.log("Successfully logged in:", user);
       // Check if user exists in Firestore
       const userRef = doc(db, "users", user.uid);
       const userExists = await getDoc(userRef);
@@ -36,21 +36,22 @@ export default function LoginWithFirebase() {
       if (userExists.exists()) {
         localStorage.setItem("isNew", false);
         const userData = userExists.data();
-        console.log("User data:", userData);
-        const userobj = { uid: user.uid, username: userData.username, role: userData.role };
+        // console.log("User data:", userData);
+        const userobj = { uid: user.uid, username: userData.username, role: userData.role,emailVerified: user.emailVerified };
         setUser(userobj);
-        console.log("User object:", userobj);
+        // console.log("User object:", userobj);
         // generate JWT token and save it to local storage
         const token = await getJWT(user.uid);
         localStorage.setItem("access_token", token);
         localStorage.setItem("_us_unr", JSON.stringify(userobj));
         
-      //   if (!user.emailVerified) {
-      //   setErrorMessage("Please verify your email before logging in.");
-      //   setLoading(false);
-      //   navigate("/auth/verify-email");
-      //   return;
-      // }
+        if (!user.emailVerified) {
+        await sendEmailVerification(user);
+        setErrorMessage("Please verify your email before logging in.");
+        setLoading(false);
+        navigate("/auth/verify-email");
+        return;
+      }
         // Check if there is a redirect path stored in localStorage
         const redirect = localStorage.getItem("redirectAfterLogin");
         if (redirect) {

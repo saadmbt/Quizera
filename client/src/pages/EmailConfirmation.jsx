@@ -6,31 +6,62 @@ export default function EmailConfirmation() {
     const [emailVerified, setEmailVerified] = useState(false);
     const [checking, setChecking] = useState(true);
     const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("_us_unr")) || null;
+    const Token = localStorage.getItem("access_token") || null;
+    const redirection = !user ? "/" : "/Auth/UserRoleSelection";
+
+    // Helper to reload user and update localStorage/emailVerified state
+    const reloadAndCheckUser = async () => {
+        if (auth.currentUser) {
+            try {
+                await auth.currentUser.reload();
+                const refreshedUser = auth.currentUser;
+                if (refreshedUser) {
+                    localStorage.setItem(
+                        "_us_unr",
+                        JSON.stringify({
+                            ...user,
+                            emailVerified: refreshedUser.emailVerified,
+                        })
+                    );
+                    setEmailVerified(refreshedUser.emailVerified);
+                    return refreshedUser.emailVerified;
+                }
+            } catch (error) {
+                console.error("Error reloading user:", error);
+            }
+        }
+        return false;
+    };
 
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem("_us_unr")) || null;
-
-        if (!user) {
+        // Redirect if not authenticated
+        if (!Token) {
             navigate("/auth/login");
             return;
         }
 
-        const checkVerification = async () => {
-            await user.reload();
-            if (user.emailVerified) {
-                setEmailVerified(true);
-                setChecking(false);
-                navigate("/Auth/UserRoleSelection");
-            } else {
-                setEmailVerified(false);
-                setChecking(false);
+        let intervalId;
+
+        const checkAndRedirect = async () => {
+            setChecking(true);
+            const verified = await reloadAndCheckUser();
+            setChecking(false);
+            if (verified) {
+                navigate(redirection);
             }
         };
 
-        checkVerification();
-        const interval = setInterval(checkVerification, 5000);
-        return () => clearInterval(interval);
-    }, [navigate]);
+        // Initial check
+        checkAndRedirect();
+
+        // Poll every 5s
+        intervalId = setInterval(checkAndRedirect, 5000);
+
+        return () => clearInterval(intervalId);
+        // eslint-disable-next-line
+    }, [Token, user, navigate, redirection]);
+
 
     // Animated mail icon SVG
     const MailSentIcon = () => (
