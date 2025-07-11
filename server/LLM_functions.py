@@ -178,17 +178,16 @@ def generate_and_insert_questions(lesson_id, question_type, num_questions, diffi
                 part = f"For question type '{q_type}', generate {num_for_type} questions using this prompt:\n{base_prompt[q_type]}"
                 combined_prompt_parts.append(part)
             combined_prompt = "\n\n".join(combined_prompt_parts)
-            # Enhance prompt structure and clarity
+            # Enhance prompt structure and clarity with concise wording
             full_prompt = (
-                f"You are an expert quiz creator. Generate a quiz with a total of {num_questions} questions "
-                f"at {difficulty} difficulty level. The quiz should cover the following question types:\n"
-                f"{', '.join(question_type)}.\n\n"
-                f"Lesson content:\n{content}\n\n"
+                f"Generate a quiz of {num_questions} questions at {difficulty} difficulty, covering these types: "
+                f"{', '.join(question_type)}.\n"
+                f"Lesson content:\n{content}\n"
                 f"Instructions:\n"
-                f"- Distribute the total number of questions evenly among the question types.\n"
-                f"- For each question type, use the following prompt template exactly:\n"
-                f"{combined_prompt}\n\n"
-                f"Please provide the quiz questions as a JSON array."
+                f"- Evenly distribute questions among types.\n"
+                f"- Use these prompt templates for each type:\n"
+                f"{combined_prompt}\n"
+                f"Return the quiz questions as a JSON array."
             )
             completion = groq_client.chat.completions.create(
                 model="llama3-70b-8192",
