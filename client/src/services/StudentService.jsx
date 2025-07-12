@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+
 import axios from "axios";
 // uploade file or image or text to the server and create a lesson in the database , 
 // return the lesson objectID
@@ -22,7 +24,7 @@ export const uploadLesson = async (data, title, type, username) => {
 
   try {
     const response = await axios.post(
-    '/api/upload', 
+    API_BASE_URL + '/api/upload', 
       formData, 
       {
         headers: {
@@ -53,7 +55,7 @@ export const generateQuiz = async (quizsetup) => {
   const token = localStorage.getItem("access_token") || null;
   try {
     const response = await axios.post(
-      "/api/create_quiz",
+      API_BASE_URL + "/api/create_quiz",
       quizsetup,
       {
         headers: {
@@ -74,7 +76,7 @@ export const generateQuiz = async (quizsetup) => {
 export const saveQuizResult = async (result) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.post("/api/quiz_results/insert", {result}, {
+    const response = await axios.post(API_BASE_URL + "/api/quiz_results/insert", {result}, {
         headers: {
           'Content-Type': 'application/json',
           "Authorization": `Bearer ${token}`
@@ -93,7 +95,7 @@ export const saveQuizResult = async (result) => {
 export const generateFlashcards = async (lesson_id,quiz_ress_id,isProfessor) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/flashcards/${lesson_id}/${quiz_ress_id}`, {
+    const response = await axios.get(API_BASE_URL + `/api/flashcards/${lesson_id}/${quiz_ress_id}`, {
       params: isProfessor ? { isFromProf: true } : {},
       headers: {
         'Content-Type': 'application/json',
@@ -114,7 +116,7 @@ export const generateFlashcards = async (lesson_id,quiz_ress_id,isProfessor) => 
 export const fetchVideos = async (lesson_id,quiz_ress_id,isProfessor)  => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/youtube/${lesson_id}/${quiz_ress_id}`, {
+    const response = await axios.get(API_BASE_URL + `/api/youtube/${lesson_id}/${quiz_ress_id}`, {
       params: isProfessor ? { isFromProf: true } : {},
       headers: {
         'Content-Type': 'application/json',
@@ -133,7 +135,7 @@ export const fetchVideos = async (lesson_id,quiz_ress_id,isProfessor)  => {
 export const getQuizById = async (quiz_id) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/quizzes/${quiz_id}`, {
+    const response = await axios.get(API_BASE_URL + `/api/quizzes/${quiz_id}`, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -153,7 +155,7 @@ export const getQuizById = async (quiz_id) => {
 export const getFlashcards = async (user_id) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/flashcards/Fetch_All/${user_id}`, {
+    const response = await axios.get(API_BASE_URL + `/api/flashcards/Fetch_All/${user_id}`, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -172,7 +174,7 @@ export const getFlashcards = async (user_id) => {
 export const getFlashcardById = async (resualt_id) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/flashcards/get/${resualt_id}`, {
+    const response = await axios.get(API_BASE_URL + `/api/flashcards/get/${resualt_id}`, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -191,7 +193,7 @@ export const getFlashcardById = async (resualt_id) => {
 export const getQuizResults = async (user_id) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/quiz_results/${user_id}`, {
+    const response = await axios.get(API_BASE_URL + `/api/quiz_results/${user_id}`, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -210,7 +212,7 @@ export const getQuizResults = async (user_id) => {
 export const getQuizResultById = async (result_id) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/quiz_results/get/${result_id}`, {
+    const response = await axios.get(API_BASE_URL + `/api/quiz_results/get/${result_id}`, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -229,7 +231,7 @@ export const getQuizResultById = async (result_id) => {
 export const getGroupInfo = async (group_id) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/groups/get/${group_id}`, {
+    const response = await axios.get(API_BASE_URL + `/api/groups/get/${group_id}`, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -248,7 +250,7 @@ export const getGroupInfo = async (group_id) => {
 export const getQuizAssignments = async (group_id) => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/group-assignments/${group_id}`, {
+    const response = await axios.get(API_BASE_URL + `/api/group-assignments/${group_id}`, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -270,7 +272,7 @@ export const saveQuizAttempt = async (attempt) => {
     let title = '';
     if (attempt.quizId) {
       try {
-        const quizResponse = await axios.get(`/api/quizzes/${attempt.quizId}`, {
+        const quizResponse = await axios.get(API_BASE_URL + `/api/quizzes/${attempt.quizId}`, {
           headers: {
             'Content-Type': 'application/json',
             "Authorization": `Bearer ${token}`
@@ -286,7 +288,7 @@ export const saveQuizAttempt = async (attempt) => {
     // Add title to attempt
     const attemptWithTitle = { ...attempt, title };
 
-    const response = await axios.post("/api/student-quiz-attempt", { attempt: attemptWithTitle }, {
+    const response = await axios.post(API_BASE_URL + "/api/student-quiz-attempt", { attempt: attemptWithTitle }, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -306,7 +308,7 @@ export const saveQuizAttempt = async (attempt) => {
 export const fetchStudentPerformance = async () => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get(`/api/student-performance`, {
+    const response = await axios.get(API_BASE_URL + `/api/student-performance`, {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`
@@ -326,7 +328,7 @@ export const fetchStudentPerformance = async () => {
 export const fetchNotifications = async () => {
   const token = localStorage.getItem("access_token") || null;
   try {
-    const response = await axios.get('/api/notification', {
+    const response = await axios.get(API_BASE_URL + '/api/notification', {
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${token}`

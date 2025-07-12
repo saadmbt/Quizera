@@ -61,8 +61,8 @@ export const AuthProvider = ({ children }) => {
 
    if(isexpired){
     return <SessionExpiredDialog isOpen={true} onClose={() => {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("_us_unr");
+      localStorage.clear();
+      window.location.reload();
       setisexpired(false);
     }} />
    }
