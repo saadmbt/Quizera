@@ -22,7 +22,7 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
   const [groups, setGroups] = useState([]);
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [groupsError, setGroupsError] = useState(null);
-  const [questionType, setQuestionType] = useState('');
+  const [questionType, setQuestionType] = useState([]);
   const [difficulty, setDifficulty] = useState('');
   const [questionCount, setQuestionCount] = useState(10);
   const [selectedGroups, setSelectedGroups] = useState([]);
@@ -58,7 +58,7 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
     setIsLoading(true);
     const quizSetupData = {
       lesson_id: lessonID,
-      type: questionType,
+      type: questionType, // now an array of selected question types
       number: questionCount,
       difficulty,
     };
@@ -142,11 +142,11 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
   };
 
   const progress = [
-    !!questionType,
+    questionType.length > 0,
     !!difficulty,
     isProfessor ? selectedGroups.length > 0 : false,
     isProfessor ? !!quizStartTime : false, // Include start time in progress for professor
-  ].filter(Boolean).length + (isProfessor ? 1 : 1);
+  ].filter(Boolean).length;
 
   const totalSteps = isProfessor ? 4 : 3;
 
@@ -195,24 +195,33 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
               Select Question Type
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {QUESTION_TYPES.map(({ id, label, icon: Icon }) => (
-                <motion.button
-                  key={id}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="button"
-                  onClick={() => setQuestionType(id)}
-                  className={
-                    "p-6 rounded-lg border-2 transition-all " +
-                    (questionType === id
-                      ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
-                      : "border-gray-200 hover:border-blue-300")
-                  }
-                >
-                  <Icon className={"h-10 w-10 mb-3 mx-auto " + (questionType === id ? "text-blue-500" : "text-gray-400")} />
-                  <div className="text-base font-medium text-center">{label}</div>
-                </motion.button>
-              ))}
+              {QUESTION_TYPES.map(({ id, label, icon: Icon }) => {
+                const isSelected = questionType.includes(id);
+                return (
+                  <motion.button
+                    key={id}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setQuestionType(questionType.filter(qt => qt !== id));
+                      } else {
+                        setQuestionType([...questionType, id]);
+                      }
+                    }}
+                    className={
+                      "p-6 rounded-lg border-2 transition-all " +
+                      (isSelected
+                        ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
+                        : "border-gray-200 hover:border-blue-300")
+                    }
+                  >
+                    <Icon className={"h-10 w-10 mb-3 mx-auto " + (isSelected ? "text-blue-500" : "text-gray-400")} />
+                    <div className="text-base font-medium text-center">{label}</div>
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
 
@@ -345,7 +354,7 @@ export default function QuizSetup({ onStartQuiz, lessonID }) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            disabled={!questionType || !difficulty || (isProfessor && (selectedGroups.length === 0 || !quizStartTime)) || isLoading}
+          disabled={questionType.length === 0 || !difficulty || (isProfessor && (selectedGroups.length === 0 || !quizStartTime)) || isLoading}
             className={
               "w-full flex items-center justify-center py-4 px-6 rounded-lg text-base font-medium transition-all " +
               (!questionType || !difficulty || (isProfessor && (selectedGroups.length === 0 || !quizStartTime)) || isLoading
