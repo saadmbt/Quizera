@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Public Routes -->
+  <url>
+    <loc>/</loc>
+  </url>
+  <url>
+    <loc>/contact</loc>
+  </url>
+  <url>
+    <loc>/about</loc>
+  </url>
+
+  <!-- Auth Routes -->
+  <url>
+    <loc>/auth/login</loc>
+  </url>
+  <url>
+    <loc>/auth/Signup</loc>
+  </url>
+  <url>
+    <loc>/auth/UserRoleSelection</loc>
+  </url>
+  <url>
+    <loc>/auth/forgetpassword</loc>
+  </url>
+  <url>
+    <loc>/auth/verify-email</loc>
+  </url>
+  <url>
+    <loc>/auth/verify_your_email</loc>
+  </url>
+
+  <!-- Professor Routes -->
+  <url>
+    <loc>/professor</loc>
+  </url>
+  <url>
+    <loc>/professor/groups</loc>
+  </url>
+  <url>
+    <loc>/professor/group/123/edit</loc>
+  </url>
+  <url>
+    <loc>/professor/quizzes</loc>
+  </url>
+  <url>
+    <loc>/professor/upload/quizpreview</loc>
+  </url>
+  <url>
+    <loc>/professor/quizzes/123</loc>
+  </url>
+  <url>
+    <loc>/professor/settings</loc>
+  </url>
+  <url>
+    <loc>/professor/group/123/statistics</loc>
+  </url>
+
+  <!-- Student Routes -->
+  <url>
+    <loc>/Student</loc>
+  </url>
+  <url>
+    <loc>/Student/upload</loc>
+  </url>
+  <url>
+    <loc>/Student/quiz</loc>
+  </url>
+  <url>
+    <loc>/Student/upload/quizsetup</loc>
+  </url>
+  <url>
+    <loc>/Student/quiz/123</loc>
+  </url>
+  <url>
+    <loc>/Student/quizzes</loc>
+  </url>
+  <url>
+    <loc>/Student/quizzes/123</loc>
+  </url>
+  <url>
+    <loc>/Student/flashcards</loc>
+  </url>
+  <url>
+    <loc>/Student/flashcards/study/123</loc>
+  </url>
+  <url>
+    <loc>/Student/groups</loc>
+  </url>
+  <url>
+    <loc>/Student/groups/123</loc>
+  </url>
+  <url>
+    <loc>/Student/groups/quiz/123</loc>
+  </url>
+  <url>
+    <loc>/Student/settings</loc>
+  </url>
+  <url>
+    <loc>/Student/join-group/abc123</loc>
+  </url>
+
+  <!-- Other Standalone Routes -->
+  <url>
+    <loc>/JoinQuiz/123</loc>
+  </url>
+</urlset>
