@@ -2,107 +2,107 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Public Routes -->
   <url>
-    <loc>/</loc>
+    <loc>https://quizera-beige.vercel.app/</loc>
   </url>
   <url>
-    <loc>/contact</loc>
+    <loc>https://quizera-beige.vercel.app/contact</loc>
   </url>
   <url>
-    <loc>/about</loc>
+    <loc>https://quizera-beige.vercel.app/about</loc>
   </url>
 
   <!-- Auth Routes -->
   <url>
-    <loc>/auth/login</loc>
+    <loc>https://quizera-beige.vercel.app/auth/login</loc>
   </url>
   <url>
-    <loc>/auth/Signup</loc>
+    <loc>https://quizera-beige.vercel.app/auth/Signup</loc>
   </url>
   <url>
-    <loc>/auth/UserRoleSelection</loc>
+    <loc>https://quizera-beige.vercel.app/auth/UserRoleSelection</loc>
   </url>
   <url>
-    <loc>/auth/forgetpassword</loc>
+    <loc>https://quizera-beige.vercel.app/auth/forgetpassword</loc>
   </url>
   <url>
-    <loc>/auth/verify-email</loc>
+    <loc>https://quizera-beige.vercel.app/auth/verify-email</loc>
   </url>
   <url>
-    <loc>/auth/verify_your_email</loc>
+    <loc>https://quizera-beige.vercel.app/auth/verify_your_email</loc>
   </url>
 
   <!-- Professor Routes -->
   <url>
-    <loc>/professor</loc>
+    <loc>https://quizera-beige.vercel.app/professor</loc>
   </url>
   <url>
-    <loc>/professor/groups</loc>
+    <loc>https://quizera-beige.vercel.app/professor/groups</loc>
   </url>
   <url>
-    <loc>/professor/group/123/edit</loc>
+    <loc>https://quizera-beige.vercel.app/professor/group/123/edit</loc>
   </url>
   <url>
-    <loc>/professor/quizzes</loc>
+    <loc>https://quizera-beige.vercel.app/professor/quizzes</loc>
   </url>
   <url>
-    <loc>/professor/upload/quizpreview</loc>
+    <loc>https://quizera-beige.vercel.app/professor/upload/quizpreview</loc>
   </url>
   <url>
-    <loc>/professor/quizzes/123</loc>
+    <loc>https://quizera-beige.vercel.app/professor/quizzes/123</loc>
   </url>
   <url>
-    <loc>/professor/settings</loc>
+    <loc>https://quizera-beige.vercel.app/professor/settings</loc>
   </url>
   <url>
-    <loc>/professor/group/123/statistics</loc>
+    <loc>https://quizera-beige.vercel.app/professor/group/123/statistics</loc>
   </url>
 
   <!-- Student Routes -->
   <url>
-    <loc>/Student</loc>
+    <loc>https://quizera-beige.vercel.app/Student</loc>
   </url>
   <url>
-    <loc>/Student/upload</loc>
+    <loc>https://quizera-beige.vercel.app/Student/upload</loc>
   </url>
   <url>
-    <loc>/Student/quiz</loc>
+    <loc>https://quizera-beige.vercel.app/Student/quiz</loc>
   </url>
   <url>
-    <loc>/Student/upload/quizsetup</loc>
+    <loc>https://quizera-beige.vercel.app/Student/upload/quizsetup</loc>
   </url>
   <url>
-    <loc>/Student/quiz/123</loc>
+    <loc>https://quizera-beige.vercel.app/Student/quiz/123</loc>
   </url>
   <url>
-    <loc>/Student/quizzes</loc>
+    <loc>https://quizera-beige.vercel.app/Student/quizzes</loc>
   </url>
   <url>
-    <loc>/Student/quizzes/123</loc>
+    <loc>https://quizera-beige.vercel.app/Student/quizzes/123</loc>
   </url>
   <url>
-    <loc>/Student/flashcards</loc>
+    <loc>https://quizera-beige.vercel.app/Student/flashcards</loc>
   </url>
   <url>
-    <loc>/Student/flashcards/study/123</loc>
+    <loc>https://quizera-beige.vercel.app/Student/flashcards/study/123</loc>
   </url>
   <url>
-    <loc>/Student/groups</loc>
+    <loc>https://quizera-beige.vercel.app/Student/groups</loc>
   </url>
   <url>
-    <loc>/Student/groups/123</loc>
+    <loc>https://quizera-beige.vercel.app/Student/groups/123</loc>
   </url>
   <url>
-    <loc>/Student/groups/quiz/123</loc>
+    <loc>https://quizera-beige.vercel.app/Student/groups/quiz/123</loc>
   </url>
   <url>
-    <loc>/Student/settings</loc>
+    <loc>https://quizera-beige.vercel.app/Student/settings</loc>
   </url>
   <url>
-    <loc>/Student/join-group/abc123</loc>
+    <loc>https://quizera-beige.vercel.app/Student/join-group/abc123</loc>
   </url>
 
   <!-- Other Standalone Routes -->
   <url>
-    <loc>/JoinQuiz/123</loc>
+    <loc>https://quizera-beige.vercel.app/JoinQuiz/123</loc>
   </url>
 </urlset>
